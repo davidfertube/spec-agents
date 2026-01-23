@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+python-multipart
+langchain
+langchain-google-genai
+langchain-community
+langgraph
+pinecone
+pypdf
+python-dotenv
+tiktoken
+langchain-experimental
+azure-functions
