@@ -247,17 +247,6 @@ function SteelCrystalVisualization() {
           />
         ))}
 
-        {/* Recognition frame corners */}
-        <motion.g
-          animate={{ opacity: [0.4, 0.8, 0.4] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          <path d="M 40 60 L 40 40 L 60 40" fill="none" stroke="#ef4444" strokeWidth="3" />
-          <path d="M 340 40 L 360 40 L 360 60" fill="none" stroke="#ef4444" strokeWidth="3" />
-          <path d="M 40 340 L 40 360 L 60 360" fill="none" stroke="#ef4444" strokeWidth="3" />
-          <path d="M 340 360 L 360 360 L 360 340" fill="none" stroke="#ef4444" strokeWidth="3" />
-        </motion.g>
-
         {/* Labels */}
         <motion.text
           x="45"
@@ -285,46 +274,7 @@ function SteelCrystalVisualization() {
         </motion.text>
       </svg>
 
-      {/* Floating red squares around the visualization */}
-      <motion.div
-        className="absolute top-[5%] right-[10%] w-4 h-4 bg-red-500"
-        animate={{ y: [0, -15, 0], opacity: [0.7, 1, 0.7] }}
-        transition={{ duration: 3, repeat: Infinity }}
-      />
-      <motion.div
-        className="absolute bottom-[10%] left-[5%] w-3 h-3 bg-red-500/70"
-        animate={{ y: [0, 10, 0], opacity: [0.5, 0.8, 0.5] }}
-        transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
-      />
-      <motion.div
-        className="absolute top-[40%] left-[2%] w-2 h-2 bg-red-500/50"
-        animate={{ x: [0, 10, 0], opacity: [0.4, 0.7, 0.4] }}
-        transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-      />
-      <motion.div
-        className="absolute bottom-[20%] right-[5%] w-3 h-3 bg-red-500/60"
-        animate={{ y: [0, -10, 0], x: [0, 5, 0], opacity: [0.5, 0.9, 0.5] }}
-        transition={{ duration: 3.5, repeat: Infinity, delay: 0.8 }}
-      />
     </div>
-  );
-}
-
-// Floating red square component
-function FloatingRedSquare({ className = "" }: { className?: string }) {
-  return (
-    <motion.div
-      className={`absolute w-3 h-3 bg-red-500 ${className}`}
-      animate={{
-        y: [0, -10, 0],
-        opacity: [0.6, 1, 0.6],
-      }}
-      transition={{
-        duration: 3,
-        repeat: Infinity,
-        ease: "easeInOut",
-      }}
-    />
   );
 }
 
@@ -366,7 +316,7 @@ export default function Home() {
               <div className="w-8 h-8 bg-black flex items-center justify-center">
                 <Boxes className="w-4 h-4 text-white" />
               </div>
-              <span className="text-lg font-semibold tracking-tight text-black">Steel Intelligent Knowledge Tool</span>
+              <span className="text-lg font-semibold tracking-tight text-black">Steel Agent</span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -457,11 +407,6 @@ export default function Home() {
       <main className="flex-1 pt-16">
         {/* Hero Section */}
         <section className="relative py-16 sm:py-20 md:py-24 lg:py-32 overflow-hidden">
-          {/* Background floating red squares */}
-          <FloatingRedSquare className="top-20 left-[5%] hidden lg:block" />
-          <FloatingRedSquare className="top-40 right-[8%] hidden lg:block" />
-          <FloatingRedSquare className="bottom-32 left-[12%] hidden lg:block" />
-
           <div className="container-center">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
               {/* Left: Text content */}
@@ -539,8 +484,6 @@ export default function Home() {
 
         {/* Demo Section */}
         <section id="demo" className="relative py-16 sm:py-20 md:py-24 border-t border-black/5">
-          <FloatingRedSquare className="top-16 right-[6%] hidden lg:block" />
-
           <div className="container-narrow">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -589,9 +532,6 @@ export default function Home() {
 
         {/* Features Section */}
         <section id="features" className="relative py-16 sm:py-20 md:py-24 border-t border-black/5 bg-black/[0.02]">
-          <FloatingRedSquare className="top-24 left-[4%] hidden lg:block" />
-          <FloatingRedSquare className="bottom-20 right-[10%] hidden lg:block" />
-
           <div className="container-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -677,9 +617,6 @@ export default function Home() {
 
         {/* CTA Section */}
         <section className="relative py-16 sm:py-20 md:py-24 border-t border-black/5">
-          <FloatingRedSquare className="top-12 left-[15%] hidden lg:block" />
-          <FloatingRedSquare className="bottom-16 right-[12%] hidden lg:block" />
-
           <div className="container-narrow text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -693,7 +630,7 @@ export default function Home() {
                   Ready to transform your<br />document workflow?
                 </h2>
                 <p className="text-lg text-black/70 max-w-2xl mx-auto">
-                  Join engineering teams using Steel Intelligent Knowledge Tool to save hours of manual
+                  Join engineering teams using Steel Agent to save hours of manual
                   document searching every week.
                 </p>
               </div>
@@ -702,7 +639,7 @@ export default function Home() {
                   Start Free Trial
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
-                <Button size="lg" variant="outline" className="border-black/20 text-black hover:bg-black/5 h-12 px-8">
+                <Button size="lg" variant="outline" className="border-black/20 bg-white text-black hover:bg-black/5 h-12 px-8">
                   Contact Sales
                 </Button>
               </div>
@@ -720,7 +657,7 @@ export default function Home() {
                 <Boxes className="w-4 h-4 text-white" />
               </div>
               <div>
-                <span className="font-semibold text-black">Steel Intelligent Knowledge Tool</span>
+                <span className="font-semibold text-black">Steel Agent</span>
                 <span className="text-black/60 text-sm ml-2">
                   by{" "}
                   <a
