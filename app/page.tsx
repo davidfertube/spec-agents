@@ -12,190 +12,163 @@ import { ResponseDisplay } from "@/components/response-display";
 import { HealthIndicator } from "@/components/health-indicator";
 import { Source } from "@/lib/api";
 
-// Linear-inspired 3D Geometric Visualization with Red Accent
-function GeometricVisualization() {
+// 3D Animated Icosahedron with orbiting elements
+function IcosahedronVisualization() {
   return (
     <div className="relative w-full max-w-xl mx-auto h-[400px] lg:h-[500px]">
       {/* Main 3D Scene */}
-      <div className="absolute inset-0 perspective-[1200px]">
-        {/* Rotating wireframe cube */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        {/* Rotating icosahedron wireframe */}
         <motion.div
-          className="absolute inset-0 flex items-center justify-center"
-          animate={{ rotateY: 360, rotateX: 15 }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          style={{ transformStyle: "preserve-3d" }}
+          className="relative"
+          animate={{ rotateY: 360, rotateX: 360 }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          style={{ transformStyle: "preserve-3d", perspective: "1000px" }}
         >
-          {/* Cube faces - wireframe style */}
-          <div className="relative w-48 h-48 lg:w-64 lg:h-64" style={{ transformStyle: "preserve-3d" }}>
-            {/* Front face */}
-            <div
-              className="absolute inset-0 border border-foreground/20"
-              style={{ transform: "translateZ(96px)" }}
-            />
-            {/* Back face */}
-            <div
-              className="absolute inset-0 border border-foreground/10"
-              style={{ transform: "translateZ(-96px)" }}
-            />
-            {/* Left face */}
-            <div
-              className="absolute inset-0 border border-foreground/15"
-              style={{ transform: "rotateY(-90deg) translateZ(96px)" }}
-            />
-            {/* Right face */}
-            <div
-              className="absolute inset-0 border border-foreground/15"
-              style={{ transform: "rotateY(90deg) translateZ(96px)" }}
-            />
-            {/* Top face */}
-            <div
-              className="absolute inset-0 border border-foreground/10"
-              style={{ transform: "rotateX(90deg) translateZ(96px)" }}
-            />
-            {/* Bottom face */}
-            <div
-              className="absolute inset-0 border border-foreground/10"
-              style={{ transform: "rotateX(-90deg) translateZ(96px)" }}
-            />
-          </div>
+          <svg
+            width="300"
+            height="300"
+            viewBox="0 0 200 200"
+            className="lg:w-[380px] lg:h-[380px]"
+          >
+            <defs>
+              <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="black" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="black" stopOpacity="0.1" />
+              </linearGradient>
+            </defs>
+
+            {/* Icosahedron edges - creates a complex geometric shape */}
+            <g fill="none" stroke="url(#lineGradient)" strokeWidth="0.8">
+              {/* Top pentagon */}
+              <polygon points="100,10 140,40 130,85 70,85 60,40" />
+              {/* Bottom pentagon */}
+              <polygon points="100,190 60,160 70,115 130,115 140,160" />
+              {/* Connecting triangles top to middle */}
+              <line x1="100" y1="10" x2="70" y2="115" />
+              <line x1="100" y1="10" x2="130" y2="115" />
+              <line x1="140" y1="40" x2="130" y2="115" />
+              <line x1="140" y1="40" x2="140" y2="160" />
+              <line x1="130" y1="85" x2="140" y2="160" />
+              <line x1="130" y1="85" x2="100" y2="190" />
+              <line x1="70" y1="85" x2="100" y2="190" />
+              <line x1="70" y1="85" x2="60" y2="160" />
+              <line x1="60" y1="40" x2="60" y2="160" />
+              <line x1="60" y1="40" x2="70" y2="115" />
+              {/* Middle band connections */}
+              <line x1="70" y1="115" x2="60" y2="160" />
+              <line x1="130" y1="115" x2="140" y2="160" />
+            </g>
+
+            {/* Vertex dots */}
+            <g fill="black">
+              {/* Top */}
+              <circle cx="100" cy="10" r="3" opacity="0.6" />
+              <circle cx="140" cy="40" r="2.5" opacity="0.4" />
+              <circle cx="130" cy="85" r="2.5" opacity="0.4" />
+              <circle cx="70" cy="85" r="2.5" opacity="0.4" />
+              <circle cx="60" cy="40" r="2.5" opacity="0.4" />
+              {/* Middle */}
+              <circle cx="70" cy="115" r="2.5" opacity="0.4" />
+              <circle cx="130" cy="115" r="2.5" opacity="0.4" />
+              {/* Bottom */}
+              <circle cx="100" cy="190" r="3" opacity="0.6" />
+              <circle cx="140" cy="160" r="2.5" opacity="0.4" />
+              <circle cx="60" cy="160" r="2.5" opacity="0.4" />
+            </g>
+          </svg>
         </motion.div>
 
-        {/* THE RED SQUARE - Main accent element that pulses in/out */}
+        {/* THE RED SQUARE - Main accent element */}
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 lg:w-20 lg:h-20 bg-red-500"
+          className="absolute w-12 h-12 lg:w-16 lg:h-16 bg-red-500"
           animate={{
-            scale: [1, 1.2, 1, 0.8, 1],
-            rotateZ: [0, 90, 180, 270, 360],
-            opacity: [1, 0.9, 1, 0.9, 1],
+            scale: [1, 1.15, 1, 0.9, 1],
+            rotate: [0, 90, 180, 270, 360],
           }}
           transition={{
-            duration: 8,
+            duration: 10,
             repeat: Infinity,
             ease: "easeInOut",
-          }}
-          style={{ transformStyle: "preserve-3d" }}
-        />
-
-        {/* Secondary floating red squares */}
-        <motion.div
-          className="absolute top-[20%] right-[15%] w-8 h-8 lg:w-10 lg:h-10 bg-red-500/80"
-          animate={{
-            y: [0, -30, 0],
-            x: [0, 20, 0],
-            scale: [1, 0.8, 1],
-            opacity: [0.8, 0.4, 0.8],
-          }}
-          transition={{
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1,
-          }}
-        />
-        <motion.div
-          className="absolute bottom-[25%] left-[20%] w-6 h-6 lg:w-8 lg:h-8 bg-red-500/60"
-          animate={{
-            y: [0, 25, 0],
-            x: [0, -15, 0],
-            scale: [0.8, 1.1, 0.8],
-            opacity: [0.6, 0.3, 0.6],
-          }}
-          transition={{
-            duration: 5,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2,
-          }}
-        />
-        <motion.div
-          className="absolute top-[35%] left-[10%] w-4 h-4 lg:w-6 lg:h-6 bg-red-500/40"
-          animate={{
-            y: [0, -20, 0],
-            scale: [1, 0.6, 1],
-            opacity: [0.4, 0.8, 0.4],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 0.5,
-          }}
-        />
-        <motion.div
-          className="absolute bottom-[15%] right-[25%] w-5 h-5 lg:w-7 lg:h-7 bg-red-500/50"
-          animate={{
-            y: [0, 20, 0],
-            x: [0, -10, 0],
-            scale: [1, 1.3, 1],
-            opacity: [0.5, 0.2, 0.5],
-          }}
-          transition={{
-            duration: 7,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 3,
           }}
         />
 
-        {/* Floating particles/dots */}
-        {[...Array(12)].map((_, i) => (
+        {/* Orbiting red squares */}
+        <motion.div
+          className="absolute w-full h-full"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+        >
+          <motion.div
+            className="absolute top-[10%] left-1/2 -translate-x-1/2 w-4 h-4 lg:w-5 lg:h-5 bg-red-500"
+            animate={{ opacity: [0.8, 0.4, 0.8] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+        </motion.div>
+
+        <motion.div
+          className="absolute w-full h-full"
+          animate={{ rotate: -360 }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        >
+          <motion.div
+            className="absolute bottom-[15%] left-1/2 -translate-x-1/2 w-3 h-3 lg:w-4 lg:h-4 bg-red-500/70"
+            animate={{ opacity: [0.6, 0.3, 0.6] }}
+            transition={{ duration: 3, repeat: Infinity }}
+          />
+        </motion.div>
+
+        <motion.div
+          className="absolute w-full h-full"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+        >
+          <motion.div
+            className="absolute top-1/2 right-[8%] -translate-y-1/2 w-2.5 h-2.5 lg:w-3 lg:h-3 bg-red-500/50"
+            animate={{ opacity: [0.5, 0.8, 0.5] }}
+            transition={{ duration: 2.5, repeat: Infinity }}
+          />
+        </motion.div>
+
+        {/* Floating particles */}
+        {[...Array(8)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 lg:w-1.5 lg:h-1.5 rounded-full bg-foreground/30"
+            className="absolute w-1 h-1 rounded-full bg-black/20"
             style={{
-              top: `${15 + Math.random() * 70}%`,
-              left: `${10 + Math.random() * 80}%`,
+              top: `${20 + (i * 10) % 60}%`,
+              left: `${15 + (i * 12) % 70}%`,
             }}
             animate={{
-              y: [0, -15 + Math.random() * 30, 0],
-              opacity: [0.3, 0.6, 0.3],
+              y: [0, -10, 0],
+              opacity: [0.2, 0.5, 0.2],
             }}
             transition={{
-              duration: 3 + Math.random() * 3,
+              duration: 3 + i * 0.5,
               repeat: Infinity,
               ease: "easeInOut",
-              delay: Math.random() * 2,
+              delay: i * 0.3,
             }}
           />
         ))}
 
-        {/* Connecting lines */}
-        <svg className="absolute inset-0 w-full h-full" style={{ opacity: 0.15 }}>
-          <motion.line
-            x1="30%" y1="30%" x2="70%" y2="70%"
-            stroke="currentColor"
-            strokeWidth="1"
-            animate={{ opacity: [0.1, 0.3, 0.1] }}
-            transition={{ duration: 3, repeat: Infinity }}
-          />
-          <motion.line
-            x1="70%" y1="30%" x2="30%" y2="70%"
-            stroke="currentColor"
-            strokeWidth="1"
-            animate={{ opacity: [0.3, 0.1, 0.3] }}
-            transition={{ duration: 3, repeat: Infinity, delay: 1.5 }}
-          />
-          <motion.line
-            x1="50%" y1="10%" x2="50%" y2="90%"
-            stroke="currentColor"
-            strokeWidth="0.5"
-            animate={{ opacity: [0.1, 0.2, 0.1] }}
-            transition={{ duration: 4, repeat: Infinity }}
-          />
-          <motion.line
-            x1="10%" y1="50%" x2="90%" y2="50%"
-            stroke="currentColor"
-            strokeWidth="0.5"
-            animate={{ opacity: [0.2, 0.1, 0.2] }}
-            transition={{ duration: 4, repeat: Infinity, delay: 2 }}
-          />
-        </svg>
+        {/* Subtle orbital rings */}
+        <motion.div
+          className="absolute w-[280px] h-[280px] lg:w-[360px] lg:h-[360px] border border-black/5 rounded-full"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.div
+          className="absolute w-[220px] h-[220px] lg:w-[280px] lg:h-[280px] border border-black/5 rounded-full"
+          animate={{ rotate: -360 }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        />
       </div>
     </div>
   );
 }
 
-// Floating red square that appears across sections
+// Floating red square component
 function FloatingRedSquare({ className = "" }: { className?: string }) {
   return (
     <motion.div
@@ -241,35 +214,35 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-white text-foreground overflow-x-hidden">
+    <div className="flex min-h-screen flex-col bg-white text-black overflow-x-hidden">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-black/5">
         <div className="container-center">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-foreground flex items-center justify-center">
+              <div className="w-8 h-8 bg-black flex items-center justify-center">
                 <Boxes className="w-4 h-4 text-white" />
               </div>
-              <span className="text-lg font-semibold tracking-tight">SteelIntel</span>
+              <span className="text-lg font-semibold tracking-tight text-black">SteelIntel</span>
             </Link>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-8">
-              <Link href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="#features" className="text-sm text-black/60 hover:text-black transition-colors">
                 Features
               </Link>
-              <Link href="#demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="#demo" className="text-sm text-black/60 hover:text-black transition-colors">
                 Demo
               </Link>
-              <Link href="/docs" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/docs" className="text-sm text-black/60 hover:text-black transition-colors">
                 Docs
               </Link>
               <a
                 href="https://github.com/davidfertube/knowledge_tool"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm text-black/60 hover:text-black transition-colors"
               >
                 GitHub
               </a>
@@ -283,9 +256,9 @@ export default function Home() {
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? (
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5 text-black" />
               ) : (
-                <Menu className="h-5 w-5" />
+                <Menu className="h-5 w-5 text-black" />
               )}
             </button>
           </div>
@@ -302,21 +275,21 @@ export default function Home() {
             <nav className="container-center py-6 space-y-1">
               <Link
                 href="#features"
-                className="block py-3 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-black/5 rounded transition-colors"
+                className="block py-3 px-3 text-sm text-black/60 hover:text-black hover:bg-black/5 rounded transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Features
               </Link>
               <Link
                 href="#demo"
-                className="block py-3 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-black/5 rounded transition-colors"
+                className="block py-3 px-3 text-sm text-black/60 hover:text-black hover:bg-black/5 rounded transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Demo
               </Link>
               <Link
                 href="/docs"
-                className="block py-3 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-black/5 rounded transition-colors"
+                className="block py-3 px-3 text-sm text-black/60 hover:text-black hover:bg-black/5 rounded transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Docs
@@ -325,12 +298,12 @@ export default function Home() {
                 href="https://github.com/davidfertube/knowledge_tool"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block py-3 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-black/5 rounded transition-colors"
+                className="block py-3 px-3 text-sm text-black/60 hover:text-black hover:bg-black/5 rounded transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 GitHub
               </a>
-              <Separator className="my-4" />
+              <Separator className="my-4 bg-black/10" />
               <div className="px-3">
                 <HealthIndicator />
               </div>
@@ -357,18 +330,18 @@ export default function Home() {
                 className="text-center lg:text-left space-y-8"
               >
                 <div className="space-y-6">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 border border-black/10 rounded-full text-xs font-medium text-muted-foreground">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 border border-black/10 rounded-full text-xs font-medium text-black/70">
                     <span className="w-2 h-2 bg-red-500 rounded-sm" />
                     AI-Powered Knowledge Engine
                   </div>
-                  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.1]">
+                  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.1] text-black">
                     The intelligent engine for{" "}
                     <span className="relative">
                       steel specifications
                       <span className="absolute -bottom-1 left-0 right-0 h-[3px] bg-red-500" />
                     </span>
                   </h1>
-                  <p className="text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                  <p className="text-lg text-black/70 max-w-xl mx-auto lg:mx-0 leading-relaxed">
                     Instant answers from your technical documents. Query ASTM standards,
                     material properties, and compliance requirements with AI-powered
                     semantic search and source citations.
@@ -376,11 +349,11 @@ export default function Home() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                  <Button size="lg" className="bg-foreground text-white hover:bg-foreground/90 h-12 px-8">
+                  <Button size="lg" className="bg-black text-white hover:bg-black/90 h-12 px-8">
                     Get Started
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
-                  <Button size="lg" variant="outline" className="border-black/20 hover:bg-black/5 h-12 px-8" asChild>
+                  <Button size="lg" variant="outline" className="border-black/20 text-black hover:bg-black/5 h-12 px-8" asChild>
                     <a
                       href="https://github.com/davidfertube/knowledge_tool"
                       target="_blank"
@@ -395,28 +368,28 @@ export default function Home() {
                 {/* Stats */}
                 <div className="flex flex-wrap gap-10 justify-center lg:justify-start pt-6">
                   <div>
-                    <p className="text-3xl font-semibold">100K+</p>
-                    <p className="text-sm text-muted-foreground">Vector capacity</p>
+                    <p className="text-3xl font-semibold text-black">100K+</p>
+                    <p className="text-sm text-black/60">Vector capacity</p>
                   </div>
                   <div>
-                    <p className="text-3xl font-semibold">50+</p>
-                    <p className="text-sm text-muted-foreground">Standards</p>
+                    <p className="text-3xl font-semibold text-black">50+</p>
+                    <p className="text-sm text-black/60">Standards</p>
                   </div>
                   <div>
-                    <p className="text-3xl font-semibold">&lt;2s</p>
-                    <p className="text-sm text-muted-foreground">Response time</p>
+                    <p className="text-3xl font-semibold text-black">&lt;2s</p>
+                    <p className="text-sm text-black/60">Response time</p>
                   </div>
                 </div>
               </motion.div>
 
-              {/* Right: 3D Geometric visualization */}
+              {/* Right: 3D Icosahedron visualization */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="hidden lg:block"
               >
-                <GeometricVisualization />
+                <IcosahedronVisualization />
               </motion.div>
             </div>
           </div>
@@ -435,21 +408,21 @@ export default function Home() {
               className="space-y-12"
             >
               <div className="text-center space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 border border-black/10 rounded-full text-xs font-medium text-muted-foreground">
+                <div className="inline-flex items-center gap-2 px-3 py-1 border border-black/10 rounded-full text-xs font-medium text-black/70">
                   <span className="w-2 h-2 bg-red-500 rounded-sm" />
                   TRY IT NOW
                 </div>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-black">
                   Query your knowledge base
                 </h2>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                <p className="text-lg text-black/70 max-w-2xl mx-auto">
                   Ask questions about ASTM standards, material properties, or
                   compliance requirements. Get instant, cited answers.
                 </p>
               </div>
 
               {/* Search Card */}
-              <Card className="border border-black/10 shadow-lg shadow-black/5">
+              <Card className="border border-black/10 shadow-lg shadow-black/5 bg-white">
                 <CardContent className="p-6 sm:p-8 lg:p-10">
                   <SearchForm
                     onResult={handleResult}
@@ -485,14 +458,14 @@ export default function Home() {
               transition={{ duration: 0.6 }}
               className="text-center mb-16 space-y-4"
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1 border border-black/10 rounded-full text-xs font-medium text-muted-foreground">
+              <div className="inline-flex items-center gap-2 px-3 py-1 border border-black/10 rounded-full text-xs font-medium text-black/70">
                 <span className="w-2 h-2 bg-red-500 rounded-sm" />
                 WHY STEELINEL
               </div>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-black">
                 Built for engineering teams
               </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-lg text-black/70 max-w-2xl mx-auto">
                 Designed specifically for material science and compliance verification workflows.
               </p>
             </motion.div>
@@ -546,10 +519,10 @@ export default function Home() {
                   <Card className="h-full border border-black/10 hover:border-black/20 transition-colors bg-white">
                     <CardContent className="p-6 lg:p-8 space-y-4">
                       <div className="w-12 h-12 bg-black/5 flex items-center justify-center">
-                        <feature.icon className="w-6 h-6 text-foreground" strokeWidth={1.5} />
+                        <feature.icon className="w-6 h-6 text-black" strokeWidth={1.5} />
                       </div>
-                      <h3 className="text-lg font-semibold">{feature.title}</h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed">
+                      <h3 className="text-lg font-semibold text-black">{feature.title}</h3>
+                      <p className="text-black/70 text-sm leading-relaxed">
                         {feature.description}
                       </p>
                     </CardContent>
@@ -574,20 +547,20 @@ export default function Home() {
               className="space-y-8"
             >
               <div className="space-y-4">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-black">
                   Ready to transform your<br />document workflow?
                 </h2>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                <p className="text-lg text-black/70 max-w-2xl mx-auto">
                   Join engineering teams using SteelIntel to save hours of manual
                   document searching every week.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="bg-foreground text-white hover:bg-foreground/90 h-12 px-8">
+                <Button size="lg" className="bg-black text-white hover:bg-black/90 h-12 px-8">
                   Start Free Trial
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
-                <Button size="lg" variant="outline" className="border-black/20 hover:bg-black/5 h-12 px-8">
+                <Button size="lg" variant="outline" className="border-black/20 text-black hover:bg-black/5 h-12 px-8">
                   Contact Sales
                 </Button>
               </div>
@@ -601,18 +574,18 @@ export default function Home() {
         <div className="container-center">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-foreground flex items-center justify-center">
+              <div className="w-8 h-8 bg-black flex items-center justify-center">
                 <Boxes className="w-4 h-4 text-white" />
               </div>
               <div>
-                <span className="font-semibold">SteelIntel</span>
-                <span className="text-muted-foreground text-sm ml-2">
+                <span className="font-semibold text-black">SteelIntel</span>
+                <span className="text-black/60 text-sm ml-2">
                   by{" "}
                   <a
                     href="https://github.com/davidfertube"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-foreground transition-colors"
+                    className="hover:text-black transition-colors"
                   >
                     Antigravity
                   </a>
@@ -626,14 +599,14 @@ export default function Home() {
                 href="https://github.com/davidfertube/knowledge_tool"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                className="text-black/60 hover:text-black transition-colors"
               >
                 <Github className="h-5 w-5" />
               </a>
             </div>
           </div>
           <Separator className="my-8 bg-black/5" />
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-center text-sm text-black/60">
             Open source AI-powered RAG for steel specifications and O&G documentation.
           </p>
         </div>
