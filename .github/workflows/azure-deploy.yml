@@ -70,10 +70,7 @@ jobs:
           pip install pytest pytest-asyncio httpx
 
       - name: Run tests
-        env:
-          GOOGLE_API_KEY: test_key
-          PINECONE_API_KEY: test_key
-          PINECONE_INDEX_NAME: test-index
+        # Tests run in demo mode (no API keys) to avoid external dependencies
         run: pytest backend/tests/ -v --tb=short
 
       - name: Prepare deployment package
