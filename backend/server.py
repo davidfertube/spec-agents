@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 DEMO_MODE = not os.getenv("GOOGLE_API_KEY") or not os.getenv("PINECONE_API_KEY")
 
 if not DEMO_MODE:
-    from backend.agent import run_agent
+    from agent import run_agent
 
 app = FastAPI(
     title="Steel Agent API",
