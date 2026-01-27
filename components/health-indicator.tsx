@@ -28,7 +28,7 @@ export function HealthIndicator({ className }: HealthIndicatorProps) {
     return (
       <div className={`flex items-center gap-2 text-sm ${className}`}>
         <div className="h-2 w-2 rounded-full bg-muted animate-pulse" />
-        <span className="text-muted-foreground">Checking...</span>
+        <span className="text-muted-foreground text-xs sm:text-sm">Checking backend...</span>
       </div>
     );
   }
@@ -42,8 +42,8 @@ export function HealthIndicator({ className }: HealthIndicatorProps) {
           isHealthy ? "bg-green-500" : "bg-red-500"
         }`}
       />
-      <span className="text-muted-foreground">
-        {isHealthy ? "API Connected" : "API Offline"}
+      <span className="text-muted-foreground text-xs sm:text-sm">
+        {isHealthy ? "Backend Connected" : "Demo Mode Active"}
       </span>
     </div>
   );

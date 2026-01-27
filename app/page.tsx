@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, FormEvent } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Github, Zap, Shield, Database, Menu, X, FileText, Boxes } from "lucide-react";
+import { ArrowRight, Github, Menu, X, Boxes } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,271 +10,404 @@ import { Separator } from "@/components/ui/separator";
 import { SearchForm } from "@/components/search-form";
 import { ResponseDisplay } from "@/components/response-display";
 import { HealthIndicator } from "@/components/health-indicator";
+import { DocumentUpload } from "@/components/document-upload";
 import { Source } from "@/lib/api";
 
-// Iron/Steel Crystal Lattice Visualization - BCC Structure
-function SteelCrystalVisualization() {
-  // Body-Centered Cubic (BCC) iron lattice - the crystal structure of steel
-  // Main cube vertices (8 corners)
-  const cubeVertices = [
-    { x: 120, y: 120, z: 0 },   // front-top-left
-    { x: 280, y: 120, z: 0 },   // front-top-right
-    { x: 280, y: 280, z: 0 },   // front-bottom-right
-    { x: 120, y: 280, z: 0 },   // front-bottom-left
-    { x: 160, y: 80, z: 1 },    // back-top-left
-    { x: 320, y: 80, z: 1 },    // back-top-right
-    { x: 320, y: 240, z: 1 },   // back-bottom-right
-    { x: 160, y: 240, z: 1 },   // back-bottom-left
-  ];
-
-  // Center atom (BCC structure has atom in center)
-  const centerAtom = { x: 200, y: 180 };
-
-  // Additional lattice points for extended structure
-  const extendedPoints = [
-    { x: 60, y: 160 }, { x: 340, y: 160 },
-    { x: 200, y: 40 }, { x: 200, y: 320 },
-    { x: 80, y: 60 }, { x: 320, y: 60 },
-    { x: 80, y: 300 }, { x: 320, y: 300 },
-  ];
-
-  // Electron cloud points orbiting around atoms
-  const electronOrbits = [
-    { cx: 200, cy: 180, r: 40 },
-    { cx: 120, cy: 120, r: 25 },
-    { cx: 280, cy: 280, r: 25 },
-  ];
-
+// Industry Visualization - Steel Specifications and AI
+function IndustryVisualization() {
   return (
-    <div className="relative w-full max-w-xl mx-auto h-[400px] lg:h-[480px]">
-      <svg
-        viewBox="0 0 400 400"
-        className="w-full h-full"
-        style={{ overflow: "visible" }}
-      >
-        {/* Grid lines background */}
-        {[0, 1, 2, 3, 4].map((i) => (
-          <motion.line
-            key={`grid-h-${i}`}
-            x1="50"
-            y1={80 + i * 60}
-            x2="350"
-            y2={80 + i * 60}
-            stroke="black"
-            strokeWidth="0.3"
-            strokeDasharray="2,4"
-            animate={{ opacity: [0.1, 0.2, 0.1] }}
-            transition={{ duration: 3, repeat: Infinity, delay: i * 0.2 }}
-          />
-        ))}
-        {[0, 1, 2, 3, 4].map((i) => (
-          <motion.line
-            key={`grid-v-${i}`}
-            x1={80 + i * 60}
-            y1="50"
-            x2={80 + i * 60}
-            y2="350"
-            stroke="black"
-            strokeWidth="0.3"
-            strokeDasharray="2,4"
-            animate={{ opacity: [0.1, 0.2, 0.1] }}
-            transition={{ duration: 3, repeat: Infinity, delay: i * 0.2 }}
-          />
-        ))}
-
-        {/* Cube edges - front face */}
-        <motion.path
-          d="M 120 120 L 280 120 L 280 280 L 120 280 Z"
+    <div className="relative w-full max-w-xl mx-auto h-[450px] lg:h-[520px] flex items-center justify-center">
+      <svg viewBox="0 0 400 400" className="w-full h-full">
+        {/* Steel pipe cross-sections */}
+        <motion.circle
+          cx="150"
+          cy="150"
+          r="60"
+          fill="none"
+          stroke="black"
+          strokeWidth="3"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 1.5, delay: 0.2 }}
+        />
+        <motion.circle
+          cx="150"
+          cy="150"
+          r="45"
           fill="none"
           stroke="black"
           strokeWidth="2"
+          strokeDasharray="4 2"
           initial={{ pathLength: 0 }}
           animate={{ pathLength: 1 }}
-          transition={{ duration: 2, ease: "easeInOut" }}
+          transition={{ duration: 1.5, delay: 0.4 }}
         />
 
-        {/* Cube edges - back face */}
-        <motion.path
-          d="M 160 80 L 320 80 L 320 240 L 160 240 Z"
+        <motion.circle
+          cx="280"
+          cy="200"
+          r="50"
           fill="none"
           stroke="black"
-          strokeWidth="1.5"
-          strokeDasharray="4,2"
+          strokeWidth="3"
           initial={{ pathLength: 0 }}
           animate={{ pathLength: 1 }}
-          transition={{ duration: 2, delay: 0.3, ease: "easeInOut" }}
-        />
-
-        {/* Connecting edges (front to back) */}
-        {[
-          [120, 120, 160, 80],
-          [280, 120, 320, 80],
-          [280, 280, 320, 240],
-          [120, 280, 160, 240],
-        ].map(([x1, y1, x2, y2], i) => (
-          <motion.line
-            key={`connect-${i}`}
-            x1={x1}
-            y1={y1}
-            x2={x2}
-            y2={y2}
-            stroke="black"
-            strokeWidth="1.5"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 1, delay: 0.5 + i * 0.1 }}
-          />
-        ))}
-
-        {/* Diagonal bonds to center atom (BCC structure) */}
-        {cubeVertices.map((vertex, i) => (
-          <motion.line
-            key={`bond-${i}`}
-            x1={vertex.x}
-            y1={vertex.y}
-            x2={centerAtom.x}
-            y2={centerAtom.y}
-            stroke="black"
-            strokeWidth="0.8"
-            strokeDasharray="3,3"
-            animate={{ opacity: [0.2, 0.5, 0.2] }}
-            transition={{ duration: 2, repeat: Infinity, delay: i * 0.1 }}
-          />
-        ))}
-
-        {/* Extended lattice connections */}
-        {extendedPoints.map((point, i) => (
-          <motion.line
-            key={`ext-${i}`}
-            x1={point.x}
-            y1={point.y}
-            x2={centerAtom.x}
-            y2={centerAtom.y}
-            stroke="black"
-            strokeWidth="0.5"
-            strokeDasharray="2,4"
-            animate={{ opacity: [0.1, 0.3, 0.1] }}
-            transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.15 }}
-          />
-        ))}
-
-        {/* Electron orbits */}
-        {electronOrbits.map((orbit, i) => (
-          <motion.circle
-            key={`orbit-${i}`}
-            cx={orbit.cx}
-            cy={orbit.cy}
-            r={orbit.r}
-            fill="none"
-            stroke="black"
-            strokeWidth="0.5"
-            strokeDasharray="2,2"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 10 + i * 2, repeat: Infinity, ease: "linear" }}
-            style={{ transformOrigin: `${orbit.cx}px ${orbit.cy}px` }}
-          />
-        ))}
-
-        {/* Orbiting electrons */}
-        {electronOrbits.map((orbit, i) => (
-          <motion.circle
-            key={`electron-${i}`}
-            cx={orbit.cx + orbit.r}
-            cy={orbit.cy}
-            r="3"
-            fill="#ef4444"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 3 + i, repeat: Infinity, ease: "linear" }}
-            style={{ transformOrigin: `${orbit.cx}px ${orbit.cy}px` }}
-          />
-        ))}
-
-        {/* Corner atoms (Fe atoms) */}
-        {cubeVertices.map((vertex, i) => (
-          <motion.circle
-            key={`corner-${i}`}
-            cx={vertex.x}
-            cy={vertex.y}
-            r={vertex.z === 1 ? 6 : 8}
-            fill="black"
-            animate={{
-              scale: [1, 1.15, 1],
-              opacity: vertex.z === 1 ? [0.5, 0.7, 0.5] : [0.8, 1, 0.8],
-            }}
-            transition={{ duration: 2, repeat: Infinity, delay: i * 0.1 }}
-          />
-        ))}
-
-        {/* Center atom (larger, BCC characteristic) */}
-        <motion.circle
-          cx={centerAtom.x}
-          cy={centerAtom.y}
-          r="12"
-          fill="#ef4444"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.9, 1, 0.9],
-          }}
-          transition={{ duration: 2.5, repeat: Infinity }}
+          transition={{ duration: 1.5, delay: 0.6 }}
         />
         <motion.circle
-          cx={centerAtom.x}
-          cy={centerAtom.y}
-          r="18"
+          cx="280"
+          cy="200"
+          r="38"
           fill="none"
-          stroke="#ef4444"
+          stroke="black"
+          strokeWidth="2"
+          strokeDasharray="4 2"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 1.5, delay: 0.8 }}
+        />
+
+        {/* Document/spec icons */}
+        <motion.rect
+          x="100"
+          y="280"
+          width="60"
+          height="80"
+          fill="none"
+          stroke="black"
+          strokeWidth="2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 1 }}
+        />
+        <motion.line
+          x1="110"
+          y1="295"
+          x2="150"
+          y2="295"
+          stroke="black"
           strokeWidth="1"
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.3, 0.6, 0.3],
-          }}
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 0.5, delay: 1.2 }}
+        />
+        <motion.line
+          x1="110"
+          y1="310"
+          x2="150"
+          y2="310"
+          stroke="black"
+          strokeWidth="1"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 0.5, delay: 1.3 }}
+        />
+        <motion.line
+          x1="110"
+          y1="325"
+          x2="145"
+          y2="325"
+          stroke="black"
+          strokeWidth="1"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 0.5, delay: 1.4 }}
+        />
+
+        <motion.rect
+          x="240"
+          y="300"
+          width="60"
+          height="80"
+          fill="none"
+          stroke="black"
+          strokeWidth="2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 1.1 }}
+        />
+        <motion.line
+          x1="250"
+          y1="315"
+          x2="290"
+          y2="315"
+          stroke="black"
+          strokeWidth="1"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 0.5, delay: 1.3 }}
+        />
+        <motion.line
+          x1="250"
+          y1="330"
+          x2="290"
+          y2="330"
+          stroke="black"
+          strokeWidth="1"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 0.5, delay: 1.4 }}
+        />
+        <motion.line
+          x1="250"
+          y1="345"
+          x2="285"
+          y2="345"
+          stroke="black"
+          strokeWidth="1"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 0.5, delay: 1.5 }}
+        />
+
+        {/* AI connection lines (subtle red) */}
+        <motion.line
+          x1="150"
+          y1="210"
+          x2="130"
+          y2="280"
+          stroke="#ef4444"
+          strokeWidth="1.5"
+          strokeDasharray="4 4"
+          animate={{ strokeDashoffset: [0, 8] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+        />
+
+        <motion.line
+          x1="280"
+          y1="250"
+          x2="270"
+          y2="300"
+          stroke="#ef4444"
+          strokeWidth="1.5"
+          strokeDasharray="4 4"
+          animate={{ strokeDashoffset: [0, 8] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear", delay: 0.5 }}
+        />
+
+        {/* Connection nodes */}
+        <motion.circle
+          cx="150"
+          cy="210"
+          r="4"
+          fill="#ef4444"
+          animate={{ scale: [1, 1.3, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
         />
-
-        {/* Extended lattice points */}
-        {extendedPoints.map((point, i) => (
-          <motion.circle
-            key={`ext-atom-${i}`}
-            cx={point.x}
-            cy={point.y}
-            r="4"
-            fill="black"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.5, 0.3],
-            }}
-            transition={{ duration: 2, repeat: Infinity, delay: i * 0.12 }}
-          />
-        ))}
+        <motion.circle
+          cx="130"
+          cy="280"
+          r="4"
+          fill="#ef4444"
+          animate={{ scale: [1, 1.3, 1] }}
+          transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
+        />
+        <motion.circle
+          cx="280"
+          cy="250"
+          r="4"
+          fill="#ef4444"
+          animate={{ scale: [1, 1.3, 1] }}
+          transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}
+        />
+        <motion.circle
+          cx="270"
+          cy="300"
+          r="4"
+          fill="#ef4444"
+          animate={{ scale: [1, 1.3, 1] }}
+          transition={{ duration: 2, repeat: Infinity, delay: 0.9 }}
+        />
 
         {/* Labels */}
         <motion.text
-          x="45"
-          y="35"
-          fontSize="8"
+          x="200"
+          y="30"
+          fontSize="10"
           fill="black"
           opacity="0.5"
           fontFamily="monospace"
-          animate={{ opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 1, repeat: Infinity }}
+          textAnchor="middle"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.5 }}
+          transition={{ duration: 1, delay: 1.5 }}
         >
-          Fe-BCC LATTICE
+          STEEL SPECIFICATIONS
         </motion.text>
         <motion.text
-          x="280"
-          y="375"
-          fontSize="8"
+          x="200"
+          y="460"
+          fontSize="10"
           fill="black"
           opacity="0.5"
           fontFamily="monospace"
-          animate={{ opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 1, repeat: Infinity, delay: 0.5 }}
+          textAnchor="middle"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.5 }}
+          transition={{ duration: 1, delay: 1.6 }}
         >
-          STEEL STRUCTURE
+          AI-POWERED RETRIEVAL
         </motion.text>
       </svg>
-
     </div>
+  );
+}
+
+// Lead Form Component
+function LeadForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      firstName: formData.get('firstName') as string,
+      lastName: formData.get('lastName') as string,
+      email: formData.get('email') as string,
+      company: formData.get('company') as string || undefined,
+      phone: formData.get('phone') as string || undefined,
+    };
+
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const result = await res.json();
+
+      if (!result.success) {
+        setError(result.error || 'Failed to submit. Please try again.');
+      } else {
+        setIsSubmitted(true);
+      }
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isSubmitted) {
+    return (
+      <Card className="border border-black/10 shadow-lg shadow-black/5 bg-white">
+        <CardContent className="p-6 sm:p-8 text-center">
+          <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-semibold text-black mb-2">You&apos;re on the list!</h3>
+          <p className="text-black/70">We&apos;ll contact you when Steel Agent is ready.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="border border-black/10 shadow-lg shadow-black/5 bg-white">
+      <CardContent className="p-6 sm:p-8">
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label htmlFor="firstName" className="text-sm font-medium text-black">
+                First Name
+              </label>
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                required
+                disabled={isSubmitting}
+                className="w-full h-11 px-4 border border-black/20 rounded focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black transition-colors disabled:opacity-50"
+                placeholder="John"
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="lastName" className="text-sm font-medium text-black">
+                Last Name
+              </label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                required
+                disabled={isSubmitting}
+                className="w-full h-11 px-4 border border-black/20 rounded focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black transition-colors disabled:opacity-50"
+                placeholder="Doe"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-medium text-black">
+              Work Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              disabled={isSubmitting}
+              className="w-full h-11 px-4 border border-black/20 rounded focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black transition-colors disabled:opacity-50"
+              placeholder="john.doe@company.com"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="company" className="text-sm font-medium text-black">
+              Company
+            </label>
+            <input
+              type="text"
+              id="company"
+              name="company"
+              disabled={isSubmitting}
+              className="w-full h-11 px-4 border border-black/20 rounded focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black transition-colors disabled:opacity-50"
+              placeholder="Shell, ExxonMobil, Bechtel..."
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="phone" className="text-sm font-medium text-black">
+              Phone Number <span className="text-black/40">(optional)</span>
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              disabled={isSubmitting}
+              className="w-full h-11 px-4 border border-black/20 rounded focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black transition-colors disabled:opacity-50"
+              placeholder="+1 (555) 123-4567"
+            />
+          </div>
+
+          {error && (
+            <p className="text-sm text-red-600">{error}</p>
+          )}
+
+          <Button
+            type="submit"
+            size="lg"
+            disabled={isSubmitting}
+            className="w-full bg-black text-white hover:bg-black/90 h-12 text-base font-medium disabled:opacity-50"
+          >
+            {isSubmitting ? 'Submitting...' : 'Join Waitlist'}
+            {!isSubmitting && <ArrowRight className="ml-2 h-4 w-4" />}
+          </Button>
+        </form>
+
+        <p className="text-xs text-black/50 text-center mt-4">
+          We&apos;ll contact you when Steel Agent is ready. No spam, ever.
+        </p>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -312,23 +445,14 @@ export default function Home() {
         <div className="container-center">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-black flex items-center justify-center">
-                <Boxes className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-lg font-semibold tracking-tight text-black">Steel Agent</span>
+            <Link href="/" className="text-lg font-semibold tracking-tight text-black">
+              Steel Agent
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-8">
-              <Link href="#features" className="text-sm text-black/60 hover:text-black transition-colors">
-                Features
-              </Link>
+            <nav className="hidden md:flex items-center gap-4 lg:gap-8">
               <Link href="#demo" className="text-sm text-black/60 hover:text-black transition-colors">
                 Demo
-              </Link>
-              <Link href="/docs" className="text-sm text-black/60 hover:text-black transition-colors">
-                Docs
               </Link>
               <a
                 href="https://github.com/davidfertube/steel-venture"
@@ -366,25 +490,11 @@ export default function Home() {
           >
             <nav className="container-center py-6 space-y-1">
               <Link
-                href="#features"
-                className="block py-3 px-3 text-sm text-black/60 hover:text-black hover:bg-black/5 rounded transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Features
-              </Link>
-              <Link
                 href="#demo"
                 className="block py-3 px-3 text-sm text-black/60 hover:text-black hover:bg-black/5 rounded transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Demo
-              </Link>
-              <Link
-                href="/docs"
-                className="block py-3 px-3 text-sm text-black/60 hover:text-black hover:bg-black/5 rounded transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Docs
               </Link>
               <a
                 href="https://github.com/davidfertube/steel-venture"
@@ -406,87 +516,189 @@ export default function Home() {
 
       <main className="flex-1 pt-16">
         {/* Hero Section */}
-        <section className="relative py-16 sm:py-20 md:py-24 lg:py-32 overflow-hidden">
-          <div className="container-center">
+        <section className="relative py-16 sm:py-20 md:py-28 overflow-hidden">
+          <div className="container-wide">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
               {/* Left: Text content */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="text-center lg:text-left space-y-8"
-              >
+              <div className="text-center lg:text-left space-y-8">
                 <div className="space-y-6">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 border border-black/10 rounded-full text-xs font-medium text-black/70">
-                    <span className="w-2 h-2 bg-red-500 rounded-sm" />
-                    AI-Powered Knowledge Engine
-                  </div>
-                  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.1] text-black">
-                    The intelligent engine for{" "}
-                    <span className="relative">
-                      steel specifications
-                      <span className="absolute -bottom-1 left-0 right-0 h-[3px] bg-red-500" />
-                    </span>
-                  </h1>
-                  <p className="text-lg text-black/70 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                    Instant answers from your technical documents. Query ASTM standards,
-                    material properties, and compliance requirements with AI-powered
-                    semantic search and source citations.
-                  </p>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    className="inline-flex items-center gap-2 px-3 py-1 border border-black/10 rounded-full text-xs font-medium text-black/70"
+                  >
+                    <motion.span
+                      className="w-2 h-2 bg-red-500 rounded-full"
+                      animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    />
+                    Steel Specification Search Agent
+                  </motion.div>
+                  <motion.h1
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight leading-[1.1] text-black"
+                  >
+                    <motion.span
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                    >
+                      Find Steel Specs
+                    </motion.span>
+                    <br />
+                    <motion.span
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.5 }}
+                      className="whitespace-nowrap"
+                    >
+                      Instantly. Get Verified
+                    </motion.span>
+                    <br />
+                    <motion.span
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.7 }}
+                      className="relative inline-block"
+                    >
+                      Answers.
+                      <motion.span
+                        className="absolute -bottom-1 left-0 right-0 h-[3px] bg-red-500"
+                        initial={{ scaleX: 0 }}
+                        animate={{ scaleX: 1 }}
+                        transition={{ duration: 0.6, delay: 1.0 }}
+                        style={{ transformOrigin: "left" }}
+                      />
+                    </motion.span>
+                  </motion.h1>
+                  <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.9 }}
+                    className="text-lg text-black/70 max-w-xl mx-auto lg:mx-0 leading-relaxed"
+                  >
+                    Upload ASTM, NACE, or API documents. Ask any question. Get traceable citations for compliance reports in seconds.
+                  </motion.p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 1.0 }}
+                  className="flex flex-wrap gap-4 justify-center lg:justify-start"
+                >
                   <Button size="lg" className="bg-black text-white hover:bg-black/90 h-12 px-8" asChild>
-                    <Link href="/pricing">
-                      Start Free Trial
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                    <Link href="#demo">
+                      Try Demo
                     </Link>
                   </Button>
-                  <Button size="lg" variant="outline" className="border-black/20 bg-white text-black hover:bg-black/5 h-12 px-8" asChild>
+                  <Button size="lg" variant="outline" className="border-black/20 bg-white text-black hover:bg-black/5 h-12 w-12 p-0" asChild>
                     <a
                       href="https://github.com/davidfertube/steel-venture"
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label="View on GitHub"
                     >
-                      <Github className="mr-2 h-4 w-4" />
-                      View on GitHub
+                      <Github className="h-5 w-5" />
                     </a>
                   </Button>
-                </div>
+                </motion.div>
 
-                {/* Stats */}
-                <div className="flex flex-wrap gap-10 justify-center lg:justify-start pt-6">
+                {/* Key Metrics */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 1.1 }}
+                  className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-4"
+                >
                   <div>
-                    <p className="text-3xl font-semibold text-black">100K+</p>
-                    <p className="text-sm text-black/60">Vector capacity</p>
+                    <p className="text-2xl sm:text-3xl font-semibold text-black">4+ hrs</p>
+                    <p className="text-sm text-black/60">Saved per day</p>
                   </div>
                   <div>
-                    <p className="text-3xl font-semibold text-black">50+</p>
-                    <p className="text-sm text-black/60">Standards</p>
+                    <p className="text-2xl sm:text-3xl font-semibold text-black">100%</p>
+                    <p className="text-sm text-black/60">Cited sources</p>
                   </div>
                   <div>
-                    <p className="text-3xl font-semibold text-black">&lt;2s</p>
+                    <p className="text-2xl sm:text-3xl font-semibold text-black">&lt;5s</p>
                     <p className="text-sm text-black/60">Response time</p>
                   </div>
-                </div>
-              </motion.div>
+                  <div>
+                    <p className="text-2xl sm:text-3xl font-semibold text-black">$0</p>
+                    <p className="text-sm text-black/60">Open source</p>
+                  </div>
+                </motion.div>
+              </div>
 
-              {/* Right: AI Face visualization */}
+              {/* Right: Industry visualization */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="hidden lg:block"
               >
-                <SteelCrystalVisualization />
+                <IndustryVisualization />
               </motion.div>
             </div>
           </div>
         </section>
 
+        {/* Upload Section */}
+        <section id="upload" className="relative py-12 sm:py-16 md:py-20 border-t border-black/5">
+          <div className="container-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="space-y-8 max-w-2xl mx-auto"
+            >
+              <div className="text-center space-y-4">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4 }}
+                  className="inline-flex items-center gap-2 px-3 py-1 border border-black/10 rounded-full text-xs font-medium text-black/70"
+                >
+                  <motion.span
+                    className="w-2 h-2 bg-green-500 rounded-full"
+                    animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                  STEP 1
+                </motion.div>
+                <motion.h2
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                  className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-black"
+                >
+                  Upload Steel Specifications
+                </motion.h2>
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="text-lg text-black/70"
+                >
+                  Drag and drop your ASTM, NACE MR0175, or API 5L documents. We index them for instant search.
+                </motion.p>
+              </div>
+
+              <DocumentUpload />
+            </motion.div>
+          </div>
+        </section>
+
         {/* Demo Section */}
-        <section id="demo" className="relative py-16 sm:py-20 md:py-24 border-t border-black/5">
-          <div className="container-narrow">
+        <section id="demo" className="relative py-12 sm:py-16 md:py-20 border-t border-black/5">
+          <div className="container-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -495,17 +707,38 @@ export default function Home() {
               className="space-y-12"
             >
               <div className="text-center space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 border border-black/10 rounded-full text-xs font-medium text-black/70">
-                  <span className="w-2 h-2 bg-red-500 rounded-sm" />
-                  TRY IT NOW
-                </div>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-black">
-                  Query your knowledge base
-                </h2>
-                <p className="text-lg text-black/70 max-w-2xl mx-auto">
-                  Ask questions about ASTM standards, material properties, or
-                  compliance requirements. Get instant, cited answers.
-                </p>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4 }}
+                  className="inline-flex items-center gap-2 px-3 py-1 border border-black/10 rounded-full text-xs font-medium text-black/70"
+                >
+                  <motion.span
+                    className="w-2 h-2 bg-red-500 rounded-full"
+                    animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                  STEP 2
+                </motion.div>
+                <motion.h2
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                  className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-black"
+                >
+                  Query Material Properties
+                </motion.h2>
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="text-lg text-black/70 max-w-2xl mx-auto"
+                >
+                  Ask about yield strength, NACE compliance, or hardness limits. Every answer includes page-level citations.
+                </motion.p>
               </div>
 
               {/* Search Card */}
@@ -532,123 +765,53 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Features Section */}
-        <section id="features" className="relative py-16 sm:py-20 md:py-24 border-t border-black/5 bg-black/[0.02]">
+        {/* Lead Collection Section */}
+        <section className="relative py-12 sm:py-16 md:py-20 border-t border-black/5">
           <div className="container-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="text-center mb-16 space-y-4"
+              className="max-w-2xl mx-auto"
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1 border border-black/10 rounded-full text-xs font-medium text-black/70">
-                <span className="w-2 h-2 bg-red-500 rounded-sm" />
-                WHY STEEL INTELLIGENT
-              </div>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-black">
-                Built for engineering teams
-              </h2>
-              <p className="text-lg text-black/70 max-w-2xl mx-auto">
-                Designed specifically for material science and compliance verification workflows.
-              </p>
-            </motion.div>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              {[
-                {
-                  icon: Zap,
-                  title: "Instant Answers",
-                  description: "Get precise answers from your technical documents in seconds. No more manual searching through PDFs and spreadsheets.",
-                  delay: 0,
-                },
-                {
-                  icon: FileText,
-                  title: "Source Citations",
-                  description: "Every answer includes source citations with document name, page, and section. Verify compliance with traceable references.",
-                  delay: 0.1,
-                },
-                {
-                  icon: Shield,
-                  title: "Compliance Ready",
-                  description: "Verify compliance with ASTM, ASME, API, and NACE standards. Built for engineers who need audit-ready answers.",
-                  delay: 0.2,
-                },
-                {
-                  icon: Database,
-                  title: "Scale Ready",
-                  description: "Process hundreds of technical documents. Optimized vector pipeline handles large specification libraries efficiently.",
-                  delay: 0.3,
-                },
-                {
-                  icon: Boxes,
-                  title: "Semantic Search",
-                  description: "AI-powered semantic search understands engineering context. Find relevant information even with varied terminology.",
-                  delay: 0.4,
-                },
-                {
-                  icon: Github,
-                  title: "Open Source",
-                  description: "Fully open source and self-hostable. Deploy on your own infrastructure for maximum data security and control.",
-                  delay: 0.5,
-                },
-              ].map((feature, index) => (
+              <div className="text-center space-y-4 mb-8">
                 <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4 }}
+                  className="inline-flex items-center gap-2 px-3 py-1 border border-black/10 rounded-full text-xs font-medium text-black/70"
+                >
+                  <motion.span
+                    className="w-2 h-2 bg-amber-500 rounded-full"
+                    animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                  EARLY ACCESS
+                </motion.div>
+                <motion.h2
+                  initial={{ opacity: 0, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: feature.delay }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                  className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-black"
                 >
-                  <Card className="h-full border border-black/10 hover:border-black/20 transition-colors bg-white">
-                    <CardContent className="p-6 lg:p-8 space-y-4">
-                      <div className="w-12 h-12 bg-black/5 flex items-center justify-center">
-                        <feature.icon className="w-6 h-6 text-black" strokeWidth={1.5} />
-                      </div>
-                      <h3 className="text-lg font-semibold text-black">{feature.title}</h3>
-                      <p className="text-black/70 text-sm leading-relaxed">
-                        {feature.description}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
+                  Get Priority Access
+                </motion.h2>
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="text-lg text-black/70"
+                >
+                  Join 500+ material engineers already on the waitlist. Be first to access premium features.
+                </motion.p>
+              </div>
 
-        {/* CTA Section */}
-        <section className="relative py-16 sm:py-20 md:py-24 border-t border-black/5">
-          <div className="container-narrow text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="space-y-8"
-            >
-              <div className="space-y-4">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-black">
-                  Ready to transform your<br />document workflow?
-                </h2>
-                <p className="text-lg text-black/70 max-w-2xl mx-auto">
-                  Join engineering teams using Steel Agent to save hours of manual
-                  document searching every week.
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="bg-black text-white hover:bg-black/90 h-12 px-8" asChild>
-                  <Link href="/pricing">
-                    Start Free Trial
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button size="lg" variant="outline" className="border-black/20 bg-white text-black hover:bg-black/5 h-12 px-8" asChild>
-                  <a href="mailto:sales@steelagent.io">
-                    Contact Sales
-                  </a>
-                </Button>
-              </div>
+              {/* Lead Form */}
+              <LeadForm />
             </motion.div>
           </div>
         </section>
@@ -692,7 +855,7 @@ export default function Home() {
           </div>
           <Separator className="my-8 bg-black/5" />
           <p className="text-center text-sm text-black/60">
-            Open source AI-powered RAG for steel specifications and O&G documentation.
+            AI-powered search for ASTM, NACE, and API steel specifications. Built for material engineers in Oil &amp; Gas.
           </p>
           <p className="text-center text-xs text-black/40 mt-4 max-w-2xl mx-auto">
             <strong>Disclaimer:</strong> Steel Agent provides AI-generated responses for reference only.

@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Steel Knowledge Tool",
-  description: "AI-powered knowledge management for steel specifications",
+  title: "Steel Agent - Compliance Verification for Material Engineers",
+  description: "AI-powered steel specification search with traceable citations for O&G compliance",
 };
 
 export default function RootLayout({
@@ -21,8 +21,8 @@ export default function RootLayout({
       <body className={cn(inter.className, "antialiased")}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           {children}

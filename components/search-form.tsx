@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { motion } from "framer-motion";
-import { Search, ArrowRight, Loader2, X } from "lucide-react";
+import { useState, useCallback, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { queryKnowledgeBase, ApiRequestError, Source } from "@/lib/api";
 
@@ -23,6 +23,8 @@ const EXAMPLE_QUERIES = [
 export function SearchForm({ onResult, onError, onLoadingChange }: SearchFormProps) {
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -50,34 +52,52 @@ export function SearchForm({ onResult, onError, onLoadingChange }: SearchFormPro
   );
 
   const handleExampleClick = useCallback((exampleQuery: string) => {
+    setIsAnimating(true);
     setQuery(exampleQuery);
+    inputRef.current?.focus();
+    setTimeout(() => setIsAnimating(false), 600);
   }, []);
 
   return (
     <div className="w-full space-y-6">
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Search Input - Bittensor minimal style */}
-        <div className="relative">
-          <Search className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+        {/* Search Input - Clean minimal style */}
+        <motion.div
+          className="relative"
+          animate={isAnimating ? { scale: [1, 1.01, 1] } : {}}
+          transition={{ duration: 0.3 }}
+        >
           <input
+            ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             disabled={isLoading}
-            className="input-minimal pl-8 pr-8"
-            placeholder="Ask about steel specifications, compliance, or material properties..."
+            className={`w-full py-3 px-4 text-base rounded-lg border-2 transition-all duration-300
+              ${query
+                ? 'bg-black/5 border-black text-black'
+                : 'bg-transparent border-black/20 text-black placeholder:text-black/40'
+              }
+              focus:outline-none focus:border-black focus:bg-black/5
+              disabled:opacity-50`}
+            placeholder="Ask about steel specs, compliance, or material properties..."
           />
-          {query && !isLoading && (
-            <button
-              type="button"
-              onClick={() => setQuery("")}
-              className="absolute right-0 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-colors touch-target"
-              aria-label="Clear search"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
+          <AnimatePresence>
+            {query && !isLoading && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                type="button"
+                onClick={() => setQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-black/40 hover:text-black transition-colors"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </motion.button>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
         {/* Submit Button */}
         <div className="flex justify-end">
@@ -101,24 +121,26 @@ export function SearchForm({ onResult, onError, onLoadingChange }: SearchFormPro
         </div>
       </form>
 
-      {/* Example Queries - Minimal chips */}
+      {/* Example Queries - Click to populate input */}
       <div className="space-y-3">
-        <p className="label-section">Example queries</p>
+        <p className="label-section">Try an example</p>
         <div className="flex flex-wrap gap-2">
           {EXAMPLE_QUERIES.map((example, index) => (
             <motion.button
               key={index}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
+              whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.3, delay: index * 0.05 }}
               type="button"
               onClick={() => handleExampleClick(example)}
               disabled={isLoading}
-              className="px-3 py-1.5 text-xs sm:text-sm text-muted-foreground
-                       border border-border rounded-sm
-                       hover:border-foreground hover:text-foreground
-                       disabled:cursor-not-allowed disabled:opacity-50
-                       transition-all duration-200 touch-target"
+              className={`px-3 py-1.5 text-xs sm:text-sm rounded-md transition-all duration-200
+                ${query === example
+                  ? 'bg-black text-white border border-black'
+                  : 'text-black/60 border border-black/20 hover:border-black hover:text-black'
+                }
+                disabled:cursor-not-allowed disabled:opacity-50`}
             >
               {example}
             </motion.button>

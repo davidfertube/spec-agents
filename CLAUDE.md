@@ -1,26 +1,45 @@
-# CLAUDE.md - Steel Knowledge Tool
+# CLAUDE.md - Steel Agent
 
-## MVP Status (2026-01-26)
+## Current Status (2026-01-27)
 
-| Component | Status | URL |
-|-----------|--------|-----|
-| **Frontend** | LIVE | https://red-flower-0152ee60f.1.azurestaticapps.net |
-| **Backend** | Pending Azure Function App creation | https://steel-agent-api.azurewebsites.net |
-| **CI/CD** | All tests pass | GitHub Actions |
-| **Demo Mode** | Working | Canned responses for testing |
+| Component | Status | Notes |
+|-----------|--------|-------|
+| **Frontend** | READY | Deploy to Vercel |
+| **API Routes** | READY | Next.js API routes (no separate backend) |
+| **Database** | CONFIGURED | Supabase PostgreSQL + pgvector |
+| **LLM** | CONFIGURED | Google Gemini 2.5 Flash |
+| **Embeddings** | CONFIGURED | Google text-embedding-004 |
 
 ### What's Working
-- Frontend deployed to Azure Static Web Apps
-- Demo mode with realistic steel specification responses
-- CI/CD pipeline (frontend + backend tests pass)
-- MCP automation tools configured
+- [x] PDF upload to Supabase Storage
+- [x] Text extraction with `unpdf`
+- [x] Embeddings generation with Google text-embedding-004
+- [x] Vector storage in Supabase pgvector
+- [x] Semantic search with cosine similarity
+- [x] LLM responses with Gemini 2.5 Flash
+- [x] Citations in responses ([1], [2], etc.)
+- [x] Lead capture form (with company field)
+- [x] Security hardening (input validation, file limits)
 
-### What's Needed for Launch
-1. Create Azure Function App via Portal (Name: `steel-agent-api`)
-2. Add publish profile to GitHub secrets (`AZURE_FUNCTIONAPP_PUBLISH_PROFILE`)
-3. Configure CORS on Function App
-4. Upload steel specification PDFs to `/data/`
-5. Create Pinecone index and run document ingestion
+---
+
+## What's Missing for MVP Launch
+
+### Required (2 items)
+
+| Item | Status | How to Fix |
+|------|--------|------------|
+| **Steel PDFs** | Missing | Upload ASTM/NACE/API specification PDFs via the UI |
+| **Custom Domain** | Optional | Configure in Vercel Dashboard → Domains |
+
+### Post-MVP (Add Later)
+
+| Item | Notes |
+|------|-------|
+| **Rate Limiting** | Add Upstash Redis when you have traffic |
+| **User Auth** | Add Clerk when you need usage tracking |
+| **Payments** | Add Stripe when ready for paid tiers |
+| **Unstructured.io** | Better table extraction for spec sheets |
 
 ---
 
@@ -29,18 +48,15 @@
 ```bash
 # 1. Install dependencies
 npm install
-pip install -r requirements.txt
 
 # 2. Configure environment
-cp .env.example .env
-# Edit .env with your API keys
+cp .env.example .env.local
+# Edit .env.local with your API keys
 
 # 3. Start development
-npm run dev                                    # Frontend :3000
-uvicorn backend.server:app --reload --port 8000  # Backend :8000
+npm run dev
 
-# 4. Run tests
-npm test && pytest backend/tests/
+# 4. Open http://localhost:3000
 ```
 
 ---
@@ -48,136 +64,47 @@ npm test && pytest backend/tests/
 ## Architecture
 
 ```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   Next.js 16    │────▶│   FastAPI        │────▶│  Google Gemini  │
-│   (Frontend)    │     │   (Backend)      │     │  (LLM)          │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-                               │
-                               ▼
-                        ┌──────────────────┐
-                        │   Pinecone       │
-                        │   (Vector DB)    │
-                        └──────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                        Next.js 16 App                           │
+├─────────────────────────────────────────────────────────────────┤
+│  Frontend (React 19)     │     API Routes                       │
+│  - app/page.tsx          │     - /api/chat (RAG queries)        │
+│  - components/*          │     - /api/documents/upload          │
+│                          │     - /api/documents/process         │
+│                          │     - /api/leads                     │
+└──────────────────────────┴──────────────────────────────────────┘
+                                    │
+                    ┌───────────────┼───────────────┐
+                    ▼               ▼               ▼
+            ┌───────────┐   ┌───────────┐   ┌───────────┐
+            │  Supabase │   │  Google   │   │  Google   │
+            │  pgvector │   │  Gemini   │   │ Embeddings│
+            │ (vectors) │   │  (LLM)    │   │ (768 dim) │
+            └───────────┘   └───────────┘   └───────────┘
 ```
 
 ### Key Files
 
 | File | Purpose |
 |------|---------|
-| `app/page.tsx` | Main landing page |
-| `components/search-form.tsx` | Search with example queries |
-| `components/response-display.tsx` | Response with source citations |
-| `lib/api.ts` | API client with demo fallback |
-| `backend/agent.py` | LangGraph RAG pipeline |
-| `backend/server.py` | FastAPI with /api/chat, /health |
-| `backend/mcp_server.py` | MCP tools for automation |
-| `backend/ingest.py` | PDF ingestion to Pinecone |
-| `.mcp.json` | MCP server configuration |
-
----
-
-## MCP Automation
-
-### What is MCP?
-Model Context Protocol (MCP) enables Claude to interact with external tools and automate workflows. This project provides steel knowledge tools via MCP.
-
-### Available MCP Tools
-
-| Tool | Description | Example |
-|------|-------------|---------|
-| `query_steel_specs` | Search steel specifications | "What is yield strength of A106?" |
-| `check_compliance` | Verify material compliance | "Does 4140 meet NACE MR0175?" |
-| `compare_materials` | Compare steel grades | "Compare A53 and A106" |
-| `list_documents` | Show indexed documents | Lists all PDFs in knowledge base |
-| `get_health` | Check backend status | Returns health and mode info |
-
-### MCP Configuration
-
-The `.mcp.json` file configures the MCP servers:
-
-```json
-{
-  "mcpServers": {
-    "steel-knowledge": {
-      "command": "python",
-      "args": ["-m", "backend.mcp_server"],
-      "env": {
-        "GOOGLE_API_KEY": "${GOOGLE_API_KEY}",
-        "PINECONE_API_KEY": "${PINECONE_API_KEY}",
-        "PINECONE_INDEX_NAME": "steel-index"
-      }
-    }
-  }
-}
-```
-
-### Using MCP Tools
-
-```bash
-# Run MCP server locally
-python -m backend.mcp_server
-
-# In Claude Code
-claude "Use query_steel_specs to find yield strength of A106 Grade B"
-claude "Use check_compliance to verify 4140 meets NACE MR0175 for sour service"
-claude "Use compare_materials to compare A53 and A106"
-```
-
----
-
-## Workflow Automation
-
-### Available Workflows
-
-1. **Document Processing**
-   - Trigger: New PDF uploaded to `/data/`
-   - Action: Ingest → Embed → Index → Notify
-
-2. **Compliance Checking**
-   - Trigger: API request or Claude query
-   - Action: Search specs → Verify requirements → Generate report
-
-3. **Batch Queries**
-   - Trigger: CSV of materials
-   - Action: Check each → Generate compliance matrix
-
----
-
-## Commands Reference
-
-```bash
-# Development
-npm run dev                              # Frontend
-uvicorn backend.server:app --reload      # Backend
-
-# Build & Test
-npm run build                            # Build Next.js
-npm run lint                             # ESLint
-npm test                                 # Frontend tests
-pytest backend/tests/                    # Backend tests
-
-# Document Ingestion
-python backend/ingest.py                 # Ingest PDFs from /data
-
-# MCP Server
-python -m backend.mcp_server             # Run MCP server locally
-
-# Azure Deployment
-git push origin main                     # Auto-deploys via CI/CD
-```
+| `app/page.tsx` | Main landing page with hero, upload, search |
+| `app/api/chat/route.ts` | RAG query endpoint |
+| `app/api/documents/upload/route.ts` | PDF upload to Supabase Storage |
+| `app/api/documents/process/route.ts` | Extract text, generate embeddings, store |
+| `app/api/leads/route.ts` | Lead capture form submission |
+| `lib/vectorstore.ts` | pgvector search functions |
+| `lib/embeddings.ts` | Google embedding generation |
+| `lib/supabase.ts` | Supabase client |
 
 ---
 
 ## Environment Variables
 
 ```bash
-# Required for production (.env)
-GOOGLE_API_KEY=xxx              # Google AI Studio
-PINECONE_API_KEY=xxx            # Pinecone Console
-PINECONE_INDEX_NAME=steel-index
-
-# Frontend (.env.local)
-NEXT_PUBLIC_API_URL=http://localhost:8000
+# Required (3 variables)
+GOOGLE_API_KEY=xxx                      # Google AI Studio
+NEXT_PUBLIC_SUPABASE_URL=xxx            # Supabase project URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY=xxx       # Supabase anon key
 ```
 
 ---
@@ -187,151 +114,85 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 | Method | Endpoint | Request | Response |
 |--------|----------|---------|----------|
 | POST | `/api/chat` | `{ query: string }` | `{ response: string, sources: Source[] }` |
-| GET | `/health` | - | `{ status: string, version: string, mode: string }` |
-
-### Source Citation Format
-
-```typescript
-interface Source {
-  ref: string;           // "[1]"
-  document: string;      // "ASTM_A106.pdf"
-  page: string;          // "5"
-  content_preview: string;
-}
-```
+| POST | `/api/documents/upload` | `FormData (file)` | `{ documentId, path, url }` |
+| POST | `/api/documents/process` | `{ documentId }` | `{ success, chunks }` |
+| POST | `/api/leads` | `{ firstName, lastName, email, company?, phone? }` | `{ success }` |
 
 ---
 
-## MVP Launch Checklist
+## Demo Flow
 
-### Infrastructure (Manual Steps Required)
-- [ ] Create Azure Function App via Portal
-  - Name: `steel-agent-api`
-  - Runtime: Python 3.11
-  - Plan: Consumption (Serverless)
-- [ ] Add environment variables to Function App:
-  - `GOOGLE_API_KEY`
-  - `PINECONE_API_KEY`
-  - `PINECONE_INDEX_NAME=steel-index`
-- [ ] Download publish profile → Add to GitHub secrets as `AZURE_FUNCTIONAPP_PUBLISH_PROFILE`
-- [ ] Configure CORS:
-  - `https://red-flower-0152ee60f.1.azurestaticapps.net`
-  - `http://localhost:3000`
+1. **Land on homepage** → See animated hero with KPIs
+2. **Step 1: Upload PDF** → Select a steel specification (e.g., 316 Stainless datasheet)
+3. **Wait for processing** → Green checkmark appears when indexed
+4. **Step 2: Ask question** → Click example or type: "What is yield strength of 316L?"
+5. **See response** → Answer with [1] citation pointing to uploaded document
+6. **Key selling point**: "Every answer has traceable citations for compliance reports"
 
-### Data
-- [ ] Gather steel specification PDFs (ASTM, NACE, API)
-- [ ] Create Pinecone index (`steel-index`, 768 dims, cosine)
-- [ ] Run `python backend/ingest.py`
+---
 
-### Verification
+## Commands Reference
+
 ```bash
-curl https://steel-agent-api.azurewebsites.net/health
-# Expected: {"status":"ok","version":"1.0.0","mode":"production"}
+# Development
+npm run dev                    # Start dev server on :3000
+
+# Build & Test
+npm run build                  # Build for production
+npm run lint                   # Run ESLint
+npm test                       # Run Vitest tests
+
+# Deployment
+git push origin main           # Auto-deploys via GitHub Actions to Vercel
 ```
 
 ---
 
-## Coworker Onboarding
+## Security Checklist
 
-### Project Overview
-Steel Knowledge Tool is an AI-powered RAG system for querying steel specifications and O&G compliance documents.
+### Implemented
+- [x] **File Size Limits**: Upload API enforces 50MB maximum
+- [x] **Input Validation**: Leads API validates length and format
+- [x] **Error Handling**: Server errors don't leak internal details
+- [x] **PDF Only**: Document upload restricted to PDF MIME type
+- [x] **Filename Sanitization**: Prevents path traversal attacks
 
-**Tech Stack:**
-- Frontend: Next.js 16, TypeScript, Tailwind CSS
-- Backend: FastAPI, LangGraph, Google Gemini
-- Vector DB: Pinecone
-- Deployment: Azure (Static Web Apps + Functions)
-- Automation: MCP (Model Context Protocol)
-
-### First Steps
-1. Clone: `git clone https://github.com/davidfertube/steel-venture`
-2. Install: `npm install && pip install -r requirements.txt`
-3. Configure: Copy `.env.example` to `.env`, add API keys
-4. Run: `npm run dev` + `uvicorn backend.server:app --reload`
-
-### Questions for Discussion
-1. Do we have steel specification PDFs? (ASTM, NACE, API)
-2. Who has Azure portal access?
-3. Should we add user authentication for MVP?
-4. What compliance checks are priority? (NACE MR0175, hardness limits?)
-5. Do we need a custom domain?
-
----
-
-## Testing
-
-### Frontend (Vitest)
-```bash
-npm test                    # Run once
-npm test -- --watch         # Watch mode
-```
-
-### Backend (pytest)
-```bash
-pytest backend/tests/           # All tests
-pytest backend/tests/ -v        # Verbose
-```
-
-### Test Queries
-
-1. "What is the yield strength of A106 Grade B?"
-2. "Does 4140 steel meet NACE MR0175 requirements?"
-3. "Compare A53 and A106 for high-temperature service"
-4. "Maximum allowable hardness for sour service?"
-
----
-
-## Design System
-
-**Colors**:
-- Background: `#FFFFFF` (white)
-- Foreground: `#141414` (near black)
-- Muted: `#737373` (gray)
-- Yellow: `#D97706` (accent - use sparingly)
-
-**Typography**:
-- Section labels: `uppercase`, `tracking-[0.2em]`, `text-xs`
-- Headings: `font-semibold`, `tracking-tight`
+### Post-MVP
+- [ ] **Rate Limiting**: Add Upstash for API rate limiting
+- [ ] **Row Level Security**: Enable RLS in Supabase
+- [ ] **Authentication**: Add Clerk when needed
 
 ---
 
 ## Troubleshooting
 
-### Backend Issues
-```bash
-curl http://localhost:8000/health
-```
+### "No documents indexed"
+Upload a PDF first, then wait for processing to complete (status changes to "indexed").
 
-### Frontend Issues
-```bash
-echo $NEXT_PUBLIC_API_URL
-```
+### "Google API error"
+Verify `GOOGLE_API_KEY` is set and has Gemini API enabled in Google AI Studio.
 
-### Common Fixes
-- **CORS errors**: Check Function App CORS settings
-- **API timeout**: Increase timeout in lib/api.ts
-- **Demo mode active**: Verify API keys are set
+### Build fails
+Run `npm run lint -- --fix` to auto-fix linting issues.
 
 ---
 
-## Business Context
+## Tech Stack Summary
 
-### Value Proposition
-- Engineers spend 2-4 hours/day searching specs manually
-- Wrong material spec = potential $10M+ liability
-- Steel Knowledge Tool provides traceable, citable answers
-
-### Target Market
-- Tier 1: Major O&G (Shell, Chevron, ExxonMobil)
-- Tier 2: EPC Contractors (Fluor, Bechtel, KBR)
-- Tier 3: Engineering consultancies, inspection firms
-
-### Key Differentiator
-> "Not another AI chatbot - it's a compliance verification engine with traceable citations that engineers can cite in their reports."
+| Component | Technology | Cost |
+|-----------|------------|------|
+| Frontend | Next.js 16, React 19, Tailwind CSS | Free |
+| Backend | Next.js API Routes | Free |
+| Database | Supabase PostgreSQL + pgvector | Free tier |
+| LLM | Google Gemini 2.5 Flash | Free tier |
+| Embeddings | Google text-embedding-004 | Free tier |
+| Hosting | Vercel | Free |
+| **Total** | | **$0/month** |
 
 ---
 
 ## Related Documentation
 
-- [IMPLEMENTATION.md](IMPLEMENTATION.md) - Technical implementation guide
 - [README.md](README.md) - Project overview
+- [CONTRIBUTING.md](CONTRIBUTING.md) - How to contribute
+- [SECURITY.md](SECURITY.md) - Security policy

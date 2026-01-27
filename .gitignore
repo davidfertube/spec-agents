@@ -64,3 +64,6 @@ venv/
 
 # Data files (PDFs for ingestion)
 data/*.pdf
+
+# clerk configuration (can include secrets)
+/.clerk/
