@@ -35,7 +35,7 @@ describe('SearchForm', () => {
       />
     );
 
-    expect(screen.getByPlaceholderText(/ask about steel specifications/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/ask about steel specs/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /run analysis/i })).toBeInTheDocument();
   });
 
@@ -61,7 +61,7 @@ describe('SearchForm', () => {
       />
     );
 
-    const input = screen.getByPlaceholderText(/ask about steel specifications/i);
+    const input = screen.getByPlaceholderText(/ask about steel specs/i);
     await userEvent.type(input, 'What is A106 Grade B?');
 
     const button = screen.getByRole('button', { name: /run analysis/i });
@@ -83,7 +83,7 @@ describe('SearchForm', () => {
       />
     );
 
-    const input = screen.getByPlaceholderText(/ask about steel specifications/i);
+    const input = screen.getByPlaceholderText(/ask about steel specs/i);
     await userEvent.type(input, 'What is A106 Grade B?');
 
     const button = screen.getByRole('button', { name: /run analysis/i });
@@ -107,7 +107,7 @@ describe('SearchForm', () => {
       />
     );
 
-    const input = screen.getByPlaceholderText(/ask about steel specifications/i);
+    const input = screen.getByPlaceholderText(/ask about steel specs/i);
     await userEvent.type(input, 'test query');
 
     const button = screen.getByRole('button', { name: /run analysis/i });
@@ -131,7 +131,7 @@ describe('SearchForm', () => {
       />
     );
 
-    const input = screen.getByPlaceholderText(/ask about steel specifications/i);
+    const input = screen.getByPlaceholderText(/ask about steel specs/i);
     await userEvent.type(input, 'test query');
 
     const button = screen.getByRole('button', { name: /run analysis/i });
@@ -155,9 +155,9 @@ describe('SearchForm', () => {
       />
     );
 
-    expect(screen.getByText(/yield strength of A106 Grade B/i)).toBeInTheDocument();
-    expect(screen.getByText(/NACE MR0175/i)).toBeInTheDocument();
-    expect(screen.getByText(/Compare A53 and A106/i)).toBeInTheDocument();
+    expect(screen.getByText(/minimum tensile strength/i)).toBeInTheDocument();
+    expect(screen.getByText(/chemical composition/i)).toBeInTheDocument();
+    expect(screen.getByText(/hardness limits/i)).toBeInTheDocument();
   });
 
   it('should fill input when clicking example query', async () => {
@@ -169,10 +169,10 @@ describe('SearchForm', () => {
       />
     );
 
-    const exampleButton = screen.getByText(/yield strength of A106 Grade B/i);
+    const exampleButton = screen.getByText(/minimum tensile strength/i);
     fireEvent.click(exampleButton);
 
-    const input = screen.getByPlaceholderText(/ask about steel specifications/i) as HTMLInputElement;
-    expect(input.value).toBe('What is the yield strength of A106 Grade B?');
+    const input = screen.getByPlaceholderText(/ask about steel specs/i) as HTMLInputElement;
+    expect(input.value).toBe('What is the minimum tensile strength?');
   });
 });

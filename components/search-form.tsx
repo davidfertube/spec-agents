@@ -12,12 +12,12 @@ interface SearchFormProps {
   onLoadingChange?: (loading: boolean) => void;
 }
 
-// Example queries for quick access - compliance-focused for PhD validation
+// Example queries - generic enough to work with any steel spec document
 const EXAMPLE_QUERIES = [
-  "What is the yield strength of A106 Grade B?",
-  "Does 4140 steel meet NACE MR0175 requirements?",
-  "Compare A53 and A106 for high-temperature service",
-  "Maximum allowable hardness for sour service?",
+  "What is the minimum tensile strength?",
+  "List the chemical composition requirements",
+  "What are the hardness limits?",
+  "Summarize the mechanical properties",
 ];
 
 export function SearchForm({ onResult, onError, onLoadingChange }: SearchFormProps) {
@@ -121,9 +121,9 @@ export function SearchForm({ onResult, onError, onLoadingChange }: SearchFormPro
         </div>
       </form>
 
-      {/* Example Queries - Click to populate input */}
+      {/* Quick Prompts - Click to populate input */}
       <div className="space-y-3">
-        <p className="label-section">Try an example</p>
+        <p className="label-section">Quick prompts - click to try</p>
         <div className="flex flex-wrap gap-2">
           {EXAMPLE_QUERIES.map((example, index) => (
             <motion.button

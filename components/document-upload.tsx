@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Upload, FileText, X, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,9 +12,19 @@ interface UploadedFile {
   error?: string;
 }
 
-export function DocumentUpload() {
+interface DocumentUploadProps {
+  onUploadComplete?: (hasCompleted: boolean) => void;
+}
+
+export function DocumentUpload({ onUploadComplete }: DocumentUploadProps) {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+
+  // Notify parent when any file completes upload
+  useEffect(() => {
+    const hasCompleted = files.some((f) => f.status === "complete");
+    onUploadComplete?.(hasCompleted);
+  }, [files, onUploadComplete]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();

@@ -417,6 +417,11 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [hasDocumentUploaded, setHasDocumentUploaded] = useState(false);
+
+  const handleUploadComplete = useCallback((hasCompleted: boolean) => {
+    setHasDocumentUploaded(hasCompleted);
+  }, []);
 
   const handleResult = useCallback((result: string, resultSources: Source[]) => {
     setError(null);
@@ -451,9 +456,9 @@ export default function Home() {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-4 lg:gap-8">
-              <Link href="#demo" className="text-sm text-black/60 hover:text-black transition-colors">
+              <a href="#demo" className="text-sm text-black/60 hover:text-black transition-colors">
                 Demo
-              </Link>
+              </a>
               <a
                 href="https://github.com/davidfertube/steel-venture"
                 target="_blank"
@@ -489,13 +494,13 @@ export default function Home() {
             className="md:hidden border-t border-black/5 bg-white"
           >
             <nav className="container-center py-6 space-y-1">
-              <Link
+              <a
                 href="#demo"
                 className="block py-3 px-3 text-sm text-black/60 hover:text-black hover:bg-black/5 rounded transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Demo
-              </Link>
+              </a>
               <a
                 href="https://github.com/davidfertube/steel-venture"
                 target="_blank"
@@ -591,9 +596,9 @@ export default function Home() {
                   className="flex flex-wrap gap-4 justify-center lg:justify-start"
                 >
                   <Button size="lg" className="bg-black text-white hover:bg-black/90 h-12 px-8" asChild>
-                    <Link href="#demo">
+                    <a href="#demo">
                       Run Demo
-                    </Link>
+                    </a>
                   </Button>
                   <Button size="lg" variant="outline" className="border-black/20 bg-white text-black hover:bg-black/5 h-12 w-12 p-0" asChild>
                     <a
@@ -701,23 +706,50 @@ export default function Home() {
                       <span className="flex items-center justify-center w-7 h-7 rounded-full bg-black text-white text-sm font-medium">1</span>
                       <h3 className="text-lg font-semibold text-black">Upload PDF</h3>
                     </div>
-                    <DocumentUpload />
+                    <DocumentUpload onUploadComplete={handleUploadComplete} />
                   </div>
 
                   <Separator className="bg-black/10" />
 
-                  {/* Search Area */}
-                  <div className="space-y-4">
+                  {/* Search Area - Animated when upload completes */}
+                  <motion.div
+                    className="space-y-4"
+                    animate={hasDocumentUploaded ? {
+                      scale: [1, 1.02, 1],
+                      transition: { duration: 0.5, ease: "easeOut" }
+                    } : {}}
+                  >
                     <div className="flex items-center gap-3">
-                      <span className="flex items-center justify-center w-7 h-7 rounded-full bg-black text-white text-sm font-medium">2</span>
-                      <h3 className="text-lg font-semibold text-black">Ask a Question</h3>
+                      <motion.span
+                        className={`flex items-center justify-center w-7 h-7 rounded-full text-white text-sm font-medium transition-colors duration-300 ${
+                          hasDocumentUploaded ? 'bg-green-500' : 'bg-black'
+                        }`}
+                        animate={hasDocumentUploaded ? {
+                          scale: [1, 1.2, 1],
+                          transition: { duration: 0.4, repeat: 2 }
+                        } : {}}
+                      >
+                        2
+                      </motion.span>
+                      <h3 className="text-lg font-semibold text-black">
+                        {hasDocumentUploaded ? "Now Ask a Question" : "Ask a Question"}
+                      </h3>
+                      {hasDocumentUploaded && (
+                        <motion.span
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className="text-sm text-green-600 font-medium"
+                        >
+                          Ready!
+                        </motion.span>
+                      )}
                     </div>
                     <SearchForm
                       onResult={handleResult}
                       onError={handleError}
                       onLoadingChange={handleLoadingChange}
                     />
-                  </div>
+                  </motion.div>
 
                   {/* Response Display */}
                   {(response || error || isLoading) && (
@@ -832,10 +864,7 @@ export default function Home() {
             </div>
           </div>
           <Separator className="my-8 bg-black/5" />
-          <p className="text-center text-sm text-black/60">
-            AI-powered search for ASTM, NACE, and API steel specifications. Built for material engineers in Oil &amp; Gas.
-          </p>
-          <p className="text-center text-xs text-black/40 mt-4 max-w-2xl mx-auto">
+          <p className="text-center text-xs text-black/40 max-w-2xl mx-auto">
             <strong>Disclaimer:</strong> Steel Agent provides AI-generated responses for reference only.
             Always verify specifications against original source documents. Not intended for safety-critical
             decisions without professional engineering review. Users are responsible for their own document licenses.
