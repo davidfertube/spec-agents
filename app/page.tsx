@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, FormEvent } from "react";
+import { useState, useCallback, FormEvent, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Github, Menu, X } from "lucide-react";
 import Link from "next/link";
@@ -419,6 +419,28 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hasDocumentUploaded, setHasDocumentUploaded] = useState(false);
 
+  // Refs for auto-scrolling
+  const step2Ref = useRef<HTMLDivElement>(null);
+  const step3Ref = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to Step 2 when upload completes
+  useEffect(() => {
+    if (hasDocumentUploaded && step2Ref.current) {
+      setTimeout(() => {
+        step2Ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+    }
+  }, [hasDocumentUploaded]);
+
+  // Auto-scroll to Step 3 when loading starts (user clicked Run Analysis)
+  useEffect(() => {
+    if (isLoading && step3Ref.current) {
+      setTimeout(() => {
+        step3Ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 200);
+    }
+  }, [isLoading]);
+
   const handleUploadComplete = useCallback((hasCompleted: boolean) => {
     setHasDocumentUploaded(hasCompleted);
   }, []);
@@ -703,37 +725,51 @@ export default function Home() {
 
                   {/* Search Area - Animated when upload completes */}
                   <motion.div
-                    className="space-y-4"
+                    ref={step2Ref}
+                    className={`space-y-4 p-4 -m-4 rounded-xl transition-all duration-500 ${
+                      hasDocumentUploaded ? 'bg-green-50 ring-2 ring-green-500 ring-offset-2' : ''
+                    }`}
                     animate={hasDocumentUploaded ? {
-                      scale: [1, 1.02, 1],
-                      transition: { duration: 0.5, ease: "easeOut" }
+                      scale: [1, 1.03, 1],
+                      transition: { duration: 0.6, ease: "easeOut" }
                     } : {}}
                   >
                     <div className="flex items-center gap-3">
                       <motion.span
-                        className={`flex items-center justify-center w-7 h-7 rounded-full text-white text-sm font-medium transition-colors duration-300 ${
+                        className={`flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-bold transition-colors duration-300 ${
                           hasDocumentUploaded ? 'bg-green-500' : 'bg-black'
                         }`}
                         animate={hasDocumentUploaded ? {
-                          scale: [1, 1.2, 1],
-                          transition: { duration: 0.4, repeat: 2 }
+                          scale: [1, 1.3, 1],
+                          transition: { duration: 0.5, repeat: 3 }
                         } : {}}
                       >
                         2
                       </motion.span>
-                      <h3 className="text-lg font-semibold text-black">
-                        {hasDocumentUploaded ? "Now Ask a Question" : "Ask a Question"}
+                      <h3 className={`text-lg font-semibold transition-colors duration-300 ${
+                        hasDocumentUploaded ? 'text-green-700' : 'text-black'
+                      }`}>
+                        {hasDocumentUploaded ? "Now Ask a Question!" : "Ask a Question"}
                       </h3>
                       {hasDocumentUploaded && (
                         <motion.span
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          className="text-sm text-green-600 font-medium"
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="px-3 py-1 bg-green-500 text-white text-sm font-bold rounded-full"
                         >
-                          Ready!
+                          ✓ Ready
                         </motion.span>
                       )}
                     </div>
+                    {hasDocumentUploaded && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-sm text-green-600 font-medium pl-11"
+                      >
+                        Click a quick prompt below or type your own question
+                      </motion.p>
+                    )}
                     <SearchForm
                       onResult={handleResult}
                       onError={handleError}
@@ -745,10 +781,35 @@ export default function Home() {
                   {(response || error || isLoading) && (
                     <>
                       <Separator className="bg-black/10" />
-                      <div className="space-y-4">
+                      <motion.div
+                        ref={step3Ref}
+                        className="space-y-4"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4 }}
+                      >
                         <div className="flex items-center gap-3">
-                          <span className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500 text-white text-sm font-medium">3</span>
-                          <h3 className="text-lg font-semibold text-black">Cited Answer</h3>
+                          <motion.span
+                            className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-500 text-white text-sm font-bold"
+                            animate={isLoading ? {
+                              scale: [1, 1.1, 1],
+                              transition: { duration: 1, repeat: Infinity }
+                            } : {}}
+                          >
+                            3
+                          </motion.span>
+                          <h3 className="text-lg font-semibold text-black">
+                            {isLoading ? "Analyzing..." : "Cited Answer"}
+                          </h3>
+                          {response && !isLoading && (
+                            <motion.span
+                              initial={{ opacity: 0, scale: 0.5 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              className="px-3 py-1 bg-blue-500 text-white text-sm font-bold rounded-full"
+                            >
+                              ✓ Complete
+                            </motion.span>
+                          )}
                         </div>
                         <ResponseDisplay
                           response={response}
@@ -756,7 +817,7 @@ export default function Home() {
                           error={error}
                           isLoading={isLoading}
                         />
-                      </div>
+                      </motion.div>
                     </>
                   )}
                 </CardContent>
