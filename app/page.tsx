@@ -646,16 +646,17 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Upload Section */}
-        <section id="upload" className="relative py-12 sm:py-16 md:py-20 border-t border-black/5">
+        {/* Demo Section - Combined Upload & Query */}
+        <section id="demo" className="relative py-12 sm:py-16 md:py-20 border-t border-black/5">
           <div className="container-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="space-y-8 max-w-2xl mx-auto"
+              className="space-y-12"
             >
+              {/* Section Header */}
               <div className="text-center space-y-4">
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -669,7 +670,7 @@ export default function Home() {
                     animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                   />
-                  STEP 1
+                  TRY IT NOW
                 </motion.div>
                 <motion.h2
                   initial={{ opacity: 0, y: 10 }}
@@ -678,57 +679,7 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: 0.1 }}
                   className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-black"
                 >
-                  Upload Steel Specifications
-                </motion.h2>
-                <motion.p
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="text-lg text-black/70"
-                >
-                  Drag and drop your ASTM, NACE MR0175, or API 5L documents. We index them for instant search.
-                </motion.p>
-              </div>
-
-              <DocumentUpload />
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Demo Section */}
-        <section id="demo" className="relative py-12 sm:py-16 md:py-20 border-t border-black/5">
-          <div className="container-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="space-y-12"
-            >
-              <div className="text-center space-y-4">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4 }}
-                  className="inline-flex items-center gap-2 px-3 py-1 border border-black/10 rounded-full text-xs font-medium text-black/70"
-                >
-                  <motion.span
-                    className="w-2 h-2 bg-red-500 rounded-full"
-                    animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  />
-                  STEP 2
-                </motion.div>
-                <motion.h2
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: 0.1 }}
-                  className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-black"
-                >
-                  Query Material Properties
+                  Upload & Ask
                 </motion.h2>
                 <motion.p
                   initial={{ opacity: 0, y: 10 }}
@@ -737,28 +688,55 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: 0.2 }}
                   className="text-lg text-black/70 max-w-2xl mx-auto"
                 >
-                  Ask about yield strength, NACE compliance, or hardness limits. Every answer includes page-level citations.
+                  Upload your steel specification PDF, then ask any question. Get cited answers instantly.
                 </motion.p>
               </div>
 
-              {/* Search Card */}
+              {/* Combined Card with Upload + Search */}
               <Card className="border border-black/10 shadow-lg shadow-black/5 bg-white">
-                <CardContent className="p-6 sm:p-8 lg:p-10">
-                  <SearchForm
-                    onResult={handleResult}
-                    onError={handleError}
-                    onLoadingChange={handleLoadingChange}
-                  />
+                <CardContent className="p-6 sm:p-8 lg:p-10 space-y-8">
+                  {/* Upload Area */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center justify-center w-7 h-7 rounded-full bg-black text-white text-sm font-medium">1</span>
+                      <h3 className="text-lg font-semibold text-black">Upload PDF</h3>
+                    </div>
+                    <DocumentUpload />
+                  </div>
 
-                  {/* Response Display */}
-                  <div className="mt-8">
-                    <ResponseDisplay
-                      response={response}
-                      sources={sources}
-                      error={error}
-                      isLoading={isLoading}
+                  <Separator className="bg-black/10" />
+
+                  {/* Search Area */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center justify-center w-7 h-7 rounded-full bg-black text-white text-sm font-medium">2</span>
+                      <h3 className="text-lg font-semibold text-black">Ask a Question</h3>
+                    </div>
+                    <SearchForm
+                      onResult={handleResult}
+                      onError={handleError}
+                      onLoadingChange={handleLoadingChange}
                     />
                   </div>
+
+                  {/* Response Display */}
+                  {(response || error || isLoading) && (
+                    <>
+                      <Separator className="bg-black/10" />
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <span className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500 text-white text-sm font-medium">3</span>
+                          <h3 className="text-lg font-semibold text-black">Cited Answer</h3>
+                        </div>
+                        <ResponseDisplay
+                          response={response}
+                          sources={sources}
+                          error={error}
+                          isLoading={isLoading}
+                        />
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
