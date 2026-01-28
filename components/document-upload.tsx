@@ -55,7 +55,8 @@ export function DocumentUpload() {
         });
 
         if (!response.ok) {
-          throw new Error("Upload failed");
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.details || errorData.error || "Upload failed");
         }
 
         const uploadResult = await response.json();
@@ -86,10 +87,11 @@ export function DocumentUpload() {
           )
         );
       } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Upload failed";
         setFiles((prev) =>
           prev.map((f) =>
             f.name === file.name
-              ? { ...f, status: "error", error: "Upload failed" }
+              ? { ...f, status: "error", error: errorMessage }
               : f
           )
         );

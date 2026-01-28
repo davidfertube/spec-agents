@@ -1,6 +1,17 @@
 -- Steel Agent - Supabase Schema
 -- Run this in Supabase SQL Editor (left sidebar) > New query > Paste > Run
 
+-- ============================================
+-- IMPORTANT: STORAGE BUCKET SETUP (Do this first!)
+-- ============================================
+-- 1. Go to Supabase Dashboard > Storage (left sidebar)
+-- 2. Click "New bucket"
+-- 3. Name: "documents"
+-- 4. Check "Public bucket" (for demo simplicity)
+-- 5. Click "Create bucket"
+--
+-- Then run the SQL below to set up tables.
+
 -- Create leads table
 CREATE TABLE IF NOT EXISTS leads (
   id BIGSERIAL PRIMARY KEY,
@@ -47,6 +58,10 @@ CREATE POLICY "Allow anonymous document inserts" ON documents
 -- Allow anonymous users to read documents
 CREATE POLICY "Allow anonymous document reads" ON documents
   FOR SELECT TO anon USING (true);
+
+-- Allow anonymous users to update documents (for status changes during processing)
+CREATE POLICY "Allow anonymous document updates" ON documents
+  FOR UPDATE TO anon USING (true) WITH CHECK (true);
 
 -- ============================================
 -- PGVECTOR EXTENSION (for embeddings)
