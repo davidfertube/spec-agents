@@ -592,7 +592,7 @@ export default function Home() {
                 >
                   <Button size="lg" className="bg-black text-white hover:bg-black/90 h-12 px-8" asChild>
                     <Link href="#demo">
-                      Try Demo
+                      Run Demo
                     </Link>
                   </Button>
                   <Button size="lg" variant="outline" className="border-black/20 bg-white text-black hover:bg-black/5 h-12 w-12 p-0" asChild>
