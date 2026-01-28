@@ -8,12 +8,12 @@
 | **API Routes** | READY | Next.js API routes (no separate backend) |
 | **Database** | CONFIGURED | Supabase PostgreSQL + pgvector |
 | **LLM** | CONFIGURED | Google Gemini 2.5 Flash |
-| **Embeddings** | CONFIGURED | Google text-embedding-004 |
+| **Embeddings** | CONFIGURED | Google gemini-embedding-001 |
 
 ### What's Working
 - [x] PDF upload to Supabase Storage
 - [x] Text extraction with `unpdf`
-- [x] Embeddings generation with Google text-embedding-004
+- [x] Embeddings generation with Google gemini-embedding-001
 - [x] Vector storage in Supabase pgvector
 - [x] Semantic search with cosine similarity
 - [x] LLM responses with Gemini 2.5 Flash
@@ -79,7 +79,7 @@ npm run dev
             ┌───────────┐   ┌───────────┐   ┌───────────┐
             │  Supabase │   │  Google   │   │  Google   │
             │  pgvector │   │  Gemini   │   │ Embeddings│
-            │ (vectors) │   │  (LLM)    │   │ (768 dim) │
+            │ (vectors) │   │  (LLM)    │   │ (3072 dim) │
             └───────────┘   └───────────┘   └───────────┘
 ```
 
@@ -185,7 +185,7 @@ Run `npm run lint -- --fix` to auto-fix linting issues.
 | Backend | Next.js API Routes | Free |
 | Database | Supabase PostgreSQL + pgvector | Free tier |
 | LLM | Google Gemini 2.5 Flash | Free tier |
-| Embeddings | Google text-embedding-004 | Free tier |
+| Embeddings | Google gemini-embedding-001 | Free tier |
 | Hosting | Vercel | Free |
 | **Total** | | **$0/month** |
 

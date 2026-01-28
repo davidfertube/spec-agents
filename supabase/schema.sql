@@ -74,14 +74,13 @@ CREATE TABLE IF NOT EXISTS chunks (
   document_id BIGINT REFERENCES documents(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
   page_number INT,
-  embedding vector(768), -- Google Gemini embedding dimension
+  embedding vector(3072), -- Google gemini-embedding-001 dimension
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Create index for vector similarity search
+-- Create index for vector similarity search (HNSW supports >2000 dimensions)
 CREATE INDEX IF NOT EXISTS chunks_embedding_idx ON chunks
-  USING ivfflat (embedding vector_cosine_ops)
-  WITH (lists = 100);
+  USING hnsw (embedding vector_cosine_ops);
 
 ALTER TABLE chunks ENABLE ROW LEVEL SECURITY;
 
@@ -93,7 +92,7 @@ CREATE POLICY "Allow anonymous chunk reads" ON chunks
 
 -- Function to search similar chunks
 CREATE OR REPLACE FUNCTION search_chunks(
-  query_embedding vector(768),
+  query_embedding vector(3072),
   match_threshold float DEFAULT 0.7,
   match_count int DEFAULT 5
 )

@@ -68,7 +68,7 @@
 | Frontend | Next.js 16, React 19 | Fast, modern, great DX |
 | Backend | Next.js API Routes | Serverless, no infra to manage |
 | LLM | Google Gemini 2.5 Flash | Fast, accurate, free tier |
-| Embeddings | Google text-embedding-004 | 768 dims, excellent for technical docs |
+| Embeddings | Google gemini-embedding-001 | 3072 dims, excellent for technical docs |
 | Vector DB | Supabase pgvector | PostgreSQL-native, easy to scale |
 | Hosting | Vercel | One-click deploy, global CDN |
 
