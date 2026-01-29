@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { searchSimilarChunks, getDocumentById } from "@/lib/vectorstore";
+import { getDocumentById } from "@/lib/vectorstore";
+import { searchWithFallback, type HybridSearchResult } from "@/lib/hybrid-search";
+import { preprocessQuery, formatExtractedCodes } from "@/lib/query-preprocessing";
+import { supabase } from "@/lib/supabase";
 import { validateQuery } from "@/lib/validation";
 import { withTimeout, TIMEOUTS } from "@/lib/timeout";
 import { handleApiError, createValidationError, getErrorStatusCode } from "@/lib/errors";
 import { getModelFallbackClient } from "@/lib/model-fallback";
+import { generateVerifiedResponse } from "@/lib/verified-generation";
 
 /**
  * Chat API Route - RAG-powered Q&A
@@ -31,7 +35,7 @@ export async function POST(request: NextRequest) {
     // Step 1: Parse and Validate Input
     // ========================================
     const body = await request.json();
-    const { query } = body;
+    const { query, verified = false } = body;
 
     // Validate query using our validation utility
     const validation = validateQuery(query);
@@ -44,19 +48,59 @@ export async function POST(request: NextRequest) {
     const cleanedQuery = validation.cleanedQuery!;
 
     // ========================================
-    // Step 2: Search for Relevant Documents
+    // Optional: Use Verified Generation Pipeline
     // ========================================
-    let chunks: Awaited<ReturnType<typeof searchSimilarChunks>> = [];
-    try {
-      // Wrap vector search with timeout for reliability
-      chunks = await withTimeout(
-        searchSimilarChunks(cleanedQuery, 5, 0.5),
-        TIMEOUTS.VECTOR_SEARCH,
-        "Vector search"
+    // When verified=true, use the full zero-hallucination pipeline
+    // with claim verification and guardrails
+    if (verified) {
+      console.log("[Chat API] Using verified generation pipeline");
+      const result = await generateVerifiedResponse(cleanedQuery, {
+        enable_verification: true,
+        enable_knowledge_graph: true,
+        min_confidence: 70,
+      });
+
+      return NextResponse.json({
+        response: result.response,
+        sources: result.sources,
+        verification: result.verification,
+        knowledge_insights: result.knowledge_insights,
+      });
+    }
+
+    // ========================================
+    // Step 2: Search for Relevant Documents (Hybrid Search)
+    // ========================================
+    // Preprocess query to extract technical codes (UNS, ASTM, grades)
+    const processedQuery = preprocessQuery(cleanedQuery);
+
+    // Log if technical codes were detected (helps with debugging)
+    if (processedQuery.boostExactMatch) {
+      console.log(
+        `[Chat API] Technical codes detected: ${formatExtractedCodes(processedQuery.extractedCodes)}`
       );
+    }
+
+    let chunks: HybridSearchResult[] = [];
+    try {
+      // Use hybrid search (BM25 + Vector) for better accuracy on exact codes
+      // Falls back to vector-only if hybrid search is not available
+      chunks = await withTimeout(
+        searchWithFallback(cleanedQuery, 5),
+        TIMEOUTS.VECTOR_SEARCH,
+        "Hybrid search"
+      );
+
+      // Log search performance for debugging
+      if (chunks.length > 0 && processedQuery.boostExactMatch) {
+        const topResult = chunks[0];
+        console.log(
+          `[Chat API] Top result scores - BM25: ${topResult.bm25_score.toFixed(3)}, Vector: ${topResult.vector_score.toFixed(3)}, Combined: ${topResult.combined_score.toFixed(3)}`
+        );
+      }
     } catch (searchError) {
       // Log but continue - we can still provide a response without documents
-      console.warn("[Chat API] Vector search failed, continuing without context:", searchError);
+      console.warn("[Chat API] Search failed, continuing without context:", searchError);
       // Don't throw - we'll continue with empty chunks
     }
 
@@ -72,11 +116,16 @@ export async function POST(request: NextRequest) {
     );
 
     // Build context string from retrieved chunks
+    // Include relevance indicator for BM25 matches (helps LLM understand which chunks have exact matches)
     const context = chunks.length > 0
       ? chunks
           .map((chunk, index) => {
             const doc = docMap.get(chunk.document_id);
-            return `[${index + 1}] From "${doc?.filename || "Unknown"}" (Page ${chunk.page_number}):\n${chunk.content}`;
+            // Add relevance note for exact keyword matches (BM25 > 0)
+            const relevanceNote = chunk.bm25_score > 0
+              ? ` [HIGH RELEVANCE - exact keyword match]`
+              : "";
+            return `[${index + 1}] From "${doc?.filename || "Unknown"}" (Page ${chunk.page_number})${relevanceNote}:\n${chunk.content}`;
           })
           .join("\n\n---\n\n")
       : "No documents have been uploaded yet.";
@@ -142,15 +191,25 @@ Please provide general guidance based on industry standards (ASTM, NACE, API), b
     }
 
     // ========================================
-    // Step 5: Build Sources Array
+    // Step 5: Build Sources Array with PDF Links
     // ========================================
     const sources = chunks.map((chunk, index) => {
       const doc = docMap.get(chunk.document_id);
+      // Get public URL for the document to enable direct page navigation
+      let documentUrl: string | undefined;
+      if (doc?.storage_path) {
+        const { data: urlData } = supabase.storage
+          .from("documents")
+          .getPublicUrl(doc.storage_path);
+        // Append page anchor for direct navigation (works in most PDF viewers)
+        documentUrl = `${urlData.publicUrl}#page=${chunk.page_number}`;
+      }
       return {
         ref: `[${index + 1}]`,
         document: doc?.filename || "Unknown",
         page: String(chunk.page_number),
         content_preview: chunk.content.slice(0, 150) + "...",
+        document_url: documentUrl,
       };
     });
 

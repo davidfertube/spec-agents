@@ -1,136 +1,61 @@
 /**
  * Centralized Configuration Validation
- * =====================================
+ * ====================================
  *
  * This module validates all required environment variables at startup.
- * If any required variable is missing, it throws immediately with a clear error.
+ * It follows the "fail fast" principle - if any required env var is missing,
+ * the app crashes immediately with a clear error message.
  *
- * This follows the "fail fast" principle - better to crash at startup with
- * a clear error than to fail cryptically when the variable is first used.
- *
- * Usage:
- *   import { CONFIG } from '@/lib/config';
- *   const apiKey = CONFIG.GOOGLE_API_KEY;
+ * This is much better than discovering missing env vars at runtime when
+ * a user tries to use a feature.
  */
 
 /**
- * Helper function to validate and retrieve an environment variable
+ * Helper function to validate and retrieve environment variables
  *
- * @param name - The name of the environment variable
- * @param options - Configuration options
+ * @param name - The name of the environment variable to retrieve
+ * @param isPublic - Whether this is a public (NEXT_PUBLIC_*) variable
  * @returns The value of the environment variable
- * @throws Error if the variable is missing and required
+ * @throws Error if the environment variable is missing or empty
  */
-function requireEnv(
-  name: string,
-  options: {
-    optional?: boolean;
-    defaultValue?: string;
-  } = {}
-): string {
+function requireEnv(name: string, isPublic: boolean = false): string {
   const value = process.env[name];
 
-  // If value exists and is not empty, return it
-  if (value && value.trim() !== '') {
-    return value;
+  if (!value || value.trim() === '') {
+    throw new Error(
+      `Missing required environment variable: ${name}\n` +
+      `Please add it to your .env.local file.\n` +
+      `${isPublic ? 'This is a public variable (NEXT_PUBLIC_*).' : 'This is a server-side variable.'}`
+    );
   }
 
-  // If a default value is provided, use it
-  if (options.defaultValue !== undefined) {
-    return options.defaultValue;
-  }
-
-  // If optional, return empty string
-  if (options.optional) {
-    return '';
-  }
-
-  // Otherwise, throw a clear error message
-  throw new Error(
-    `\n` +
-    `========================================\n` +
-    `MISSING ENVIRONMENT VARIABLE: ${name}\n` +
-    `========================================\n` +
-    `\n` +
-    `This variable is required for the application to run.\n` +
-    `\n` +
-    `To fix this:\n` +
-    `1. Copy .env.example to .env.local (if you haven't already)\n` +
-    `2. Add ${name}=your_value to .env.local\n` +
-    `3. Restart the development server\n` +
-    `\n`
-  );
+  return value;
 }
 
 /**
- * Application Configuration
+ * Validate all required environment variables at module load time
+ * This ensures we fail fast at startup, not at first API call
  *
- * All environment variables are validated at module load time.
- * This ensures the app fails fast if configuration is missing.
+ * All variables are validated when this module is imported
  */
 export const CONFIG = {
-  // ============================================
-  // Google AI (Gemini) Configuration
-  // ============================================
-
-  /**
-   * Google API Key for Gemini LLM and embeddings
-   * Get this from: https://makersuite.google.com/app/apikey
-   */
+  // Google AI (Gemini) - Required for LLM generation and embeddings
   GOOGLE_API_KEY: requireEnv('GOOGLE_API_KEY'),
 
-  // ============================================
-  // Supabase Configuration
-  // ============================================
-
-  /**
-   * Supabase Project URL
-   * Format: https://[project-id].supabase.co
-   */
-  SUPABASE_URL: requireEnv('NEXT_PUBLIC_SUPABASE_URL'),
-
-  /**
-   * Supabase Anonymous Key
-   * This is the public anon key, safe to expose in client-side code
-   */
-  SUPABASE_ANON_KEY: requireEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
-
-  // ============================================
-  // Application Settings
-  // ============================================
-
-  /**
-   * API URL for the backend (defaults to localhost in development)
-   */
-  API_URL: requireEnv('NEXT_PUBLIC_API_URL', {
-    defaultValue: 'http://localhost:8000'
-  }),
-
-  /**
-   * Node environment
-   */
-  NODE_ENV: process.env.NODE_ENV || 'development',
-
-  /**
-   * Is the application running in production?
-   */
-  IS_PRODUCTION: process.env.NODE_ENV === 'production',
-
+  // Supabase - Required for database and vector storage
+  SUPABASE_URL: requireEnv('NEXT_PUBLIC_SUPABASE_URL', true),
+  SUPABASE_ANON_KEY: requireEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', true),
 } as const;
 
-/**
- * Type for the configuration object
- * Use this for type-safe access to config values
- */
+// Export type for autocomplete and type safety
 export type Config = typeof CONFIG;
 
 /**
- * Validate that all required config is present
- * This function can be called at startup to ensure config is valid
+ * Optional: Helper to check if we're in development mode
  */
-export function validateConfig(): void {
-  // Simply accessing CONFIG will trigger validation
-  // due to the requireEnv calls above
-  const _ = CONFIG;
-  console.log('[Config] All required environment variables are present');
-}
+export const isDevelopment = process.env.NODE_ENV === 'development';
+
+/**
+ * Optional: Helper to check if we're in production mode
+ */
+export const isProduction = process.env.NODE_ENV === 'production';

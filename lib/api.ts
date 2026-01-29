@@ -138,6 +138,7 @@ export interface Source {
   document: string;      // e.g., "ASTM_A106.pdf"
   page: string;          // e.g., "5"
   content_preview: string; // First 200 chars of the chunk
+  document_url?: string; // Public URL to open PDF at specific page
 }
 
 // Response types

@@ -1,0 +1,78 @@
+{
+  "document": "ASTM A872/A872M-14",
+  "description": "Centrifugally Cast Ferritic/Austenitic Stainless Steel Pipe for Corrosive Environments",
+  "revision": "2014",
+  "qa_pairs": [
+    {
+      "id": "A872-001",
+      "question": "What manufacturing method does A872 cover?",
+      "expected_values": ["centrifugally cast", "centrifugal casting", "cast"],
+      "source_section": "Section 1",
+      "difficulty": "easy",
+      "tags": ["manufacturing", "casting"]
+    },
+    {
+      "id": "A872-002",
+      "question": "What is the minimum yield strength for UNS J93183 cast duplex pipe per A872?",
+      "expected_values": ["65 ksi", "450 MPa"],
+      "source_table": "Table 3",
+      "difficulty": "medium",
+      "tags": ["yield", "mechanical", "J93183"],
+      "verification": {
+        "numerical_value": 65,
+        "unit": "ksi",
+        "property": "yield_strength"
+      }
+    },
+    {
+      "id": "A872-003",
+      "question": "What is the minimum tensile strength for UNS J94300 (CD4MCuMN) per A872?",
+      "expected_values": ["110 ksi", "760 MPa"],
+      "source_table": "Table 3",
+      "difficulty": "medium",
+      "tags": ["tensile", "J94300", "CD4MCuMN"],
+      "verification": {
+        "numerical_value": 110,
+        "unit": "ksi",
+        "property": "tensile_strength"
+      }
+    },
+    {
+      "id": "A872-004",
+      "question": "What heat treatment temperature is required for UNS J93183 per A872?",
+      "expected_values": ["1920-2100", "1050-1150", "1920°F", "1050°C"],
+      "source_table": "Table 2",
+      "difficulty": "medium",
+      "tags": ["heat-treatment"]
+    },
+    {
+      "id": "A872-005",
+      "question": "What is the minimum elongation for UNS J93183 per A872?",
+      "expected_values": ["25%", "25"],
+      "source_table": "Table 3",
+      "difficulty": "easy",
+      "tags": ["elongation", "J93183"],
+      "verification": {
+        "numerical_value": 25,
+        "unit": "%",
+        "property": "elongation"
+      }
+    },
+    {
+      "id": "A872-NEG-001",
+      "question": "What is the weld procedure qualification for A872 pipe?",
+      "expected_answer": "REFUSE - A872 is for centrifugally cast pipe, not welded pipe (weld repair is permitted but welded seam pipe is covered by A790)",
+      "expect_refusal": true,
+      "difficulty": "trap",
+      "tags": ["negative-test", "welding", "wrong-process"]
+    }
+  ],
+  "metadata": {
+    "total_questions": 6,
+    "easy": 2,
+    "medium": 3,
+    "hard": 0,
+    "trap": 1,
+    "requires_document": true
+  }
+}

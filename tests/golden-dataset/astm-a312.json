@@ -1,0 +1,136 @@
+{
+  "document": "ASTM A312/A312M-25",
+  "description": "Seamless, Welded, and Heavily Cold Worked Austenitic Stainless Steel Pipes",
+  "revision": "2025",
+  "qa_pairs": [
+    {
+      "id": "A312-001",
+      "question": "What is the minimum yield strength for 316L pipe per ASTM A312?",
+      "expected_values": ["25 ksi", "170 MPa", "25,000 psi"],
+      "source_table": "Table 4",
+      "difficulty": "easy",
+      "tags": ["316L", "yield", "mechanical"],
+      "verification": {
+        "numerical_value": 25,
+        "unit": "ksi",
+        "property": "yield_strength"
+      }
+    },
+    {
+      "id": "A312-002",
+      "question": "What is the minimum tensile strength for 304 stainless per A312?",
+      "expected_values": ["75 ksi", "515 MPa"],
+      "source_table": "Table 4",
+      "difficulty": "easy",
+      "tags": ["304", "tensile", "mechanical"],
+      "verification": {
+        "numerical_value": 75,
+        "unit": "ksi",
+        "property": "tensile_strength"
+      }
+    },
+    {
+      "id": "A312-003",
+      "question": "What is the maximum carbon content for 316L per ASTM A312?",
+      "expected_values": ["0.035%", "0.035", "0.035 max"],
+      "source_table": "Table 1",
+      "difficulty": "easy",
+      "tags": ["316L", "chemistry", "carbon"],
+      "verification": {
+        "numerical_value": 0.035,
+        "unit": "%",
+        "property": "carbon_max"
+      }
+    },
+    {
+      "id": "A312-004",
+      "question": "What heat treatment temperature is required for solution-annealed A312 pipe?",
+      "expected_values": ["1900", "1040", "1900°F", "1040°C"],
+      "source_table": "Table 2",
+      "difficulty": "medium",
+      "tags": ["heat-treatment", "annealing"]
+    },
+    {
+      "id": "A312-005",
+      "question": "What is the nickel content range for 316L per A312?",
+      "expected_values": ["10.0-14.0%", "10.0-14.0", "10-14%"],
+      "source_table": "Table 1",
+      "difficulty": "medium",
+      "tags": ["316L", "chemistry", "nickel"]
+    },
+    {
+      "id": "A312-006",
+      "question": "What is the minimum elongation for 316L pipe per A312?",
+      "expected_values": ["35%", "35", "35 percent"],
+      "source_table": "Table 4",
+      "difficulty": "easy",
+      "tags": ["316L", "elongation", "mechanical"],
+      "verification": {
+        "numerical_value": 35,
+        "unit": "%",
+        "property": "elongation"
+      }
+    },
+    {
+      "id": "A312-007",
+      "question": "Does A312 cover welded pipe?",
+      "expected_values": ["yes", "welded", "seamless and welded", "seamless, welded"],
+      "source_section": "Section 1",
+      "difficulty": "easy",
+      "tags": ["product-form", "welded"]
+    },
+    {
+      "id": "A312-008",
+      "question": "What is the molybdenum content for 316L per A312?",
+      "expected_values": ["2.00-3.00%", "2.0-3.0%", "2.00 to 3.00"],
+      "source_table": "Table 1",
+      "difficulty": "medium",
+      "tags": ["316L", "chemistry", "molybdenum"]
+    },
+    {
+      "id": "A312-009",
+      "question": "What is the minimum tensile strength for TP316L pipe?",
+      "expected_values": ["70 ksi", "485 MPa"],
+      "source_table": "Table 4",
+      "difficulty": "easy",
+      "tags": ["316L", "tensile", "mechanical"],
+      "verification": {
+        "numerical_value": 70,
+        "unit": "ksi",
+        "property": "tensile_strength"
+      }
+    },
+    {
+      "id": "A312-NEG-001",
+      "question": "What is the PREN value for 316L according to A312?",
+      "expected_answer": "REFUSE - A312 does not specify PREN values (PREN is calculated from chemistry)",
+      "expect_refusal": true,
+      "difficulty": "trap",
+      "tags": ["negative-test", "PREN", "out-of-scope"]
+    },
+    {
+      "id": "A312-NEG-002",
+      "question": "What is the yield strength of S31803 duplex per A312?",
+      "expected_answer": "REFUSE - S31803 (duplex) is not covered by A312 (austenitic grades only, see A790 for duplex)",
+      "expect_refusal": true,
+      "difficulty": "trap",
+      "tags": ["negative-test", "wrong-standard"]
+    },
+    {
+      "id": "A312-NEG-003",
+      "question": "What is the chromium content for 2205 duplex per A312?",
+      "expected_answer": "REFUSE - 2205 duplex is not covered by A312 (see A790 for duplex stainless grades)",
+      "expect_refusal": true,
+      "difficulty": "trap",
+      "tags": ["negative-test", "wrong-standard", "duplex"]
+    }
+  ],
+  "metadata": {
+    "total_questions": 12,
+    "easy": 6,
+    "medium": 3,
+    "hard": 0,
+    "trap": 3,
+    "requires_document": true
+  }
+}

@@ -17,6 +17,22 @@ export interface SearchResult {
   similarity: number;
 }
 
+/**
+ * Extended search result that includes hybrid search scores.
+ * Used by the hybrid search module for BM25 + vector fusion.
+ */
+export interface HybridSearchResult extends SearchResult {
+  /** BM25 (keyword) score from full-text search */
+  bm25_score: number;
+  /** Vector similarity score */
+  vector_score: number;
+  /** Combined weighted score */
+  combined_score: number;
+}
+
+// Re-export hybrid search types for convenience
+export type { HybridSearchResult as HybridResult } from "./hybrid-search";
+
 export async function storeChunks(chunks: Chunk[]): Promise<void> {
   const { error } = await supabase.from("chunks").insert(chunks);
 

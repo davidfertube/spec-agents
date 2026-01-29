@@ -57,7 +57,7 @@ function useTypewriter(text: string, speed: number = 15) {
   return { displayedText, isComplete };
 }
 
-// Source citation component
+// Source citation component with clickable PDF links
 function SourceCitation({ source, index }: { source: Source; index: number }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -68,30 +68,44 @@ function SourceCitation({ source, index }: { source: Source; index: number }) {
       transition={{ delay: index * 0.05 }}
       className="group"
     >
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="flex items-start gap-2 w-full text-left hover:bg-green-50 rounded-md p-1.5 -m-1.5 transition-colors"
-      >
+      <div className="flex items-start gap-2 hover:bg-green-50 rounded-md p-1.5 -m-1.5 transition-colors">
         <span className="font-mono text-xs font-semibold text-green-600 shrink-0">
           {source.ref}
         </span>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
             <FileText className="h-3 w-3 text-green-600 shrink-0" />
-            <span className="text-xs font-medium truncate text-foreground">
-              {source.document}
-            </span>
+            {source.document_url ? (
+              <a
+                href={source.document_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-medium truncate text-green-600 hover:text-green-700 hover:underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {source.document}
+              </a>
+            ) : (
+              <span className="text-xs font-medium truncate text-foreground">
+                {source.document}
+              </span>
+            )}
             <span className="text-[10px] text-muted-foreground shrink-0">
               p. {source.page}
             </span>
-            {expanded ? (
-              <ChevronUp className="h-3 w-3 text-muted-foreground ml-auto" />
-            ) : (
-              <ChevronDown className="h-3 w-3 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-            )}
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="ml-auto p-0.5 -m-0.5 hover:bg-green-100 rounded"
+            >
+              {expanded ? (
+                <ChevronUp className="h-3 w-3 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+              )}
+            </button>
           </div>
         </div>
-      </button>
+      </div>
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -103,6 +117,16 @@ function SourceCitation({ source, index }: { source: Source; index: number }) {
           >
             <div className="ml-6 mt-1 p-2 bg-green-50 rounded text-[10px] text-muted-foreground leading-relaxed">
               {source.content_preview}
+              {source.document_url && (
+                <a
+                  href={source.document_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block mt-1 text-green-600 hover:text-green-700 hover:underline"
+                >
+                  Open PDF at page {source.page} →
+                </a>
+              )}
             </div>
           </motion.div>
         )}
@@ -185,7 +209,7 @@ export function RealtimeComparison({
 
       {/* Side-by-side Comparison */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Steel Agent Column */}
+        {/* Steel Agents Column */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -201,7 +225,7 @@ export function RealtimeComparison({
               >
                 <Sparkles className="h-4 w-4 text-green-600" />
               </motion.div>
-              <span className="text-sm font-semibold text-green-700">Steel Agent</span>
+              <span className="text-sm font-semibold text-green-700">Steel Agents</span>
               <motion.span
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -355,7 +379,7 @@ export function RealtimeComparison({
             </div>
             <div>
               <p className="text-sm font-medium text-foreground">
-                Steel Agent provides traceable, audit-ready answers
+                Steel Agents provides traceable, audit-ready answers
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 {steelAgentSources.length > 0 ? (

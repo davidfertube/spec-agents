@@ -124,19 +124,19 @@ export function DocumentUpload({ onUploadComplete }: DocumentUploadProps) {
     return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
 
-  // Estimate processing time based on file size
-  // ~2 seconds per MB for upload + extraction + embedding
-  const estimateProcessingTime = (bytes: number) => {
-    const mb = bytes / (1024 * 1024);
-    const seconds = Math.max(5, Math.ceil(mb * 2)); // Minimum 5 seconds
-    if (seconds < 60) return `~${seconds} seconds`;
-    const minutes = Math.ceil(seconds / 60);
-    return `~${minutes} minute${minutes > 1 ? "s" : ""}`;
-  };
-
-  // Estimate page count from file size (rough: ~50KB per page average)
+  // Estimate page count from file size (rough: ~50KB per page average for ASTM specs)
   const estimatePageCount = (bytes: number) => {
     return Math.max(1, Math.round(bytes / (50 * 1024)));
+  };
+
+  // Estimate processing time: ~3 seconds per page
+  // Formula: pages × 3s (includes upload, extraction, chunking, embedding)
+  const estimateProcessingTime = (bytes: number) => {
+    const pages = estimatePageCount(bytes);
+    const seconds = Math.max(10, pages * 3); // Minimum 10 seconds
+    if (seconds < 60) return `~${seconds}s`;
+    const minutes = Math.ceil(seconds / 60);
+    return `~${minutes} min`;
   };
 
   return (

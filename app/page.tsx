@@ -306,7 +306,7 @@ function IndustryVisualization() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 2.2 }}
         >
-          STEEL AGENT
+          STEEL AGENTS
         </motion.text>
 
         {/* Bottom label */}
@@ -380,7 +380,7 @@ function LeadForm() {
             </svg>
           </div>
           <h3 className="text-xl font-semibold text-black mb-2">You&apos;re on the list!</h3>
-          <p className="text-black/70">We&apos;ll contact you when Steel Agent is ready.</p>
+          <p className="text-black/70">We&apos;ll contact you when Steel Agents is ready.</p>
         </CardContent>
       </Card>
     );
@@ -480,7 +480,7 @@ function LeadForm() {
         </form>
 
         <p className="text-xs text-black/50 text-center mt-4">
-          We&apos;ll contact you when Steel Agent is ready. No spam, ever.
+          We&apos;ll contact you when Steel Agents is ready. No spam, ever.
         </p>
       </CardContent>
     </Card>
@@ -564,11 +564,23 @@ export default function Home() {
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <Link href="/" className="text-lg font-semibold tracking-tight text-black">
-              Steel Agent
+              Steel Agents
             </Link>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-4 lg:gap-8">
+              <a
+                href="#demo"
+                className="text-sm text-black/60 hover:text-black transition-colors"
+              >
+                Demo
+              </a>
+              <a
+                href="#contact"
+                className="text-sm text-black/60 hover:text-black transition-colors"
+              >
+                Contact
+              </a>
               <a
                 href="https://github.com/davidfertube/steel-venture"
                 target="_blank"
@@ -577,7 +589,6 @@ export default function Home() {
               >
                 GitHub
               </a>
-              <HealthIndicator />
             </nav>
 
             {/* Mobile menu button */}
@@ -605,6 +616,20 @@ export default function Home() {
           >
             <nav className="container-center py-6 space-y-1">
               <a
+                href="#demo"
+                className="block py-3 px-3 text-sm text-black/60 hover:text-black hover:bg-black/5 rounded transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Demo
+              </a>
+              <a
+                href="#contact"
+                className="block py-3 px-3 text-sm text-black/60 hover:text-black hover:bg-black/5 rounded transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Contact
+              </a>
+              <a
                 href="https://github.com/davidfertube/steel-venture"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -613,10 +638,6 @@ export default function Home() {
               >
                 GitHub
               </a>
-              <Separator className="my-4 bg-black/10" />
-              <div className="px-3">
-                <HealthIndicator />
-              </div>
             </nav>
           </motion.div>
         )}
@@ -626,53 +647,41 @@ export default function Home() {
         {/* Hero Section */}
         <section className="relative py-16 sm:py-20 md:py-28 overflow-hidden">
           <div className="container-wide">
-            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-              {/* Left: Text content */}
-              <div className="text-center lg:text-left space-y-8">
+            <div className="flex flex-col lg:flex-row gap-12 lg:gap-8 items-center">
+              {/* Center/Left: Text content */}
+              <div className="flex-1 text-center space-y-8">
                 <div className="space-y-6">
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    className="inline-flex items-center gap-2 px-3 py-1 border border-black/10 rounded-full text-xs font-medium text-black/70"
-                  >
-                    <motion.span
-                      className="w-2 h-2 bg-red-500 rounded-full"
-                      animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                    Steel Specification Search Agent
-                  </motion.div>
                   <motion.h1
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                    className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight leading-[1.1] text-black"
+                    transition={{ duration: 0.6, delay: 0.1 }}
+                    className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.05] text-black"
                   >
                     <motion.span
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      transition={{ duration: 0.5, delay: 0.3 }}
+                      transition={{ duration: 0.5, delay: 0.2 }}
                     >
-                      Find Steel Specs
+                      STEEL AGENTS
                     </motion.span>
-                    <br />
-                    <motion.span
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.5, delay: 0.5 }}
-                      className="whitespace-nowrap"
-                    >
-                      Instantly. Get Verified
-                    </motion.span>
-                    <br />
-                    <motion.span
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.5, delay: 0.7 }}
-                      className="relative inline-block"
-                    >
-                      Answers.
+                  </motion.h1>
+                  <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                    className="text-2xl sm:text-3xl text-black/80 font-medium"
+                  >
+                    ALL YOUR DOC SPECS
+                  </motion.p>
+                  <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.6 }}
+                    className="text-xl text-black/60 max-w-xl mx-auto leading-relaxed"
+                  >
+                    Upload specs. Ask questions. Get cited{" "}
+                    <span className="relative inline-block text-black font-semibold">
+                      answers
                       <motion.span
                         className="absolute -bottom-1 left-0 right-0 h-[3px] bg-red-500"
                         initial={{ scaleX: 0 }}
@@ -680,37 +689,25 @@ export default function Home() {
                         transition={{ duration: 0.6, delay: 1.0 }}
                         style={{ transformOrigin: "left" }}
                       />
-                    </motion.span>
-                  </motion.h1>
-                  <motion.p
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.9 }}
-                    className="text-lg text-black/70 max-w-xl mx-auto lg:mx-0 leading-relaxed"
-                  >
-                    Upload ASTM, NACE, or API documents. Ask any question. Get traceable citations for compliance reports in seconds.
+                    </span>
+                    .
                   </motion.p>
                 </div>
 
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 1.0 }}
-                  className="flex flex-wrap gap-4 justify-center lg:justify-start"
+                  transition={{ duration: 0.5, delay: 0.8 }}
+                  className="flex flex-wrap gap-4 justify-center"
                 >
                   <Button size="lg" className="bg-black text-white hover:bg-black/90 h-12 px-8" asChild>
                     <a href="#demo">
-                      Run Demo
+                      Try Demo
                     </a>
                   </Button>
-                  <Button size="lg" variant="outline" className="border-black/20 bg-white text-black hover:bg-black/5 h-12 w-12 p-0" asChild>
-                    <a
-                      href="https://github.com/davidfertube/steel-venture"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="View on GitHub"
-                    >
-                      <Github className="h-5 w-5" />
+                  <Button size="lg" variant="outline" className="border-black/20 bg-white text-black hover:bg-black/5 h-12 px-6" asChild>
+                    <a href="#contact">
+                      Get Access
                     </a>
                   </Button>
                 </motion.div>
@@ -719,8 +716,8 @@ export default function Home() {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 1.1 }}
-                  className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-4"
+                  transition={{ duration: 0.5, delay: 1.0 }}
+                  className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-4 max-w-2xl mx-auto"
                 >
                   <div>
                     <p className="text-2xl sm:text-3xl font-semibold text-black">4+ hrs</p>
@@ -746,11 +743,184 @@ export default function Home() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className="hidden lg:block"
+                className="hidden lg:block flex-shrink-0"
               >
                 <IndustryVisualization />
               </motion.div>
             </div>
+          </div>
+        </section>
+
+        {/* Why Steel Agents vs Generic LLMs Section */}
+        <section className="relative py-12 sm:py-16 md:py-20 border-t border-black/5 bg-black/[0.02]">
+          <div className="container-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="space-y-12"
+            >
+              {/* Section Header */}
+              <div className="text-center space-y-4">
+                <motion.h2
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                  className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-black"
+                >
+                  Why Steel Agents?
+                </motion.h2>
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="text-lg text-black/70 max-w-2xl mx-auto"
+                >
+                  Generic LLMs (ChatGPT, Claude, Gemini) hallucinate specs. Steel Agents only answers from your documents.
+                </motion.p>
+              </div>
+
+              {/* Comparison Grid */}
+              <div className="grid lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                {/* Steel Agents Card */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                  className="rounded-xl border-2 border-green-500 bg-green-50/50 p-6 space-y-4"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-semibold text-green-700">Steel Agents</h3>
+                  </div>
+                  <ul className="space-y-3">
+                    {[
+                      "Every answer traceable to page & document",
+                      "Audit-ready for ISO/API/ASTM compliance",
+                      "Quotes exact values from YOUR specs",
+                      "Current as your latest upload",
+                      "Searches YOUR documents only",
+                      "Liability-safe with traceable sources",
+                    ].map((item, i) => (
+                      <motion.li
+                        key={i}
+                        initial={{ opacity: 0, x: -10 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.4 + i * 0.05 }}
+                        className="flex items-start gap-2"
+                      >
+                        <svg className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-sm text-black/80">{item}</span>
+                      </motion.li>
+                    ))}
+                  </ul>
+                </motion.div>
+
+                {/* Generic LLM Card */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                  className="rounded-xl border-2 border-red-300 bg-red-50/30 p-6 space-y-4"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-red-400 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-semibold text-red-600">Generic LLM</h3>
+                    <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">ChatGPT / Claude / Gemini</span>
+                  </div>
+                  <ul className="space-y-3">
+                    {[
+                      "No source citations",
+                      "Not acceptable for audits",
+                      "May hallucinate numbers",
+                      "Training cutoff: months old",
+                      "Generic internet knowledge",
+                      "No accountability for errors",
+                    ].map((item, i) => (
+                      <motion.li
+                        key={i}
+                        initial={{ opacity: 0, x: 10 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.5 + i * 0.05 }}
+                        className="flex items-start gap-2"
+                      >
+                        <svg className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        <span className="text-sm text-black/60">{item}</span>
+                      </motion.li>
+                    ))}
+                  </ul>
+                </motion.div>
+              </div>
+
+              {/* Visual Demo Animation */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                className="bg-white rounded-xl border border-black/10 p-6 max-w-3xl mx-auto"
+              >
+                <p className="text-sm text-black/50 mb-4 text-center">Example Question</p>
+                <p className="text-lg font-medium text-black text-center mb-6">
+                  &quot;What is the yield strength of 316L stainless steel?&quot;
+                </p>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Steel Agents Response */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-semibold text-green-700">Steel Agents</span>
+                    </div>
+                    <div className="bg-green-50 rounded-lg p-4 text-sm">
+                      <p className="text-black/80">&quot;The minimum yield strength of 316L is <strong>170 MPa (25 ksi)</strong> [1]&quot;</p>
+                      <p className="text-green-600 text-xs mt-2 font-medium">
+                        Source: ASTM_A240.pdf, Page 3
+                      </p>
+                    </div>
+                  </div>
+                  {/* Generic LLM Response */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-red-400 flex items-center justify-center">
+                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium text-red-600">Generic LLM</span>
+                    </div>
+                    <div className="bg-red-50/50 rounded-lg p-4 text-sm">
+                      <p className="text-black/60">&quot;316L stainless steel typically has a yield strength around 170-290 MPa...&quot;</p>
+                      <p className="text-red-400 text-xs mt-2">
+                        No source • Cannot verify
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
           </div>
         </section>
 
@@ -931,7 +1101,7 @@ export default function Home() {
         </section>
 
         {/* Lead Collection Section */}
-        <section className="relative py-12 sm:py-16 md:py-20 border-t border-black/5">
+        <section id="contact" className="relative py-12 sm:py-16 md:py-20 border-t border-black/5">
           <div className="container-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -988,7 +1158,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
               <div>
-                <span className="font-semibold text-black">Steel Agent</span>
+                <span className="font-semibold text-black">Steel Agents</span>
                 <span className="text-black/60 text-sm ml-2">
                   by{" "}
                   <a
@@ -1017,7 +1187,7 @@ export default function Home() {
           </div>
           <Separator className="my-8 bg-black/5" />
           <p className="text-center text-xs text-black/40 max-w-2xl mx-auto">
-            <strong>Disclaimer:</strong> Steel Agent provides AI-generated responses for reference only.
+            <strong>Disclaimer:</strong> Steel Agents provides AI-generated responses for reference only.
             Always verify specifications against original source documents. Not intended for safety-critical
             decisions without professional engineering review. Users are responsible for their own document licenses.
           </p>
@@ -1025,8 +1195,6 @@ export default function Home() {
             <Link href="/terms" className="hover:text-black/60 transition-colors">Terms of Service</Link>
             <span>·</span>
             <Link href="/privacy" className="hover:text-black/60 transition-colors">Privacy Policy</Link>
-            <span>·</span>
-            <Link href="/pricing" className="hover:text-black/60 transition-colors">Pricing</Link>
           </div>
         </div>
       </footer>

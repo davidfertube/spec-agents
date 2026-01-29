@@ -36,6 +36,9 @@ jobs:
   backend:
     name: Backend Tests
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
 
     steps:
       - name: Checkout code
@@ -58,4 +61,4 @@ jobs:
           GOOGLE_API_KEY: test_key
           PINECONE_API_KEY: test_key
           PINECONE_INDEX_NAME: test-index
-        run: pytest backend/tests/ -v --tb=short
+        run: pytest tests/ -v --tb=short

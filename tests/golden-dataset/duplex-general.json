@@ -1,0 +1,95 @@
+{
+  "document": "General Duplex Stainless Steel",
+  "description": "Common questions about duplex stainless steel grades - tests both document RAG and appropriate refusal when documents not available",
+  "qa_pairs": [
+    {
+      "id": "DUP-001",
+      "question": "What is the typical PREN formula?",
+      "expected_answer": "PREN = %Cr + (3.3 × %Mo) + (16 × %N)",
+      "source": "Industry standard formula",
+      "difficulty": "easy",
+      "tags": ["PREN", "formula", "corrosion"],
+      "allow_general_knowledge": true
+    },
+    {
+      "id": "DUP-002",
+      "question": "What is the minimum PREN for super duplex grades?",
+      "expected_answer": "40 or higher (typically 40-45)",
+      "source": "Industry standard",
+      "difficulty": "medium",
+      "tags": ["PREN", "super-duplex"],
+      "allow_general_knowledge": true,
+      "verification": {
+        "numerical_value": 40,
+        "unit": "",
+        "property": "PREN_min"
+      }
+    },
+    {
+      "id": "DUP-003",
+      "question": "What ferrite-austenite ratio is typical for duplex stainless steel?",
+      "expected_answer": "Approximately 50/50 (typically 40-60% ferrite)",
+      "source": "Industry standard",
+      "difficulty": "medium",
+      "tags": ["microstructure", "ferrite", "austenite"],
+      "allow_general_knowledge": true
+    },
+    {
+      "id": "DUP-004",
+      "question": "What is the UNS designation for 2205 duplex?",
+      "expected_answer": "UNS S31803 or S32205",
+      "source": "UNS database (public)",
+      "difficulty": "easy",
+      "tags": ["UNS", "2205", "designation"],
+      "allow_general_knowledge": true
+    },
+    {
+      "id": "DUP-005",
+      "question": "What is the UNS designation for 2507 super duplex?",
+      "expected_answer": "UNS S32750",
+      "source": "UNS database (public)",
+      "difficulty": "easy",
+      "tags": ["UNS", "2507", "super-duplex"],
+      "allow_general_knowledge": true
+    },
+    {
+      "id": "DUP-006",
+      "question": "What is sigma phase and why is it problematic in duplex?",
+      "expected_answer": "Sigma phase is a brittle intermetallic (Fe-Cr-Mo) that forms at 600-950°C, reducing toughness and corrosion resistance",
+      "source": "Metallurgical knowledge",
+      "difficulty": "hard",
+      "tags": ["sigma", "microstructure", "embrittlement"],
+      "allow_general_knowledge": true
+    },
+    {
+      "id": "DUP-007",
+      "question": "What standard governs sour service requirements for duplex?",
+      "expected_answer": "NACE MR0175 / ISO 15156",
+      "source": "Industry standard",
+      "difficulty": "medium",
+      "tags": ["NACE", "sour-service", "ISO"],
+      "allow_general_knowledge": true
+    },
+    {
+      "id": "DUP-008",
+      "question": "What is the maximum hardness for duplex in sour service per NACE?",
+      "expected_answer": "28-32 HRC depending on grade and environment (typically 28 HRC for most applications)",
+      "source": "NACE MR0175",
+      "difficulty": "medium",
+      "tags": ["NACE", "hardness", "sour-service"],
+      "verification": {
+        "numerical_value": 28,
+        "unit": "HRC",
+        "property": "hardness_max"
+      }
+    }
+  ],
+  "metadata": {
+    "total_questions": 8,
+    "easy": 3,
+    "medium": 4,
+    "hard": 1,
+    "trap": 0,
+    "requires_document": false
+  }
+}

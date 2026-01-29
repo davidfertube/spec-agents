@@ -1,4 +1,4 @@
-# CLAUDE.md - Steel Agent
+# CLAUDE.md - Steel Agents
 
 ## Current Status (2026-01-27)
 

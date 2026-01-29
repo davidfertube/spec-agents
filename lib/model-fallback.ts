@@ -1,264 +1,255 @@
 /**
- * Model Fallback Utility
- * ======================
+ * Multi-Provider LLM Fallback System
+ * ===================================
  *
- * Automatically falls back to alternative models when rate limited.
- * This prevents API failures and avoids charges by using free tier limits
- * across multiple models.
+ * Provides reliable LLM access by falling back across multiple free providers:
+ * 1. Groq - 14,400 requests/day, ultra-fast (primary)
+ * 2. Cerebras - 1M tokens/day, very fast
+ * 3. Together AI - $25 free credits
+ * 4. OpenRouter - 50-1000 requests/day, many free models
  *
- * Rate Limit Strategy:
- * 1. Try primary model first
- * 2. If rate limited (429), try fallback models in order
- * 3. Add exponential backoff delays between retries
- * 4. For embeddings, add small delays between batches to stay under RPM
+ * Best models for steel specification RAG:
+ * - Llama 3.1/3.3 70B: Best free option for technical accuracy
+ * - Requires: accurate numerical extraction, citation following, no hallucination
  */
 
-import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
+import Groq from "groq-sdk";
 
 // ============================================
-// Model Configuration
+// Provider Configuration
 // ============================================
 
-/**
- * Available text generation models in order of preference
- * - Primary: gemini-2.5-flash (best quality, 5 RPM free)
- * - Fallback 1: gemini-2.5-flash-lite (faster, 10 RPM free)
- * - Fallback 2: gemini-3-flash (newest, 5 RPM free)
- */
+interface ProviderConfig {
+  name: string;
+  baseUrl: string;
+  envKey: string;
+  models: string[];
+  headers?: Record<string, string>;
+}
+
+const PROVIDERS: ProviderConfig[] = [
+  {
+    name: "Groq",
+    baseUrl: "https://api.groq.com/openai/v1",
+    envKey: "GROQ_API_KEY",
+    models: ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"],
+  },
+  {
+    name: "Cerebras",
+    baseUrl: "https://api.cerebras.ai/v1",
+    envKey: "CEREBRAS_API_KEY",
+    models: ["llama-3.3-70b", "llama-3.1-8b"],
+  },
+  {
+    name: "Together",
+    baseUrl: "https://api.together.xyz/v1",
+    envKey: "TOGETHER_API_KEY",
+    models: ["meta-llama/Llama-3.3-70B-Instruct-Turbo", "meta-llama/Llama-3.1-8B-Instruct-Turbo"],
+  },
+  {
+    name: "OpenRouter",
+    baseUrl: "https://openrouter.ai/api/v1",
+    envKey: "OPENROUTER_API_KEY",
+    models: ["meta-llama/llama-3.3-70b-instruct:free", "mistralai/mistral-7b-instruct:free"],
+    headers: { "HTTP-Referer": "https://steel-agents.com" },
+  },
+];
+
+// Export for reference
 export const TEXT_MODELS = [
-  "gemini-2.5-flash",      // Primary - best quality
-  "gemini-2.5-flash-lite", // Fallback 1 - faster, higher RPM
-  "gemini-3-flash",        // Fallback 2 - newest model
+  "llama-3.3-70b-versatile",
+  "llama-3.1-8b-instant",
+  "mixtral-8x7b-32768",
 ] as const;
 
-/**
- * Available embedding models
- * Note: Google only has one main embedding model, so we can't really
- * fallback to another. Instead, we'll implement rate limiting/throttling.
- */
-export const EMBEDDING_MODELS = [
-  "gemini-embedding-001",  // Primary (same as gemini-embedding-1.0)
-] as const;
+export const EMBEDDING_MODELS = ["gemini-embedding-001"] as const;
 
 export type TextModel = typeof TEXT_MODELS[number];
 export type EmbeddingModel = typeof EMBEDDING_MODELS[number];
 
 // ============================================
-// Rate Limit Detection
+// Error Detection
 // ============================================
 
-/**
- * Check if an error is a rate limit error
- */
 export function isRateLimitError(error: unknown): boolean {
   if (error instanceof Error) {
-    const message = error.message.toLowerCase();
-    return (
-      message.includes("rate limit") ||
-      message.includes("quota") ||
-      message.includes("429") ||
-      message.includes("too many requests") ||
-      message.includes("resource exhausted")
-    );
+    const msg = error.message.toLowerCase();
+    return msg.includes("rate limit") || msg.includes("quota") ||
+           msg.includes("429") || msg.includes("too many") ||
+           msg.includes("resource exhausted");
   }
   return false;
 }
 
-/**
- * Check if an error is a model not found error
- * (Model might not be available in all regions)
- */
 export function isModelNotFoundError(error: unknown): boolean {
   if (error instanceof Error) {
-    const message = error.message.toLowerCase();
-    return (
-      message.includes("not found") ||
-      message.includes("model not found") ||
-      message.includes("invalid model")
-    );
+    const msg = error.message.toLowerCase();
+    return msg.includes("not found") || msg.includes("invalid model");
   }
   return false;
 }
 
 // ============================================
-// Retry Utilities
+// OpenAI-Compatible Client
 // ============================================
 
-/**
- * Sleep for a specified number of milliseconds
- */
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+interface ChatMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
 }
 
-/**
- * Calculate exponential backoff delay
- * @param attempt - Current attempt number (0-indexed)
- * @param baseDelay - Base delay in ms (default 1000)
- * @param maxDelay - Maximum delay in ms (default 30000)
- */
-function getBackoffDelay(
-  attempt: number,
-  baseDelay: number = 1000,
-  maxDelay: number = 30000
-): number {
-  // Exponential backoff: 1s, 2s, 4s, 8s, etc.
-  const delay = Math.min(baseDelay * Math.pow(2, attempt), maxDelay);
-  // Add jitter (±20%) to prevent thundering herd
-  const jitter = delay * 0.2 * (Math.random() * 2 - 1);
-  return Math.round(delay + jitter);
+interface ChatCompletion {
+  choices: Array<{ message: { content: string } }>;
+}
+
+async function callOpenAICompatible(
+  baseUrl: string,
+  apiKey: string,
+  model: string,
+  messages: ChatMessage[],
+  extraHeaders?: Record<string, string>
+): Promise<string> {
+  const response = await fetch(`${baseUrl}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+      ...extraHeaders,
+    },
+    body: JSON.stringify({
+      model,
+      messages,
+      temperature: 0.3,
+      max_tokens: 2048,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`${response.status}: ${errorText}`);
+  }
+
+  const data = (await response.json()) as ChatCompletion;
+  return data.choices[0]?.message?.content || "";
 }
 
 // ============================================
-// Model Fallback Client
+// Multi-Provider Fallback Client
 // ============================================
 
-/**
- * Configuration for the model fallback client
- */
 export interface ModelFallbackConfig {
-  apiKey: string;
+  apiKey?: string; // Legacy - now uses env vars per provider
   maxRetries?: number;
   enableFallback?: boolean;
   logRetries?: boolean;
 }
 
-/**
- * Model fallback client that automatically retries with alternative models
- */
 export class ModelFallbackClient {
-  private genAI: GoogleGenerativeAI;
+  private groq: Groq | null = null;
   private maxRetries: number;
   private enableFallback: boolean;
   private logRetries: boolean;
+  private availableProviders: ProviderConfig[] = [];
 
-  constructor(config: ModelFallbackConfig) {
-    this.genAI = new GoogleGenerativeAI(config.apiKey);
+  constructor(config: ModelFallbackConfig = {}) {
     this.maxRetries = config.maxRetries ?? 3;
     this.enableFallback = config.enableFallback ?? true;
     this.logRetries = config.logRetries ?? true;
+
+    // Initialize available providers based on env vars
+    for (const provider of PROVIDERS) {
+      const apiKey = process.env[provider.envKey];
+      if (apiKey) {
+        this.availableProviders.push(provider);
+        if (provider.name === "Groq") {
+          this.groq = new Groq({ apiKey });
+        }
+      }
+    }
+
+    if (this.availableProviders.length === 0) {
+      throw new Error(
+        "No LLM API keys configured. Set at least one of: GROQ_API_KEY, CEREBRAS_API_KEY, TOGETHER_API_KEY, or OPENROUTER_API_KEY"
+      );
+    }
+
+    if (this.logRetries) {
+      console.log(`[ModelFallback] Available providers: ${this.availableProviders.map(p => p.name).join(", ")}`);
+    }
   }
 
-  /**
-   * Generate content with automatic model fallback
-   *
-   * Tries the primary model first, then falls back to alternatives
-   * if rate limited.
-   *
-   * @param prompt - The prompt to send
-   * @param preferredModel - Preferred model to try first
-   * @returns Generated text content
-   */
   async generateContent(
     prompt: string,
-    preferredModel: TextModel = "gemini-2.5-flash"
-  ): Promise<{ text: string; modelUsed: TextModel }> {
-    // Build list of models to try (preferred first, then fallbacks)
-    const modelsToTry = this.enableFallback
-      ? [preferredModel, ...TEXT_MODELS.filter((m) => m !== preferredModel)]
-      : [preferredModel];
-
+    _preferredModel?: string
+  ): Promise<{ text: string; modelUsed: string }> {
     let lastError: Error | null = null;
 
-    for (const modelName of modelsToTry) {
-      try {
-        const model = this.genAI.getGenerativeModel({ model: modelName });
+    // Try each provider in order
+    for (const provider of this.availableProviders) {
+      const apiKey = process.env[provider.envKey]!;
 
-        if (this.logRetries && modelName !== preferredModel) {
-          console.log(`[ModelFallback] Trying fallback model: ${modelName}`);
-        }
+      // Try each model for this provider
+      for (const model of provider.models) {
+        try {
+          if (this.logRetries && (provider !== this.availableProviders[0] || model !== provider.models[0])) {
+            console.log(`[ModelFallback] Trying ${provider.name}/${model}`);
+          }
 
-        const result = await model.generateContent({
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-        });
+          let text: string;
 
-        const text = result.response.text();
-
-        if (this.logRetries && modelName !== preferredModel) {
-          console.log(`[ModelFallback] Successfully used fallback: ${modelName}`);
-        }
-
-        return { text, modelUsed: modelName };
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-
-        // If rate limited or model not found, try next model
-        if (isRateLimitError(error) || isModelNotFoundError(error)) {
-          if (this.logRetries) {
-            console.warn(
-              `[ModelFallback] ${modelName} failed: ${lastError.message}`
+          // Use Groq SDK for Groq (better error handling)
+          if (provider.name === "Groq" && this.groq) {
+            const completion = await this.groq.chat.completions.create({
+              model,
+              messages: [{ role: "user", content: prompt }],
+              temperature: 0.3,
+              max_tokens: 2048,
+            });
+            text = completion.choices[0]?.message?.content || "";
+          } else {
+            // Use OpenAI-compatible API for others
+            text = await callOpenAICompatible(
+              provider.baseUrl,
+              apiKey,
+              model,
+              [{ role: "user", content: prompt }],
+              provider.headers
             );
           }
 
-          // Add a small delay before trying next model
-          await sleep(500);
-          continue;
-        }
+          if (this.logRetries && provider !== this.availableProviders[0]) {
+            console.log(`[ModelFallback] Success with ${provider.name}/${model}`);
+          }
 
-        // For other errors, throw immediately
-        throw error;
+          return { text, modelUsed: `${provider.name}/${model}` };
+        } catch (error) {
+          lastError = error instanceof Error ? error : new Error(String(error));
+
+          if (this.logRetries) {
+            console.warn(`[ModelFallback] ${provider.name}/${model} failed: ${lastError.message.slice(0, 100)}`);
+          }
+
+          // If rate limited or model error, try next
+          if (isRateLimitError(error) || isModelNotFoundError(error)) {
+            await sleep(300);
+            continue;
+          }
+
+          // For other errors on this model, try next model
+          if (!this.enableFallback) throw error;
+        }
       }
     }
 
-    // All models failed
-    throw new Error(
-      `All models failed. Last error: ${lastError?.message || "Unknown error"}`
-    );
+    throw new Error(`All providers failed. Last error: ${lastError?.message || "Unknown"}`);
   }
 
-  /**
-   * Generate content with retries on rate limit
-   *
-   * Unlike generateContent, this retries the SAME model with backoff.
-   * Use this when you specifically need a certain model.
-   *
-   * @param prompt - The prompt to send
-   * @param modelName - Specific model to use
-   * @returns Generated text
-   */
   async generateContentWithRetry(
     prompt: string,
-    modelName: TextModel = "gemini-2.5-flash"
+    modelName?: string
   ): Promise<string> {
-    let lastError: Error | null = null;
-
-    for (let attempt = 0; attempt < this.maxRetries; attempt++) {
-      try {
-        const model = this.genAI.getGenerativeModel({ model: modelName });
-
-        const result = await model.generateContent({
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-        });
-
-        return result.response.text();
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-
-        if (isRateLimitError(error) && attempt < this.maxRetries - 1) {
-          const delay = getBackoffDelay(attempt);
-          if (this.logRetries) {
-            console.warn(
-              `[ModelFallback] Rate limited, retrying in ${delay}ms (attempt ${
-                attempt + 1
-              }/${this.maxRetries})`
-            );
-          }
-          await sleep(delay);
-          continue;
-        }
-
-        throw error;
-      }
-    }
-
-    throw lastError || new Error("Max retries exceeded");
-  }
-
-  /**
-   * Get a GenerativeModel instance for direct use
-   */
-  getModel(modelName: TextModel = "gemini-2.5-flash"): GenerativeModel {
-    return this.genAI.getGenerativeModel({ model: modelName });
+    const result = await this.generateContent(prompt, modelName);
+    return result.text;
   }
 }
 
@@ -266,66 +257,42 @@ export class ModelFallbackClient {
 // Embedding Rate Limiter
 // ============================================
 
-/**
- * Rate limiter for embedding generation
- *
- * Implements a token bucket algorithm to stay under RPM limits.
- * For gemini-embedding-1.0: 100 RPM = ~1.67 requests per second
- */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export class EmbeddingRateLimiter {
   private lastRequestTime: number = 0;
   private minDelayMs: number;
 
-  /**
-   * @param requestsPerMinute - Max requests per minute (default 80 to stay safe under 100)
-   */
   constructor(requestsPerMinute: number = 80) {
-    // Calculate minimum delay between requests
-    // 60000ms / 80 RPM = 750ms between requests
     this.minDelayMs = Math.ceil(60000 / requestsPerMinute);
   }
 
-  /**
-   * Wait if needed before making the next request
-   */
   async throttle(): Promise<void> {
     const now = Date.now();
-    const timeSinceLastRequest = now - this.lastRequestTime;
-
-    if (timeSinceLastRequest < this.minDelayMs) {
-      const waitTime = this.minDelayMs - timeSinceLastRequest;
-      await sleep(waitTime);
+    const elapsed = now - this.lastRequestTime;
+    if (elapsed < this.minDelayMs) {
+      await sleep(this.minDelayMs - elapsed);
     }
-
     this.lastRequestTime = Date.now();
   }
 
-  /**
-   * Reset the rate limiter (e.g., after a long pause)
-   */
   reset(): void {
     this.lastRequestTime = 0;
   }
 }
 
 // ============================================
-// Singleton Instance
+// Singleton Instances
 // ============================================
 
 let modelFallbackClient: ModelFallbackClient | null = null;
 let embeddingRateLimiter: EmbeddingRateLimiter | null = null;
 
-/**
- * Get the singleton ModelFallbackClient instance
- */
 export function getModelFallbackClient(): ModelFallbackClient {
   if (!modelFallbackClient) {
-    const apiKey = process.env.GOOGLE_API_KEY;
-    if (!apiKey) {
-      throw new Error("GOOGLE_API_KEY environment variable is required");
-    }
     modelFallbackClient = new ModelFallbackClient({
-      apiKey,
       maxRetries: 3,
       enableFallback: true,
       logRetries: process.env.NODE_ENV !== "production",
@@ -334,13 +301,33 @@ export function getModelFallbackClient(): ModelFallbackClient {
   return modelFallbackClient;
 }
 
-/**
- * Get the singleton EmbeddingRateLimiter instance
- */
 export function getEmbeddingRateLimiter(): EmbeddingRateLimiter {
   if (!embeddingRateLimiter) {
-    // Use 80 RPM to stay safely under the 100 RPM limit
     embeddingRateLimiter = new EmbeddingRateLimiter(80);
   }
   return embeddingRateLimiter;
 }
+
+// ============================================
+// Model Recommendations
+// ============================================
+
+/**
+ * Best models for steel specification RAG tasks:
+ *
+ * FREE TIER (Recommended order):
+ * 1. Llama 3.3 70B (Groq/Cerebras) - Best accuracy for technical docs
+ * 2. Llama 3.1 70B - Excellent numerical extraction
+ * 3. Mixtral 8x7B - Good balance of speed/quality
+ *
+ * PAID (If budget allows):
+ * 1. Claude Opus 4.5 - Best overall for technical accuracy
+ * 2. GPT-4o - Strong reasoning, good citations
+ * 3. Claude Sonnet 4 - Good balance cost/quality
+ *
+ * For this steel RAG task, Llama 3.3 70B is recommended because:
+ * - Accurate numerical value extraction (yield strength, PREN, etc.)
+ * - Good at following citation instructions
+ * - Low hallucination rate on technical content
+ * - Available free on multiple providers
+ */

@@ -14,7 +14,7 @@ export default function TermsPage() {
               <div className="w-8 h-8 bg-black flex items-center justify-center">
                 <Boxes className="w-4 h-4 text-white" />
               </div>
-              <span className="text-lg font-semibold tracking-tight text-black">Steel Agent</span>
+              <span className="text-lg font-semibold tracking-tight text-black">Steel Agents</span>
             </Link>
           </div>
         </div>
@@ -29,7 +29,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-semibold mb-4">1. Acceptance of Terms</h2>
               <p className="text-black/70 leading-relaxed">
-                By accessing or using Steel Agent (&quot;the Service&quot;), you agree to be bound by these Terms of Service.
+                By accessing or using Steel Agents (&quot;the Service&quot;), you agree to be bound by these Terms of Service.
                 If you do not agree to these terms, do not use the Service.
               </p>
             </section>
@@ -37,7 +37,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-semibold mb-4">2. Description of Service</h2>
               <p className="text-black/70 leading-relaxed">
-                Steel Agent is an AI-powered document retrieval and analysis tool designed for engineering
+                Steel Agents is an AI-powered document retrieval and analysis tool designed for engineering
                 specifications and technical documentation. The Service uses artificial intelligence to search,
                 retrieve, and summarize information from documents uploaded by users.
               </p>
@@ -96,7 +96,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-semibold mb-4">7. Indemnification</h2>
               <p className="text-black/70 leading-relaxed">
-                You agree to indemnify and hold harmless Steel Agent from any claims, damages, or expenses
+                You agree to indemnify and hold harmless Steel Agents from any claims, damages, or expenses
                 arising from your use of the Service, your violation of these Terms, or your violation of
                 any rights of a third party.
               </p>

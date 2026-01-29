@@ -1,129 +1,105 @@
 "use client";
 
-/**
- * Safe State Management Hooks
- * ===========================
- *
- * These hooks prevent common React issues:
- * - State updates on unmounted components
- * - Memory leaks from lingering timeouts
- * - Race conditions with async operations
- *
- * Usage:
- *   import { useSafeState, useSafeTimeout } from '@/hooks/use-safe-state';
- */
-
 import { useState, useEffect, useRef, useCallback } from "react";
 
-// ============================================
-// useSafeState Hook
-// ============================================
+/**
+ * Safe State Management Hooks
+ * ============================
+ *
+ * These hooks prevent common React pitfalls:
+ * 1. Setting state after component unmounts (causes memory leaks and warnings)
+ * 2. Timeouts that persist after component unmounts (causes memory leaks)
+ *
+ * Always use these instead of regular useState/setTimeout in components
+ * that might unmount while async operations are in flight.
+ */
 
 /**
- * A useState hook that prevents updates after component unmount
+ * A useState hook that prevents updates after unmount
  *
- * This prevents the React warning:
- * "Can't perform a React state update on an unmounted component"
+ * This prevents the "Can't perform a React state update on an unmounted component" warning,
+ * which is a sign of a memory leak.
  *
- * The hook tracks whether the component is mounted and only
- * allows state updates while mounted.
- *
- * @param initialValue - Initial state value
- * @returns Tuple of [state, setSafeState] similar to useState
+ * @param initialValue - The initial state value
+ * @returns A tuple of [state, setState] just like regular useState
  *
  * @example
  * ```typescript
- * function MyComponent() {
- *   const [data, setData] = useSafeState(null);
+ * const [data, setData] = useSafeState<string | null>(null);
  *
- *   useEffect(() => {
- *     fetchData().then(result => {
- *       // Safe even if component unmounts before fetch completes
- *       setData(result);
- *     });
- *   }, []);
- *
- *   return <div>{data}</div>;
- * }
+ * useEffect(() => {
+ *   fetch('/api/data')
+ *     .then(res => res.json())
+ *     .then(data => setData(data)); // Safe even if component unmounts
+ * }, []);
  * ```
  */
 export function useSafeState<T>(
   initialValue: T
 ): [T, (value: T | ((prev: T) => T)) => void] {
-  // The actual state
   const [state, setState] = useState<T>(initialValue);
-
-  // Ref to track if component is mounted
-  // Using ref so it doesn't cause re-renders
   const isMountedRef = useRef(true);
 
-  // Set up mount tracking
+  // Track mounted status
   useEffect(() => {
-    // Mark as mounted when effect runs
     isMountedRef.current = true;
 
-    // Mark as unmounted on cleanup
     return () => {
+      // Mark as unmounted when component unmounts
       isMountedRef.current = false;
     };
   }, []);
 
-  // Safe setState that checks mount status
+  // Wrapped setState that only updates if component is still mounted
   const setSafeState = useCallback((value: T | ((prev: T) => T)) => {
-    // Only update if still mounted
     if (isMountedRef.current) {
       setState(value);
+    } else {
+      // Optional: Log this in development to help debug
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(
+          'Attempted to set state on unmounted component. ' +
+          'This was prevented by useSafeState.'
+        );
+      }
     }
   }, []);
 
   return [state, setSafeState];
 }
 
-// ============================================
-// useSafeTimeout Hook
-// ============================================
-
 /**
- * A timeout hook that automatically clears on unmount
+ * A timeout hook that auto-clears on unmount
  *
- * This prevents memory leaks and stale state updates from
- * timeouts that fire after a component unmounts.
+ * This prevents memory leaks from lingering timeouts when a component unmounts.
+ *
+ * Traditional setTimeout leaves the timeout running even after the component unmounts,
+ * which can cause memory leaks and unexpected behavior.
  *
  * @returns Object with setSafeTimeout and clearSafeTimeout functions
  *
  * @example
  * ```typescript
- * function MyComponent() {
- *   const { setSafeTimeout, clearSafeTimeout } = useSafeTimeout();
- *   const [isVisible, setIsVisible] = useState(true);
+ * const { setSafeTimeout, clearSafeTimeout } = useSafeTimeout();
  *
- *   const hideAfterDelay = () => {
- *     setSafeTimeout(() => {
- *       setIsVisible(false);
- *     }, 3000);
- *   };
- *
- *   return (
- *     <button onClick={hideAfterDelay}>
- *       Hide after 3 seconds
- *     </button>
- *   );
- * }
+ * const handleClick = () => {
+ *   setSafeTimeout(() => {
+ *     console.log('This will not run if component unmounts');
+ *   }, 1000);
+ * };
  * ```
  */
 export function useSafeTimeout() {
-  // Store the current timeout ID
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Store mounted state
   const isMountedRef = useRef(true);
 
-  // Track mount status and clear timeout on unmount
+  // Clear timeout on unmount
   useEffect(() => {
     isMountedRef.current = true;
 
     return () => {
       isMountedRef.current = false;
+
       // Clear any pending timeout when component unmounts
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -134,30 +110,29 @@ export function useSafeTimeout() {
 
   /**
    * Set a timeout that will be automatically cleared on unmount
-   * Also clears any previous timeout before setting a new one
+   *
+   * @param callback - The function to call after the delay
+   * @param delay - Delay in milliseconds
    */
-  const setSafeTimeout = useCallback((
-    callback: () => void,
-    delay: number
-  ) => {
+  const setSafeTimeout = useCallback((callback: () => void, delay: number) => {
     // Clear any existing timeout first
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
 
-    // Set the new timeout
+    // Set new timeout
     timeoutRef.current = setTimeout(() => {
-      // Only execute if still mounted
+      // Only run callback if component is still mounted
       if (isMountedRef.current) {
         callback();
       }
-      // Clear the ref after execution
+
       timeoutRef.current = null;
     }, delay);
   }, []);
 
   /**
-   * Manually clear the current timeout
+   * Manually clear the timeout if needed
    */
   const clearSafeTimeout = useCallback(() => {
     if (timeoutRef.current) {
@@ -166,49 +141,40 @@ export function useSafeTimeout() {
     }
   }, []);
 
-  return {
-    setSafeTimeout,
-    clearSafeTimeout,
-  };
+  return { setSafeTimeout, clearSafeTimeout };
 }
 
-// ============================================
-// useSafeInterval Hook
-// ============================================
-
 /**
- * An interval hook that automatically clears on unmount
+ * A interval hook that auto-clears on unmount
+ *
+ * Similar to useSafeTimeout but for setInterval
  *
  * @returns Object with setSafeInterval and clearSafeInterval functions
  *
  * @example
  * ```typescript
- * function Timer() {
- *   const [count, setCount] = useState(0);
- *   const { setSafeInterval, clearSafeInterval } = useSafeInterval();
+ * const { setSafeInterval, clearSafeInterval } = useSafeInterval();
  *
- *   useEffect(() => {
- *     setSafeInterval(() => setCount(c => c + 1), 1000);
- *     return () => clearSafeInterval();
- *   }, []);
- *
- *   return <div>{count}</div>;
- * }
+ * useEffect(() => {
+ *   setSafeInterval(() => {
+ *     // This will stop running when component unmounts
+ *     console.log('Periodic check');
+ *   }, 1000);
+ * }, [setSafeInterval]);
  * ```
  */
 export function useSafeInterval() {
-  // Store the current interval ID
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Store mounted state
   const isMountedRef = useRef(true);
 
-  // Track mount status and clear interval on unmount
+  // Clear interval on unmount
   useEffect(() => {
     isMountedRef.current = true;
 
     return () => {
       isMountedRef.current = false;
+
+      // Clear any pending interval when component unmounts
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -218,19 +184,19 @@ export function useSafeInterval() {
 
   /**
    * Set an interval that will be automatically cleared on unmount
+   *
+   * @param callback - The function to call on each interval
+   * @param delay - Delay in milliseconds between calls
    */
-  const setSafeInterval = useCallback((
-    callback: () => void,
-    delay: number
-  ) => {
+  const setSafeInterval = useCallback((callback: () => void, delay: number) => {
     // Clear any existing interval first
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
 
-    // Set the new interval
+    // Set new interval
     intervalRef.current = setInterval(() => {
-      // Only execute if still mounted
+      // Only run callback if component is still mounted
       if (isMountedRef.current) {
         callback();
       }
@@ -238,7 +204,7 @@ export function useSafeInterval() {
   }, []);
 
   /**
-   * Manually clear the current interval
+   * Manually clear the interval if needed
    */
   const clearSafeInterval = useCallback(() => {
     if (intervalRef.current) {
@@ -247,49 +213,5 @@ export function useSafeInterval() {
     }
   }, []);
 
-  return {
-    setSafeInterval,
-    clearSafeInterval,
-  };
-}
-
-// ============================================
-// useIsMounted Hook
-// ============================================
-
-/**
- * Simple hook to check if component is mounted
- *
- * Useful for async operations where you need to check
- * mount status before updating state.
- *
- * @returns Function that returns true if mounted
- *
- * @example
- * ```typescript
- * function MyComponent() {
- *   const isMounted = useIsMounted();
- *   const [data, setData] = useState(null);
- *
- *   useEffect(() => {
- *     fetchData().then(result => {
- *       if (isMounted()) {
- *         setData(result);
- *       }
- *     });
- *   }, []);
- * }
- * ```
- */
-export function useIsMounted(): () => boolean {
-  const isMountedRef = useRef(true);
-
-  useEffect(() => {
-    isMountedRef.current = true;
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
-
-  return useCallback(() => isMountedRef.current, []);
+  return { setSafeInterval, clearSafeInterval };
 }

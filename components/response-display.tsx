@@ -76,7 +76,7 @@ function ResponseSkeleton() {
   );
 }
 
-// Source citation component
+// Source citation component with clickable PDF links
 function SourceCitation({ source, index }: { source: Source; index: number }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -87,30 +87,44 @@ function SourceCitation({ source, index }: { source: Source; index: number }) {
       transition={{ delay: index * 0.05 }}
       className="group"
     >
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="flex items-start gap-2 w-full text-left hover:bg-muted/50 rounded-md p-2 -m-2 transition-colors"
-      >
+      <div className="flex items-start gap-2 hover:bg-muted/50 rounded-md p-2 -m-2 transition-colors">
         <span className="font-mono text-sm font-semibold text-yellow shrink-0">
           {source.ref}
         </span>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-            <span className="text-sm font-medium truncate">
-              {source.document}
-            </span>
+            {source.document_url ? (
+              <a
+                href={source.document_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-green-600 hover:text-green-700 hover:underline truncate"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {source.document}
+              </a>
+            ) : (
+              <span className="text-sm font-medium truncate">
+                {source.document}
+              </span>
+            )}
             <span className="text-xs text-muted-foreground shrink-0">
               p. {source.page}
             </span>
-            {expanded ? (
-              <ChevronUp className="h-3.5 w-3.5 text-muted-foreground ml-auto" />
-            ) : (
-              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-            )}
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="ml-auto p-1 -m-1 hover:bg-muted rounded"
+            >
+              {expanded ? (
+                <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+              )}
+            </button>
           </div>
         </div>
-      </button>
+      </div>
 
       {/* Expandable content preview */}
       <AnimatePresence>
@@ -126,6 +140,16 @@ function SourceCitation({ source, index }: { source: Source; index: number }) {
               <p className="text-xs text-muted-foreground leading-relaxed">
                 {source.content_preview}
               </p>
+              {source.document_url && (
+                <a
+                  href={source.document_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 mt-2 text-xs text-green-600 hover:text-green-700 hover:underline"
+                >
+                  Open PDF at page {source.page} →
+                </a>
+              )}
             </div>
           </motion.div>
         )}
@@ -137,26 +161,30 @@ function SourceCitation({ source, index }: { source: Source; index: number }) {
 export function ResponseDisplay({ response, sources, error, isLoading }: ResponseDisplayProps) {
   const { displayedText, isComplete } = useTypewriter(response || "", 15);
   const [copied, setCopied] = useState(false);
+
+  // Track the response ID to reset showComparison when response changes
+  const [currentResponseId, setCurrentResponseId] = useState(response);
   const [showComparison, setShowComparison] = useState(false);
 
-  // Reset comparison visibility when response changes (new query started)
-  useEffect(() => {
+  // Detect when response changes and reset comparison state
+  if (currentResponseId !== response) {
+    setCurrentResponseId(response);
     setShowComparison(false);
-  }, [response]);
+  }
 
-  // Show comparison card 800ms after typewriter completes
+  // Show comparison card after typewriter completes
   useEffect(() => {
-    // Only show comparison when typewriter is complete AND we have a response
+    // If typewriter is not complete or no response, don't show comparison
     if (!isComplete || !response) {
       return;
     }
 
+    // Show comparison card after delay once typewriter completes
     const timer = setTimeout(() => {
       setShowComparison(true);
     }, 800);
 
-    // Cleanup only clears the timer - doesn't reset state
-    // State reset happens in the separate effect above when response changes
+    // Cleanup: clear the timer to prevent memory leaks
     return () => {
       clearTimeout(timer);
     };

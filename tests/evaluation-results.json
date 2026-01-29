@@ -1,0 +1,1958 @@
+{
+  "timestamp": "2026-01-28T23:49:07.905Z",
+  "summaries": [
+    {
+      "dataset": "ASTM A1049/A1049M-10",
+      "timestamp": "2026-01-28T23:29:16.358Z",
+      "results": [
+        {
+          "id": "A1049-001",
+          "question": "What product form does A1049 cover?",
+          "expected": "forgings | forged | pressure vessel",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The provided context from \"ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf\" [1], [2], [3], [4], [5] does not mention the product form covered by A1049.\n\n**Sources:** [1] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 8, \n[2] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 8, \n[3] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 8, \n[4] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 8, \n[5] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 8",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A1049-002",
+          "question": "What is the minimum yield strength for F51 (S31803) forgings per A1049?",
+          "expected": "65 ksi | 450 MPa",
+          "actual": "**Answer:** The minimum yield strength for F51 (S31803) forgings is 90 [620] [1], [2], [3].\n\n**Details:** According to the provided tables in [1], [2], and [3], the minimum yield strength for F51 (S31803) forgings is specified as 90 [620], which is the 0.2% offset yield strength in ksi [MPa].\n\n**Sources:** [1] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 7, [2] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 7, [3] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 7",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": false,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A1049-003",
+          "question": "What application is A1049 specifically designed for?",
+          "expected": "pressure vessel | pressure vessels | boilers",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The provided context from \"ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf\" (Pages 8) does not mention the specific application of A1049 [1], [2], [3], [4], [5].\n\n**Sources:** [1] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 8, [2] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 8, [3] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 8, [4] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 8, [5] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 8",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A1049-004",
+          "question": "What heat treatment does A1049 require for F51 (S31803)?",
+          "expected": "solution annealed | solution-annealed | 1870",
+          "actual": "**Answer:** The solution heat treatment for F51 (S31803) requires a temperature of 1870 [1020] min and water quench to below 200 [95] [4].\n\n**Details:** According to the provided context, the heat treatment requirements for different grades of duplex stainless steel forgings are specified in Table 2 of the document [4]. For F51 (S31803), the solution heat treatment temperature is 1870 [1020] min, and water quenching is required to below 200 [95] [4].\n\n**Sources:** [4] From \"ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf\" (Page 5)",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A1049-005",
+          "question": "What ASTM standard is referenced for intermetallic phase detection in A1049?",
+          "expected": "A923 | ASTM A923",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The provided context does not mention the specific ASTM standard for intermetallic phase detection in A1049. The context only provides information about the standard's publication, approval, and revision history [1], [2], [3], [4], [5], but does not reference any specific standard for intermetallic phase detection.\n\n**Sources:** [1] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 2, [2] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 2, [3] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 2, [4] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 8, [5] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 8",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A1049-006",
+          "question": "What is the minimum tensile strength for F53 (S32750) super duplex forgings?",
+          "expected": "116 ksi | 800 MPa",
+          "actual": "**Answer:** This information is not in the uploaded documents for forgings, but the minimum tensile strength for S32750 tubing is 116 [800] ksi [MPa] [4].\n\n**Details:** The provided context for forgings [1], [2], [3] does not contain tensile strength requirements, but the context for tubing [4], [5] provides tensile strength requirements for various UNS designations, including S32750.\n\n**Sources:** [1] ASTM_A1049_Duplex_Stainless_Steel_Forgings_For_Pressure_Vessels_R_2015.pdf, [4] ASTM_A789_Seamless_&_Welded_Duplex_Stainless_Steel_Tubing_2013.pdf",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A1049-NEG-001",
+          "question": "What wall thickness schedule is required for A1049 forgings?",
+          "expected": "REFUSE - A1049 is for forgings, not pipe (wall thickness schedules apply to pipe, see A790 for duplex pipe)",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The provided context from \"ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf\" [1], [2], [3], [4], [5] does not mention the wall thickness schedule required for A1049 forgings. The context covers the scope, supplementary requirements, and testing methods, but does not provide information on wall thickness schedules.\n\n**Sources:** [1] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 1, [2] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 1, [3] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 1, [4] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 7, [5] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 7",
+          "status": "refused_correctly",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        }
+      ],
+      "stats": {
+        "total_questions": 7,
+        "correct": 3,
+        "incorrect": 3,
+        "refused_correctly": 1,
+        "hallucinated": 0,
+        "missed_refusal": 0,
+        "accuracy": 57.14285714285714,
+        "hallucination_rate": 0,
+        "refusal_accuracy": 100
+      },
+      "by_difficulty": {
+        "easy": {
+          "total": 3,
+          "correct": 2,
+          "accuracy": 66.66666666666666
+        },
+        "medium": {
+          "total": 3,
+          "correct": 1,
+          "accuracy": 33.33333333333333
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "trap": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        }
+      },
+      "by_tag": {
+        "product-form": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "forgings": {
+          "total": 2,
+          "correct": 1,
+          "accuracy": 50
+        },
+        "S31803": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "yield": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "F51": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "application": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "pressure-vessel": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "heat-treatment": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "annealing": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "testing": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "A923": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "intermetallic": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "S32750": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "tensile": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "F53": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "negative-test": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "wrong-product-form": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        }
+      }
+    },
+    {
+      "dataset": "ASTM A312/A312M-25",
+      "timestamp": "2026-01-28T23:32:07.930Z",
+      "results": [
+        {
+          "id": "A312-001",
+          "question": "What is the minimum yield strength for 316L pipe per ASTM A312?",
+          "expected": "25 ksi | 170 MPa | 25,000 psi",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The provided context does not contain information about the minimum yield strength of 316L pipe per ASTM A312. The context includes information about duplex tubing and pipe from ASTM A789 and A790, as well as austenitic stainless steel pipes from ASTM A312, but it does not specifically mention the yield strength of 316L pipe.\n\n**Sources:** [1] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, [2] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, [3] 877794297-A312-A312M-25.pdf, [4] ASTM A790 Seamless & Welded Duplex Pipe 2014.pdf, [5] 877794297-A312-A312M-25.pdf",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A312-002",
+          "question": "What is the minimum tensile strength for 304 stainless per A312?",
+          "expected": "75 ksi | 515 MPa",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The provided context does not mention the tensile strength of 304 stainless steel in the A312 standard [1]. The context only provides information on other grades of stainless steel, such as TP201, TP201LN, and duplex stainless steel grades [1], [2], [3], [4], [5].\n\n**Sources:** [1] 877794297-A312-A312M-25.pdf, [2] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [3] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [4] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, [5] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": false,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A312-003",
+          "question": "What is the maximum carbon content for 316L per ASTM A312?",
+          "expected": "0.035% | 0.035 | 0.035 max",
+          "actual": "**Answer:** The maximum carbon content for 316L is 0.035% [1], but for small diameter or thin walls, a carbon maximum of 0.040% is necessary [3].\n\n**Details:** According to the composition table in ASTM A312, the maximum carbon content for TP316L (316L) is specified as 0.035% [1]. However, it's also noted that for small diameter or thin walls, where many drawing passes are required, a higher carbon maximum of 0.040% is necessary [3].\n\n**Sources:** [1] 877794297-A312-A312M-25.pdf, Page 7, [3] 877794297-A312-A312M-25.pdf, Page 11",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A312-004",
+          "question": "What heat treatment temperature is required for solution-annealed A312 pipe?",
+          "expected": "1900 | 1040 | 1900°F",
+          "actual": "**Answer:** The heat treatment temperature for solution-annealed A312 pipe varies by grade, but for example, TP321H, TP347H, and TP348H require 2000 °F [1100 °C] for cold finished and 1925 °F [1050 °C] for hot finished [1]. \n\n**Details:** According to the standard, all pipe shall be furnished in the heat-treated condition in accordance with the requirements of Table 2 [3]. The specific temperatures for different grades are listed in Table 2, such as 1900 °F [1040 °C] for some grades and 2010–2140 °F [1100–1170 °C] for others [1]. \n\n**Sources:** [1] 877794297-A312-A312M-25.pdf, Page 13, [3] 877794297-A312-A312M-25.pdf, Page 4",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A312-005",
+          "question": "What is the nickel content range for 316L per A312?",
+          "expected": "10.0-14.0% | 10.0-14.0 | 10-14%",
+          "actual": "**Answer:** The nickel content range for 316L is 10.0– 14.0 [1].\n\n**Details:** According to the composition table in A312/A312M-25, the nickel content range for TP316L (S31603) is specified as 10.0– 14.0 [1].\n\n**Sources:** [1] 877794297-A312-A312M-25.pdf, Page 7",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A312-006",
+          "question": "What is the minimum elongation for 316L pipe per A312?",
+          "expected": "35% | 35 | 35 percent",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The provided context does not contain information about the minimum elongation for 316L pipe per A312. The context includes tables with tensile and hardness requirements for various steel grades, but it does not specifically mention 316L pipe or its elongation requirements [1], [2], [3], [4], [5].\n\n**Sources:** [1] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, [2] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, [3] 877794297-A312-A312M-25.pdf, [4] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, [5] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": false,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A312-007",
+          "question": "Does A312 cover welded pipe?",
+          "expected": "yes | welded | seamless and welded",
+          "actual": "**Answer:** Yes, A312 covers welded pipe [1].\n**Details:** According to the scope of the specification, A312 covers seamless, straight-seam welded, and heavily cold worked welded austenitic stainless steel pipe [1].\n**Sources:** [1] 877794297-A312-A312M-25.pdf, Page 1",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A312-008",
+          "question": "What is the molybdenum content for 316L per A312?",
+          "expected": "2.00-3.00% | 2.0-3.0% | 2.00 to 3.00",
+          "actual": "**Answer:** The molybdenum content for 316L is 2.00– 3.00 [1].\n\n**Details:** According to the chemical requirements table in A312/A312M-25, the composition of TP316L (S31603) includes a molybdenum content of 2.00– 3.00 [1].\n\n**Sources:** [1] 877794297-A312-A312M-25.pdf, Page 7",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A312-009",
+          "question": "What is the minimum tensile strength for TP316L pipe?",
+          "expected": "70 ksi | 485 MPa",
+          "actual": "**Answer:** The minimum tensile strength for TP316L pipe is 70 [485] ksi [MPa] [4].\n\n**Details:** According to the table in [4], TP316L has a minimum tensile strength of 70 [485] ksi [MPa] and a minimum yield strength of 25 [170] ksi [MPa] [4]. \n\n**Sources:** [4] 877794297-A312-A312M-25.pdf, Page 15",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A312-NEG-001",
+          "question": "What is the PREN value for 316L according to A312?",
+          "expected": "REFUSE - A312 does not specify PREN values (PREN is calculated from chemistry)",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The provided context does not mention 316L or A312. The documents [1], [2], [3], [4], and [5] are all from \"ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf\" and do not contain information about 316L or A312.\n\n**Sources:** [1] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, [2] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, [3] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, [4] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, [5] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf",
+          "status": "refused_correctly",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        },
+        {
+          "id": "A312-NEG-002",
+          "question": "What is the yield strength of S31803 duplex per A312?",
+          "expected": "REFUSE - S31803 (duplex) is not covered by A312 (austenitic grades only, see A790 for duplex)",
+          "actual": "**Answer:** The yield strength of S31803 duplex is 65 [450] ksi [MPa] [1], [2], [3], [4].\n\n**Details:** According to TABLE 4 Tensile and Hardness Requirements in the provided documents, the yield strength of S31803 duplex is consistently listed as 65 [450] ksi [MPa] [1], [2], [3], [4]. However, it's worth noting that the question mentions A312, but the provided context only mentions A789 and A790. Since the yield strength of S31803 is available in the context, it can be answered, but the specific reference to A312 is not found in the provided documents.\n\n**Sources:** [1] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 7, [2] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 7, [3] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, Page 7, [4] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, Page 7",
+          "status": "missed_refusal",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        },
+        {
+          "id": "A312-NEG-003",
+          "question": "What is the chromium content for 2205 duplex per A312?",
+          "expected": "REFUSE - 2205 duplex is not covered by A312 (see A790 for duplex stainless grades)",
+          "actual": "**Answer:** The chromium content for 2205 duplex is 22.0–23.0 [5].\n\n**Details:** According to the composition table in [5], the chromium content for S32205 (2205) is specified as 22.0–23.0.\n\n**Sources:** [5] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf, Page 7 \n\nNote: The A312 document provided does not contain information on the 2205 duplex grade. The information was found in the A790 document [5].",
+          "status": "refused_correctly",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        }
+      ],
+      "stats": {
+        "total_questions": 12,
+        "correct": 3,
+        "incorrect": 6,
+        "refused_correctly": 2,
+        "hallucinated": 0,
+        "missed_refusal": 1,
+        "accuracy": 41.66666666666667,
+        "hallucination_rate": 8.333333333333332,
+        "refusal_accuracy": 66.66666666666666
+      },
+      "by_difficulty": {
+        "easy": {
+          "total": 6,
+          "correct": 2,
+          "accuracy": 33.33333333333333
+        },
+        "medium": {
+          "total": 3,
+          "correct": 1,
+          "accuracy": 33.33333333333333
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "trap": {
+          "total": 3,
+          "correct": 2,
+          "accuracy": 66.66666666666666
+        }
+      },
+      "by_tag": {
+        "304": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "316L": {
+          "total": 6,
+          "correct": 1,
+          "accuracy": 16.666666666666664
+        },
+        "yield": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "mechanical": {
+          "total": 4,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "tensile": {
+          "total": 2,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "chemistry": {
+          "total": 3,
+          "correct": 1,
+          "accuracy": 33.33333333333333
+        },
+        "carbon": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "heat-treatment": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "annealing": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "nickel": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "elongation": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "product-form": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "welded": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "molybdenum": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "negative-test": {
+          "total": 3,
+          "correct": 2,
+          "accuracy": 66.66666666666666
+        },
+        "PREN": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "out-of-scope": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "wrong-standard": {
+          "total": 2,
+          "correct": 1,
+          "accuracy": 50
+        },
+        "duplex": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        }
+      }
+    },
+    {
+      "dataset": "ASTM A789/A789M-13a",
+      "timestamp": "2026-01-28T23:33:38.470Z",
+      "results": [
+        {
+          "id": "A789-001",
+          "question": "What is the minimum yield strength for S31803 tubing per A789?",
+          "expected": "65 ksi | 450 MPa",
+          "actual": "**Answer:** The minimum yield strength for S31803 tubing is not explicitly stated in the provided context, but for S82441, the minimum yield strength is 78 [540] for wall below 0.40 in. [10 mm] and 70 [480] for wall 0.40 in. [10 mm] and above [1, 2]. Prior to A789/A789M–04, the values for S32003 were 90 ksi tensile strength and 65 ksi yield strength [1, 2, 3, 4].\n\n**Details:** The provided context does not explicitly mention the minimum yield strength for S31803 tubing, but it does provide information on the minimum yield strength for S82441 and S32003 [1, 2, 3, 4]. \n\n**Sources:** [1] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, Page 8, [2] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, Page 8, [3] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 8, [4] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 8",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A789-002",
+          "question": "What product forms does A789 cover?",
+          "expected": "tubing | seamless | welded",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The provided context from ASTM A789 standards [1], [2], [3], [4], [5] does not mention the specific product forms covered by A789. The context primarily includes information about obtaining the standard, copyright permissions, and general statements about the standard's revision and review process.\n\n**Sources:** [1] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, [2] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, [3] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [4] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [5] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A789-003",
+          "question": "What is the minimum tensile strength for S32750 super duplex tubing per A789?",
+          "expected": "116 ksi | 800 MPa",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The provided context does not mention the minimum tensile strength for S32750 super duplex tubing per A789. The context only provides information on the mechanical property requirements for duplex stainless steel tubing, but it does not specifically mention S32750 super duplex tubing [1], [2], [3], [4], [5].\n\n**Sources:** [1] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, [2] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, [3] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [4] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [5] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": false,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A789-004",
+          "question": "What heat treatment does A789 require for S31803?",
+          "expected": "solution annealed | solution-annealed | 1870-2010",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The provided context does not mention the specific heat treatment required for S31803 in ASTM A789 [1], [2], [3], [4], [5]. \n\n**Sources:** [1] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, [2] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, [3] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [4] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [5] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A789-005",
+          "question": "What is the maximum hardness for S32750 per A789?",
+          "expected": "32 HRC | 300 HBW | 300 Brinell",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The provided context does not contain information on the maximum hardness for S32750 per A789. The tables provided in the context [1], [2], [3], [4], and [5] do not mention S32750 or its hardness.\n\n**Sources:** [1] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, [2] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, [3] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [4] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [5] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": false,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A789-006",
+          "question": "What is the minimum elongation for S31803 tubing per A789?",
+          "expected": "25% | 25",
+          "actual": "**Answer:** The minimum elongation for S31803 tubing per A789 is 25 [1], [2], [3], [4].\n\n**Details:** According to the documents, for tubing with a wall 0.40 in. [10 mm] and above, the minimum elongation is 25 [1], [2], [3], [4]. Additionally, for tubing smaller than 1 ⁄ 2 in. [12.7 mm] in outside diameter, the elongation values given for strip specimens in Table 4 shall apply [1], [2], [3], [4].\n\n**Sources:** [1] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 8, [2] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 8, [3] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, Page 8, [4] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, Page 8",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A789-007",
+          "question": "What is the chromium content range for S31803 in A789?",
+          "expected": "21.0-23.0% | 21.0-23.0",
+          "actual": "**Answer:** The chromium content range for S31803 is 21.0–23.0 [3].\n\n**Details:** The chemical composition of S31803, including its chromium content range, is specified in the table on Page 7 of the document \"897102004-ASTM-A790-A790M-24.pdf\" [3].\n\n**Sources:** [3] From \"897102004-ASTM-A790-A790M-24.pdf\" (Page 7)",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A789-NEG-001",
+          "question": "What is the minimum wall thickness for NPS 6 A789 tubing?",
+          "expected": "REFUSE - A789 tubing uses OD and wall thickness dimensions, not NPS sizing (NPS is for pipe, see A790)",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The provided context does not contain specific information about the minimum wall thickness for NPS 6 A789 tubing. The documents [1], [2], [3], and [4] discuss general tolerances for wall thickness, but do not provide specific values for NPS 6 tubing. Document [5] provides an introduction to the standard specification for seamless and welded ferritic/austenitic stainless steel tubing, but also does not contain the required information.\n\n**Sources:** [1] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [2] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [3] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [4] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [5] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf",
+          "status": "refused_correctly",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        }
+      ],
+      "stats": {
+        "total_questions": 8,
+        "correct": 3,
+        "incorrect": 4,
+        "refused_correctly": 1,
+        "hallucinated": 0,
+        "missed_refusal": 0,
+        "accuracy": 50,
+        "hallucination_rate": 0,
+        "refusal_accuracy": 100
+      },
+      "by_difficulty": {
+        "easy": {
+          "total": 3,
+          "correct": 3,
+          "accuracy": 100
+        },
+        "medium": {
+          "total": 4,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "trap": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        }
+      },
+      "by_tag": {
+        "S31803": {
+          "total": 3,
+          "correct": 2,
+          "accuracy": 66.66666666666666
+        },
+        "yield": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "tubing": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "product-form": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "S32750": {
+          "total": 2,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "tensile": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "super-duplex": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "heat-treatment": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "hardness": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "elongation": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "chemistry": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "chromium": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "negative-test": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "sizing": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "wrong-standard": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        }
+      }
+    },
+    {
+      "dataset": "ASTM A790",
+      "timestamp": "2026-01-28T23:36:52.015Z",
+      "results": [
+        {
+          "id": "A790-001",
+          "question": "What is the minimum yield strength for UNS S31803 seamless pipe?",
+          "expected": "65 ksi (450 MPa)",
+          "actual": "**Answer:** The minimum yield strength for UNS S31803 seamless pipe is 65 [450] ksi [MPa] [1], [2], [3], [5].\n\n**Details:** According to the tables in the provided documents, UNS S31803 has a minimum yield strength of 65 [450] ksi [MPa] for both seamless and welded pipes [1], [2], [3], [5]. This value is consistently reported across the different tables and documents.\n\n**Sources:** [1] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 7, [2] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 7, [3] ASTM A790 Seamless & Welded Duplex Pipe 2014.pdf, Page 9, [5] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf, Page 9",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A790-002",
+          "question": "What is the minimum tensile strength for UNS S32750 (2507)?",
+          "expected": "116 ksi (800 MPa)",
+          "actual": "**Answer:** The minimum tensile strength for UNS S32750 is 116 [800] [1], [2], [3], [4], [5].\n\n**Details:** According to the provided tables, UNS S32750 has a minimum tensile strength of 116 [800] and a minimum yield strength of 80 [550] [1], [2], [3], [4], [5]. The elongation in 2 in. or 50 mm is 15% and the hardness is 300 [1], [2], [3], [4], [5].\n\n**Sources:** [1] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 7, [2] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 7, [3] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 7, [4] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 7, [5] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, Page 7",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A790-003",
+          "question": "Does ASTM A790 require solution annealing?",
+          "expected": "Yes, all pipe shall be furnished in the solution-annealed condition",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The provided context from ASTM A790 [1], [2], [3], [4], [5] discusses the standard specification for seamless and welded ferritic/austenitic stainless steel pipe, including tensile and hardness requirements, but does not mention solution annealing.\n\n**Sources:** [1] 897102004-ASTM-A790-A790M-24.pdf, [2] 897102004-ASTM-A790-A790M-24.pdf, [3] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf, [4] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf, [5] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A790-004",
+          "question": "What is the maximum hardness allowed for S32750?",
+          "expected": "32 HRC",
+          "actual": "**Answer:** The maximum hardness allowed for S32750 is 300 [1], [2], [3], [4], [5].\n\n**Details:** According to the provided documents, specifically in the tables listing the tensile and hardness requirements for various UNS designations, S32750 has a maximum hardness of 300 [1], [2], [3], [4], [5]. This value is consistently listed across the different pages and versions of the document.\n\n**Sources:** [1] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 7, [2] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 7, [3] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 7, [4] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 7, [5] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, Page 7",
+          "status": "incorrect",
+          "match_details": {
+            "match": true,
+            "numberMatch": false,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A790-005",
+          "question": "What is the minimum elongation for UNS S31803?",
+          "expected": "25%",
+          "actual": "**Answer:** The minimum elongation for UNS S31803 is 25% [1], [2], [3], [4], [5].\n\n**Details:** According to the tensile and hardness requirements tables in the provided documents, UNS S31803 has a minimum elongation of 25% in 2 in. or 50 mm [1], [2], [3], [4], [5]. This value is consistently reported across all the documents.\n\n**Sources:** [1] 897102004-ASTM-A790-A790M-24.pdf, Page 8, [2] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 7, [3] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, Page 7, [4] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, Page 7, [5] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, Page 7",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A790-006",
+          "question": "What chromium content range is specified for UNS S31803?",
+          "expected": "21.0-23.0%",
+          "actual": "**Answer:** The chromium content range for UNS S31803 is 21.0–23.0 [1], [2], [3], [4], [5].\n\n**Details:** According to the provided documents, the chromium content range for UNS S31803 is consistently specified as 21.0–23.0 across all sources [1], [2], [3], [4], [5]. This indicates a narrow range of chromium content for this specific UNS designation.\n\n**Sources:** [1] 897102004-ASTM-A790-A790M-24.pdf, Page 7, [2] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf, Page 7, [3] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf, Page 7, [4] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf, Page 7, [5] ASTM A790 Seamless & Welded Duplex Pipe 2014.pdf, Page 7",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A790-007",
+          "question": "What is the molybdenum content for UNS S32750 super duplex?",
+          "expected": "3.0-5.0%",
+          "actual": "**Answer:** The molybdenum content for UNS S32750 super duplex is 3.0–5.0 [4].\n\n**Details:** According to the composition table in [4], the molybdenum content for UNS S32750 super duplex is specified as 3.0–5.0. This information is also consistent with [5], which lists the same molybdenum content range for UNS S32750 [5].\n\n**Sources:** [4] 897102004-ASTM-A790-A790M-24.pdf, Page 7, [5] ASTM A790 Seamless & Welded Duplex Pipe 2014.pdf, Page 8",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A790-008",
+          "question": "What hydrostatic test pressure is required?",
+          "expected": "Per applicable ASME/ASTM formula based on wall thickness and allowable stress",
+          "actual": "**Answer:** The hydrostatic test pressure calculation shall use 64000(441.2) [1], [2] or 50 % of the specified minimum yield strength of the pipe [3], [4], [5].\n\n**Details:** According to [1] and [2], the hydrostatic test pressure calculation for seamless and welded duplex stainless steel tubing shall use 64000(441.2) instead of 32000(220.6) as specified in Specification A1016/A1016M. However, for seamless and welded duplex stainless steel pipe, the hydrostatic test pressure calculation shall use 50 % of the specified minimum yield strength of the pipe, as stated in [3], [4], and [5].\n\n**Sources:** [1] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [2] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [3] ASTM A790 Seamless & Welded Duplex Pipe 2014.pdf, [4] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf, [5] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A790-009",
+          "question": "What is the maximum carbon content for UNS S31803?",
+          "expected": "0.030% (0.03%)",
+          "actual": "**Answer:** The maximum carbon content for UNS S31803 is 0.030 [1], [2], [4], [5].\n\n**Details:** According to the provided documents, the chemical composition of UNS S31803 includes a maximum carbon content of 0.030 [1], [2], [4], [5]. This is consistently stated across multiple documents, including \"897102004-ASTM-A790-A790M-24.pdf\" [1], \"ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf\" [2], and \"ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf\" [4], [5].\n\n**Sources:** [1] 897102004-ASTM-A790-A790M-24.pdf, [2] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [4] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf, [5] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A790-010",
+          "question": "What nitrogen range is specified for S32750?",
+          "expected": "0.24-0.32%",
+          "actual": "**Answer:** 0.24–0.32 [1].\n**Details:** According to the provided document, S32750 (also known as 2507) has a nitrogen range of 0.24–0.32, as specified in [1].\n**Sources:** [1] ASTM_A790_Seamless_Welded_Duplex_Pipe_2014.pdf, Page 8",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A790-NEG-001",
+          "question": "What is the yield strength of 316L according to ASTM A790?",
+          "expected": "REFUSE - 316L is not covered by A790 (austenitic grade covered by A312/A269)",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The provided documents do not contain information about the yield strength of 316L according to ASTM A790.\n\n**Sources:** [1] 897102004-ASTM-A790-A790M-24.pdf, [2] ASTM A790 Seamless & Welded Duplex Pipe 2014.pdf, [3] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf, [4] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf, [5] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf",
+          "status": "refused_correctly",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        },
+        {
+          "id": "A790-NEG-002",
+          "question": "What is the impact test requirement for A790 pipe at -50°C?",
+          "expected": "REFUSE - A790 does not specify mandatory impact testing at specific temperatures (see A923 for corrosion resistance tests)",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** None\n\n**Sources:** [1] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf, Page 1, [2] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf, Page 1, [3] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf, Page 1, [4] 897102004-ASTM-A790-A790M-24.pdf, Page 1, [5] ASTM A790 Seamless & Welded Duplex Pipe 2014.pdf, Page 1",
+          "status": "refused_correctly",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        },
+        {
+          "id": "A790-NEG-003",
+          "question": "What is the PREN of S31803 according to ASTM A790?",
+          "expected": "REFUSE - A790 does not specify PREN values (PREN is calculated from chemistry, typically 32-35 for S31803)",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The documents provided contain information on the tensile and hardness requirements for various duplex stainless steel grades, but do not provide information on the PREN (Pitting Resistance Equivalent Number) of S31803.\n\n**Sources:** [1] 897102004-ASTM-A790-A790M-24.pdf, Page 8, [2] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf, Page 2, [3] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf, Page 2, [4] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf, Page 2, [5] ASTM A790 Seamless & Welded Duplex Pipe 2014.pdf, Page 2",
+          "status": "refused_correctly",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        }
+      ],
+      "stats": {
+        "total_questions": 13,
+        "correct": 7,
+        "incorrect": 3,
+        "refused_correctly": 3,
+        "hallucinated": 0,
+        "missed_refusal": 0,
+        "accuracy": 76.92307692307693,
+        "hallucination_rate": 0,
+        "refusal_accuracy": 100
+      },
+      "by_difficulty": {
+        "easy": {
+          "total": 4,
+          "correct": 4,
+          "accuracy": 100
+        },
+        "medium": {
+          "total": 5,
+          "correct": 3,
+          "accuracy": 60
+        },
+        "hard": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "trap": {
+          "total": 3,
+          "correct": 3,
+          "accuracy": 100
+        }
+      },
+      "by_tag": {
+        "2507": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "tensile": {
+          "total": 2,
+          "correct": 2,
+          "accuracy": 100
+        },
+        "S31803": {
+          "total": 4,
+          "correct": 4,
+          "accuracy": 100
+        },
+        "seamless": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "yield": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "S32750": {
+          "total": 4,
+          "correct": 3,
+          "accuracy": 75
+        },
+        "heat-treatment": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "solution-anneal": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "hardness": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "HRC": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "elongation": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "chemical": {
+          "total": 4,
+          "correct": 4,
+          "accuracy": 100
+        },
+        "composition": {
+          "total": 2,
+          "correct": 2,
+          "accuracy": 100
+        },
+        "chromium": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "molybdenum": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "hydrostatic": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "testing": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "carbon": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "nitrogen": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "negative-test": {
+          "total": 3,
+          "correct": 3,
+          "accuracy": 100
+        },
+        "out-of-scope": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "316L": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "impact": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "temperature": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "PREN": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        }
+      }
+    },
+    {
+      "dataset": "ASTM A872/A872M-14",
+      "timestamp": "2026-01-28T23:38:53.702Z",
+      "results": [
+        {
+          "id": "A872-001",
+          "question": "What manufacturing method does A872 cover?",
+          "expected": "centrifugally cast | centrifugal casting | cast",
+          "actual": "**Answer:** A872 covers centrifugally cast duplex stainless steel pipe [1].\n\n**Details:** This is stated in the title of the document, \"ASTM A872 Centrifugally Cast Duplex Stainless Steel Pipe 2014.pdf\".\n\n**Sources:** [1] ASTM_A872_Centrifugally_Cast_Duplex_Stainless_Steel_Pipe_2014.pdf, Page 1",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A872-002",
+          "question": "What is the minimum yield strength for UNS J93183 cast duplex pipe per A872?",
+          "expected": "65 ksi | 450 MPa",
+          "actual": "**Answer:** The minimum yield strength for UNS J93183 cast duplex pipe is 65 ksi [450 MPa] [1].\n\n**Details:** This value is specified in Table 3 of the ASTM A872 Centrifugally Cast Duplex Stainless Steel Pipe 2014 standard, which lists the tensile and hardness requirements for different grades of cast duplex stainless steel pipe.\n\n**Sources:** [1] ASTM_A872_Centrifugally_Cast_Duplex_Stainless_Steel_Pipe_2014.pdf, Page 6",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A872-003",
+          "question": "What is the minimum tensile strength for UNS J94300 (CD4MCuMN) per A872?",
+          "expected": "110 ksi | 760 MPa",
+          "actual": "**Answer:** The minimum tensile strength for UNS J94300 (CD4MCuMN) is 110 [760] ksi [MPa] [1].\n\n**Details:** According to Table 3 in ASTM A872, the minimum tensile strength for UNS J94300 (CD4MCuMN) is specified as 110 [760] ksi [MPa].\n\n**Sources:** [1] ASTM_A872_Centrifugally_Cast_Duplex_Stainless_Steel_Pipe_2014.pdf, Page 6",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A872-004",
+          "question": "What heat treatment temperature is required for UNS J93183 per A872?",
+          "expected": "1920-2100 | 1050-1150 | 1920°F",
+          "actual": "**Answer:** 1920–2100 °F [1050–1150] [1].\n\n**Details:** According to TABLE 2 in [1], the heat treatment temperature for UNS J93183 is specified as 1920–2100 °F [1050–1150] with water quench or rapid cooling by other means.\n\n**Sources:** [1] ASTM_A872_Centrifugally_Cast_Duplex_Stainless_Steel_Pipe_2014.pdf, Page 4",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A872-005",
+          "question": "What is the minimum elongation for UNS J93183 per A872?",
+          "expected": "25% | 25",
+          "actual": "**Answer:** The minimum elongation for UNS J93183 is 25% [1].\n\n**Details:** According to TABLE 3 Tensile and Hardness Requirements in ASTM A872 Centrifugally Cast Duplex Stainless Steel Pipe 2014 [1], the minimum elongation in 2 in. or 50 mm for UNS J93183 is 25%.\n\n**Sources:** [1] ASTM_A872_Centrifugally_Cast_Duplex_Stainless_Steel_Pipe_2014.pdf, Page 6",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "A872-NEG-001",
+          "question": "What is the weld procedure qualification for A872 pipe?",
+          "expected": "REFUSE - A872 is for centrifugally cast pipe, not welded pipe (weld repair is permitted but welded seam pipe is covered by A790)",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** None.\n\n**Sources:** [1] ASTM_A872_Centrifugally_Cast_Duplex_Stainless_Steel_Pipe_2014.pdf, Page 1, [2] ASTM_A872_Centrifugally_Cast_Duplex_Stainless_Steel_Pipe_2014.pdf, Page 1, [3] 877794297-A312-A312M-25.pdf, Page 17, [4] ASTM_A790_Seamless_&_Welded_Duplex_Pipe_2014.pdf, Page 14, [5] ASTM_A790_Seamless_&_Welded_Duplex_Stainless_Steel_Pipe_2014.pdf, Page 14",
+          "status": "refused_correctly",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        }
+      ],
+      "stats": {
+        "total_questions": 6,
+        "correct": 3,
+        "incorrect": 2,
+        "refused_correctly": 1,
+        "hallucinated": 0,
+        "missed_refusal": 0,
+        "accuracy": 66.66666666666666,
+        "hallucination_rate": 0,
+        "refusal_accuracy": 100
+      },
+      "by_difficulty": {
+        "easy": {
+          "total": 2,
+          "correct": 2,
+          "accuracy": 100
+        },
+        "medium": {
+          "total": 3,
+          "correct": 1,
+          "accuracy": 33.33333333333333
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "trap": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        }
+      },
+      "by_tag": {
+        "manufacturing": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "casting": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "yield": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "mechanical": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "J93183": {
+          "total": 2,
+          "correct": 2,
+          "accuracy": 100
+        },
+        "tensile": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "J94300": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "CD4MCuMN": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "heat-treatment": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "elongation": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "negative-test": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "welding": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "wrong-process": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        }
+      }
+    },
+    {
+      "dataset": "General Duplex Stainless Steel",
+      "timestamp": "2026-01-28T23:41:27.939Z",
+      "results": [
+        {
+          "id": "DUP-001",
+          "question": "What is the typical PREN formula?",
+          "expected": "PREN = %Cr + (3.3 × %Mo) + (16 × %N)",
+          "actual": "[API Error] API error: 504",
+          "status": "hallucinated",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        },
+        {
+          "id": "DUP-002",
+          "question": "What is the minimum PREN for super duplex grades?",
+          "expected": "40 or higher (typically 40-45)",
+          "actual": "**Answer:** The minimum PREN value for super duplex grades frequently lies between 33 and 40 depending on service experience [4].\n\n**Details:** According to Table 2 in [4], the solution heat treatment for super duplex grades (S39274, S39277, S32520, S32550) requires a PREN value that frequently lies between 33 and 40.\n\n**Sources:** [4] ASTM_A1049_Duplex_Stainless_Steel_Forgings_For_Pressure_Vessels_R_2015.pdf, Page 5",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "DUP-003",
+          "question": "What ferrite-austenite ratio is typical for duplex stainless steel?",
+          "expected": "Approximately 50/50 (typically 40-60% ferrite)",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The context provided includes information on chemical composition, PREN values, and standard specifications for duplex stainless steel, but does not mention the ferrite-austenite ratio.\n\n**Sources:** [1] ASTM_A1049_Duplex_Stainless_Steel_For.pdf, Page 4, [2] ASTM_A1049_Duplex_Stainless_Steel_For.pdf, Page 4, [3] ASTM_A1049_Duplex_Stainless_Steel_For.pdf, Page 4, [4] ASTM_A1049_Duplex_Stainless_Steel_For.pdf, Page 1, [5] ASTM_A1049_Duplex_Stainless_Steel_For.pdf, Page 1",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "DUP-004",
+          "question": "What is the UNS designation for 2205 duplex?",
+          "expected": "UNS S31803 or S32205",
+          "actual": "**Answer:** S32205 [1].\n\n**Details:** The UNS designation for 2205 duplex is listed in Table 1 of ASTM A790-24 [1] as S32205.\n\n**Sources:** [1] 897102004-ASTM-A790-A790M-24.pdf, Page 3",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "DUP-005",
+          "question": "What is the UNS designation for 2507 super duplex?",
+          "expected": "UNS S32750",
+          "actual": "[API Error] API error: 504",
+          "status": "hallucinated",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        },
+        {
+          "id": "DUP-006",
+          "question": "What is sigma phase and why is it problematic in duplex?",
+          "expected": "Sigma phase is a brittle intermetallic (Fe-Cr-Mo) that forms at 600-950°C, reducing toughness and corrosion resistance",
+          "actual": "**Answer:** Sigma phase is a type of intermetallic compound that can form in duplex stainless steels, particularly during high-temperature exposure or welding, and is problematic due to its embrittling effect [1].\n\n**Details:** Sigma phase is not explicitly mentioned in the provided documents as a specific concern in duplex stainless steels. However, the context implies that high-temperature exposure or welding can lead to the formation of unwanted phases, which may compromise the material's properties [1, 2, 3]. The documents do not provide further information on sigma phase or its effects.\n\n**Sources:** [1] ASTM_A790_Seamless_Welded_Duplex_Stainless_Steel_Pipe_2014.pdf, Page 14, [2] ASTM_A790_Seamless_Welded_Duplex_Stainless_Steel_Pipe_2014.pdf, Page 14, [3] ASTM_A790_Seamless_Welded_Duplex_Stainless_Steel_Pipe_2014.pdf, Page 14",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "DUP-007",
+          "question": "What standard governs sour service requirements for duplex?",
+          "expected": "NACE MR0175 / ISO 15156",
+          "actual": "**Answer:** NACE MR0175/ISO15156 [1].\n\n**Details:** This standard is listed under \"Other Standards\" in [1], [2], and [3] as a requirement for materials used in H2S-containing environments in oil and gas production.\n\n**Sources:** [1] ASTM_A1049_Duplex_Stainless_Steel_For.pdf (Page 1), [2] ASTM_A1049_Duplex_Stainless_Steel_For.pdf (Page 1), [3] ASTM_A1049_Duplex_Stainless_Steel_For.pdf (Page 1)",
+          "status": "correct",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "DUP-008",
+          "question": "What is the maximum hardness for duplex in sour service per NACE?",
+          "expected": "28-32 HRC depending on grade and environment (typically 28 HRC for most applications)",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The uploaded documents do not contain information about maximum hardness for duplex in sour service per NACE.\n\n**Sources:** [1] ASTM_A1049_Duplex_Stainless_Steel_For_Pressure_Vessels_R_2015.pdf, Page 1, \n[2] ASTM_A1049_Duplex_Stainless_Steel_For_Pressure_Vessels_R_2015.pdf, Page 1, \n[3] ASTM_A1049_Duplex_Stainless_Steel_For_Pressure_Vessels_R_2015.pdf, Page 1, \n[4] ASTM_A789_Seamless_&_Welded_Duplex_Tubing_For_General_Service_2014.pdf, Page 7, \n[5] ASTM_A789_Seamless_&_Welded_Duplex_Tubing_For_General_Service_2014.pdf, Page 7",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": false,
+            "citationPresent": true
+          }
+        }
+      ],
+      "stats": {
+        "total_questions": 8,
+        "correct": 3,
+        "incorrect": 3,
+        "refused_correctly": 0,
+        "hallucinated": 2,
+        "missed_refusal": 0,
+        "accuracy": 37.5,
+        "hallucination_rate": 25,
+        "refusal_accuracy": 100
+      },
+      "by_difficulty": {
+        "easy": {
+          "total": 3,
+          "correct": 1,
+          "accuracy": 33.33333333333333
+        },
+        "medium": {
+          "total": 4,
+          "correct": 2,
+          "accuracy": 50
+        },
+        "hard": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "trap": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0
+        }
+      },
+      "by_tag": {
+        "2205": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "2507": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "PREN": {
+          "total": 2,
+          "correct": 1,
+          "accuracy": 50
+        },
+        "formula": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "corrosion": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "super-duplex": {
+          "total": 2,
+          "correct": 1,
+          "accuracy": 50
+        },
+        "microstructure": {
+          "total": 2,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "ferrite": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "austenite": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "UNS": {
+          "total": 2,
+          "correct": 1,
+          "accuracy": 50
+        },
+        "designation": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "sigma": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "embrittlement": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "NACE": {
+          "total": 2,
+          "correct": 1,
+          "accuracy": 50
+        },
+        "sour-service": {
+          "total": 2,
+          "correct": 1,
+          "accuracy": 50
+        },
+        "ISO": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "hardness": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        }
+      }
+    },
+    {
+      "dataset": "Real Document Test Suite",
+      "timestamp": "2026-01-28T23:49:07.904Z",
+      "results": [
+        {
+          "id": "REAL-A790-001",
+          "question": "What is the minimum yield strength for UNS S31803 pipe per ASTM A790?",
+          "expected": "65 ksi | 450 MPa | 65000 psi",
+          "actual": "**Answer:** The minimum yield strength for UNS S31803 pipe is 65 [450] ksi [MPa] [1].\n\n**Details:** According to Table 3 in ASTM A790/A790M-24, UNS S31803 has a minimum yield strength of 65 [450] ksi [MPa] [1].\n\n**Sources:** [1] 897102004-ASTM-A790-A790M-24.pdf, Page 8",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "REAL-A790-002",
+          "question": "What is the minimum tensile strength for UNS S32750 per ASTM A790?",
+          "expected": "116 ksi | 800 MPa",
+          "actual": "**Answer:** The minimum tensile strength for UNS S32750 is 100 ksi [690 MPa] [1].\n\n**Details:** According to Table 3 in ASTM A790/A790M-24, UNS S32750 has a minimum tensile strength of 100 ksi [690 MPa] [1].\n\n**Sources:** [1] 897102004-ASTM-A790-A790M-24.pdf, Page 8",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "REAL-A790-003",
+          "question": "What heat treatment condition is required for A790 pipe?",
+          "expected": "solution annealed | solution-annealed | solution anneal",
+          "actual": "**Answer:** The heat treatment condition for A790 pipe is obtained, consistent with the requirements of 6.3, in a continuous heat treatment furnace or by directly obtaining the heat treated condition by quenching after hot forming [1].\n\n**Details:** According to the Mechanical Testing Lot Definition, the heat treatment condition is defined as follows: 13.2.1 Where the heat treated condition is obtained, consistent with the requirements of 6.3, in a continuous heat treatment furnace or by directly obtaining the heat treated condition by quenching after hot forming [1]. The requirements of 6.3 are not explicitly stated in the provided context.\n\n**Sources:** \n[1] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf (Page 6)\n[2] ASTM A790 Seamless & Welded Duplex Pipe 2014.pdf (Page 6)\n[3] 897102004-ASTM-A790-A790M-24.pdf (Page 9)",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "REAL-A790-004",
+          "question": "What is the chromium content range for UNS S31803 in A790?",
+          "expected": "21.0-23.0% | 21.0 to 23.0 | 21-23%",
+          "actual": "**Answer:** The chromium content range for UNS S31803 is 21.0–23.0% [1].\n\n**Details:** According to the chemical composition table in [5], UNS S31803 has a chromium content range of 21.0–23.0%.\n\n**Sources:** [1] 897102004-ASTM-A790-A790M-24.pdf, Page 7, [2] 897102004-ASTM-A790-A790M-24.pdf, Page 7",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "REAL-A790-005",
+          "question": "What is the maximum carbon content for UNS S31803?",
+          "expected": "0.030% | 0.03% | 0.030 max",
+          "actual": "[API Error] API error: 504",
+          "status": "hallucinated",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        },
+        {
+          "id": "REAL-A312-001",
+          "question": "What is the minimum yield strength for 316L pipe per ASTM A312?",
+          "expected": "25 ksi | 170 MPa | 25000 psi",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The documents provided contain information on various stainless steel specifications, including ASTM A789 and A790, but do not include specific information on ASTM A312.\n\n**Sources:** [1] ASTM_A789_Stainless_Steel.pdf, Page 7, [2] ASTM_A790_Stainless_Steel.pdf, Page 9, [3] 877794297-A312-A312M-25.pdf, Page 1",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "REAL-A312-002",
+          "question": "What is the minimum tensile strength for 304 stainless per A312?",
+          "expected": "75 ksi | 515 MPa",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The uploaded documents do not contain information about the minimum tensile strength for 304 stainless steel per A312.\n\n**Sources:** [1] 877794297-A312-A312M-25.pdf, [2] ASTM A789 Seamless & Welded Duplex Stainless Steel Tubing 2013.pdf, [3] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "REAL-A312-003",
+          "question": "What is the maximum carbon content for 316L per ASTM A312?",
+          "expected": "0.030% | 0.03% | 0.030 max",
+          "actual": "**Answer:** The maximum carbon content for 316L is 0.040% [1].\n**Details:** According to ASTM A312, for small diameter or thin walls or both, where many drawing passes are required, a carbon maximum of 0.040 % is necessary in grades TP304L and TP316L [1].\n**Sources:** [1] 877794297-A312-A312M-25.pdf, Page 7",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "REAL-A240-001",
+          "question": "What is the minimum yield strength for 316L plate per ASTM A240?",
+          "expected": "25 ksi | 170 MPa",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The uploaded documents contain information about duplex stainless steel tubing, but they do not provide information about 316L plate specifications per ASTM A240.\n\n**Sources:** [1] ASTM_A789_Seamless_Welded_Duplex_Tubing_For_General_Service_2014.pdf, [2] ASTM_A789_Seamless_Welded_Duplex_Tubing_For_General_Service_2014.pdf, [3] 897102004-ASTM-A790-A790M-24.pdf, [4] ASTM_A789_Seamless_Welded_Duplex_Stainless_Steel_Tubing_2013.pdf, [5] ASTM_A789_Seamless_Welded_Duplex_Stainless_Steel_Tubing_2013.pdf",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "REAL-A240-002",
+          "question": "What molybdenum content is specified for 316L in A240?",
+          "expected": "2.00-3.00% | 2.0-3.0% | 2.00 to 3.00",
+          "actual": "[API Error] API error: 504",
+          "status": "hallucinated",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        },
+        {
+          "id": "REAL-A923-001",
+          "question": "What test methods does ASTM A923 include for detecting intermetallic phases?",
+          "expected": "sodium hydroxide etch | Charpy impact | ferric chloride corrosion",
+          "actual": "**Answer:** ASTM A923 includes test methods B and C for detecting intermetallic phases [1].\n\n**Details:** According to the document, Test Methods A923 (B or C) is at the manufacturer’s option, unless otherwise specified by the purchaser [1]. This indicates that the test methods are B and C, but the specific details of these methods are not provided in the uploaded documents.\n\n**Sources:** [1] 897102004-ASTM-A790-A790M-24.pdf, Page 2",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "REAL-A923-002",
+          "question": "What duplex grades are covered by ASTM A923?",
+          "expected": "S31803 | S32205 | 2205",
+          "actual": "**Answer:** The duplex grades covered by ASTM A923 are not explicitly mentioned in the provided documents.\n\n**Details:** However, ASTM A923 is mentioned in [3] and [4] as a test method for detecting detrimental intermetallic phase in duplex austenitic/ferritic stainless steels.\n\n**Sources:** [3] 897102004-ASTM-A790-A790M-24.pdf, Page 2, [4] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, Page 1",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "REAL-NACE-001",
+          "question": "What is the maximum hardness for duplex stainless steel in sour service per NACE MR0175?",
+          "expected": "28 HRC | 32 HRC | 28-32 HRC",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The context mentions NACE MR0175/ISO15156, but it does not specify the maximum hardness for duplex stainless steel in sour service.\n\n**Sources:** [1] ASTM_A1049_Duplex_Stainless_Steel_For_Pressure_Vessels_R_2015.pdf, Page 6; [2] ASTM_A1049_Duplex_Stainless_Steel_For_Pressure_Vessels_R_2015.pdf, Page 6",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "REAL-NACE-002",
+          "question": "What standard does NACE MR0175 reference for material selection in H2S environments?",
+          "expected": "ISO 15156 | ANSI/NACE MR0175/ISO 15156",
+          "actual": "**Answer:** NACE MR0175/ISO15156 references ASME Boiler and Pressure Vessel Code [1], [2], [3] and does not explicitly state a standard for material selection in H2S environments.\n\n**Details:** NACE MR0175/ISO15156 is listed as an \"Other Standard\" in the document, but it does not provide information on the specific standard referenced for material selection in H2S environments.\n\n**Sources:** [1] ASTM_A1049_Duplex_Stainless_Steel_For.pdf, Page 1, [2] ASTM_A1049_Duplex_Stainless_Steel_For.pdf, Page 1, [3] ASTM_A1049_Duplex_Stainless_Steel_For.pdf, Page 1",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "REAL-2205-001",
+          "question": "What is the typical PREN range for 2205 duplex stainless steel?",
+          "expected": "32-35 | 34-36 | 32",
+          "actual": "[API Error] API error: 504",
+          "status": "hallucinated",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        },
+        {
+          "id": "REAL-2205-002",
+          "question": "What is the typical ferrite content in 2205 duplex?",
+          "expected": "40-60% | 50% | 40-50%",
+          "actual": "[API Error] API error: 504",
+          "status": "hallucinated",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        },
+        {
+          "id": "REAL-2507-001",
+          "question": "What is the minimum PREN for super duplex 2507?",
+          "expected": "40 | >40 | 40-45",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The uploaded documents provide information on PREN calculation formulas (A and B) and a range of PREN values for various duplex stainless steel grades, but they do not specify the minimum PREN for super duplex 2507.\n\n**Sources:** [1] ASTM_A1049_Duplex_Stainless_Steel_For.pdf, Page 4, [2] ASTM_A1049_Duplex_Stainless_Steel_For.pdf, Page 4, [3] ASTM_A1049_Duplex_Stainless_Steel_For.pdf, Page 5, [4] ASTM_A1049_Duplex_Stainless_Steel_For.pdf, Page 5, [5] ASTM_A1049_Duplex_Stainless_Steel_For.pdf, Page 5",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "REAL-MTR-001",
+          "question": "What standard governs material test certificates in Europe?",
+          "expected": "EN 10204 | EN10204 | 10204",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** None.\n\n**Sources:** [1] 877794297-A312-A312M-25.pdf, [2] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, [3] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, [4] ASTM A1049 Duplex Stainless Steel Forgings For Pressure Vessels R 2015.pdf, [5] 897102004-ASTM-A790-A790M-24.pdf",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "REAL-MTR-002",
+          "question": "What is the difference between EN 10204 3.1 and 3.2 certificates?",
+          "expected": "independent | third party | manufacturer",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** There is no mention of EN 10204 3.1 and 3.2 certificates in the provided documents.\n\n**Sources:** [1] ASTM_A1049_Duplex_Stainless_Steel.pdf, Page 7, [2] ASTM_A1049_Duplex_Stainless_Steel.pdf, Page 7, [3] ASTM_A1049_Duplex_Stainless_Steel.pdf, Page 7, [4] 877794297-A312-A312M-25.pdf, Page 18, [5] ASTM_A790_Seamless_&_Welded_Duplex_Stainless_Steel_Pipe_2014.pdf, Page 7",
+          "status": "incorrect",
+          "match_details": {
+            "match": false,
+            "numberMatch": true,
+            "citationPresent": true
+          }
+        },
+        {
+          "id": "REAL-NEG-001",
+          "question": "What is the yield strength of Inconel 625 per ASTM A790?",
+          "expected": "REFUSE - Inconel 625 (N06625) is a nickel alloy, not covered by A790 which covers ferritic/austenitic (duplex) stainless steel",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The uploaded documents do not mention Inconel 625 or its yield strength per ASTM A790.\n\n**Sources:** [1] 897102004-ASTM-A790-A790M-24.pdf, [2] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, [3] ASTM A789 Seamless & Welded Duplex Tubing For General Service 2014.pdf, [4] ASTM A790 Seamless & Welded Duplex Pipe 2014.pdf, [5] ASTM A790 Seamless & Welded Duplex Stainless Steel Pipe 2014.pdf",
+          "status": "refused_correctly",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        },
+        {
+          "id": "REAL-NEG-002",
+          "question": "What is the impact test requirement for A790 at -196°C?",
+          "expected": "REFUSE - A790 does not mandate impact testing at specific cryogenic temperatures",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The uploaded documents do not contain information about the impact test requirement for A790 at -196°C.\n\n**Sources:** [1] 897102004-ASTM-A790-A790M-24.pdf, Page 1-9",
+          "status": "refused_correctly",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        },
+        {
+          "id": "REAL-NEG-003",
+          "question": "What is the exact price of S32750 pipe per foot?",
+          "expected": "REFUSE - Pricing is not specified in ASTM standards",
+          "actual": "**Answer:** This information is not in the uploaded documents.\n\n**Details:** The provided documents contain specifications, dimensions, and mechanical properties of various stainless steel pipes, but pricing information is not included.\n\n**Sources:** [1] ASTM_A790_Stainless_Steel_Pipe.pdf, Page 17, [2] ASTM_A789_Duplex_Tubing.pdf, Page 7",
+          "status": "refused_correctly",
+          "match_details": {
+            "match": true,
+            "numberMatch": true,
+            "citationPresent": false
+          }
+        }
+      ],
+      "stats": {
+        "total_questions": 22,
+        "correct": 0,
+        "incorrect": 15,
+        "refused_correctly": 3,
+        "hallucinated": 4,
+        "missed_refusal": 0,
+        "accuracy": 13.636363636363635,
+        "hallucination_rate": 18.181818181818183,
+        "refusal_accuracy": 100
+      },
+      "by_difficulty": {
+        "easy": {
+          "total": 9,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "medium": {
+          "total": 9,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "hard": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "trap": {
+          "total": 3,
+          "correct": 3,
+          "accuracy": 100
+        }
+      },
+      "by_tag": {
+        "304": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "2205": {
+          "total": 2,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "2507": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "A790": {
+          "total": 5,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "S31803": {
+          "total": 3,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "yield": {
+          "total": 3,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "duplex": {
+          "total": 2,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "S32750": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "tensile": {
+          "total": 2,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "super-duplex": {
+          "total": 2,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "heat-treatment": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "chemistry": {
+          "total": 4,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "chromium": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "carbon": {
+          "total": 2,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "A312": {
+          "total": 3,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "316L": {
+          "total": 4,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "austenitic": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "A240": {
+          "total": 2,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "plate": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "molybdenum": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "A923": {
+          "total": 2,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "intermetallic": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "testing": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "sigma": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "grades": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "NACE": {
+          "total": 2,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "MR0175": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "hardness": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "sour-service": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "ISO": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "H2S": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "PREN": {
+          "total": 2,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "corrosion": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "ferrite": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "microstructure": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "MTR": {
+          "total": 2,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "EN10204": {
+          "total": 2,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "certificate": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "3.1": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "3.2": {
+          "total": 1,
+          "correct": 0,
+          "accuracy": 0
+        },
+        "negative-test": {
+          "total": 3,
+          "correct": 3,
+          "accuracy": 100
+        },
+        "out-of-scope": {
+          "total": 2,
+          "correct": 2,
+          "accuracy": 100
+        },
+        "impact": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        },
+        "pricing": {
+          "total": 1,
+          "correct": 1,
+          "accuracy": 100
+        }
+      }
+    }
+  ],
+  "overall": {
+    "accuracy": 43.42105263157895,
+    "hallucination_rate": 9.210526315789473
+  }
+}

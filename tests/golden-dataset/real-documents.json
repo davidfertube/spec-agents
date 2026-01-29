@@ -1,0 +1,199 @@
+{
+  "document": "Real Document Test Suite",
+  "description": "Q&A pairs designed to test against actual ASTM/NACE documents downloaded from Scribd. These questions cover the most common queries for steel specifications.",
+  "qa_pairs": [
+    {
+      "id": "REAL-A790-001",
+      "question": "What is the minimum yield strength for UNS S31803 pipe per ASTM A790?",
+      "expected_values": ["65 ksi", "450 MPa", "65000 psi"],
+      "source_document": "ASTM A790",
+      "difficulty": "easy",
+      "tags": ["A790", "S31803", "yield", "duplex"]
+    },
+    {
+      "id": "REAL-A790-002",
+      "question": "What is the minimum tensile strength for UNS S32750 per ASTM A790?",
+      "expected_values": ["116 ksi", "800 MPa"],
+      "source_document": "ASTM A790",
+      "difficulty": "easy",
+      "tags": ["A790", "S32750", "tensile", "super-duplex"]
+    },
+    {
+      "id": "REAL-A790-003",
+      "question": "What heat treatment condition is required for A790 pipe?",
+      "expected_values": ["solution annealed", "solution-annealed", "solution anneal"],
+      "source_document": "ASTM A790",
+      "difficulty": "medium",
+      "tags": ["A790", "heat-treatment"]
+    },
+    {
+      "id": "REAL-A790-004",
+      "question": "What is the chromium content range for UNS S31803 in A790?",
+      "expected_values": ["21.0-23.0%", "21.0 to 23.0", "21-23%"],
+      "source_document": "ASTM A790",
+      "difficulty": "medium",
+      "tags": ["A790", "S31803", "chemistry", "chromium"]
+    },
+    {
+      "id": "REAL-A790-005",
+      "question": "What is the maximum carbon content for UNS S31803?",
+      "expected_values": ["0.030%", "0.03%", "0.030 max"],
+      "source_document": "ASTM A790",
+      "difficulty": "easy",
+      "tags": ["A790", "S31803", "chemistry", "carbon"]
+    },
+    {
+      "id": "REAL-A312-001",
+      "question": "What is the minimum yield strength for 316L pipe per ASTM A312?",
+      "expected_values": ["25 ksi", "170 MPa", "25000 psi"],
+      "source_document": "ASTM A312",
+      "difficulty": "easy",
+      "tags": ["A312", "316L", "yield", "austenitic"]
+    },
+    {
+      "id": "REAL-A312-002",
+      "question": "What is the minimum tensile strength for 304 stainless per A312?",
+      "expected_values": ["75 ksi", "515 MPa"],
+      "source_document": "ASTM A312",
+      "difficulty": "easy",
+      "tags": ["A312", "304", "tensile"]
+    },
+    {
+      "id": "REAL-A312-003",
+      "question": "What is the maximum carbon content for 316L per ASTM A312?",
+      "expected_values": ["0.030%", "0.03%", "0.030 max"],
+      "source_document": "ASTM A312",
+      "difficulty": "easy",
+      "tags": ["A312", "316L", "chemistry", "carbon"]
+    },
+    {
+      "id": "REAL-A240-001",
+      "question": "What is the minimum yield strength for 316L plate per ASTM A240?",
+      "expected_values": ["25 ksi", "170 MPa"],
+      "source_document": "ASTM A240",
+      "difficulty": "easy",
+      "tags": ["A240", "316L", "yield", "plate"]
+    },
+    {
+      "id": "REAL-A240-002",
+      "question": "What molybdenum content is specified for 316L in A240?",
+      "expected_values": ["2.00-3.00%", "2.0-3.0%", "2.00 to 3.00"],
+      "source_document": "ASTM A240",
+      "difficulty": "medium",
+      "tags": ["A240", "316L", "chemistry", "molybdenum"]
+    },
+    {
+      "id": "REAL-A923-001",
+      "question": "What test methods does ASTM A923 include for detecting intermetallic phases?",
+      "expected_values": ["sodium hydroxide etch", "Charpy impact", "ferric chloride corrosion", "Method A", "Method B", "Method C"],
+      "source_document": "ASTM A923",
+      "difficulty": "medium",
+      "tags": ["A923", "intermetallic", "testing", "sigma"]
+    },
+    {
+      "id": "REAL-A923-002",
+      "question": "What duplex grades are covered by ASTM A923?",
+      "expected_values": ["S31803", "S32205", "2205", "S32750", "2507", "S32550", "255", "S32520"],
+      "source_document": "ASTM A923",
+      "difficulty": "medium",
+      "tags": ["A923", "grades", "duplex"]
+    },
+    {
+      "id": "REAL-NACE-001",
+      "question": "What is the maximum hardness for duplex stainless steel in sour service per NACE MR0175?",
+      "expected_values": ["28 HRC", "32 HRC", "28-32 HRC"],
+      "source_document": "NACE MR0175/ISO 15156",
+      "difficulty": "medium",
+      "tags": ["NACE", "MR0175", "hardness", "sour-service"]
+    },
+    {
+      "id": "REAL-NACE-002",
+      "question": "What standard does NACE MR0175 reference for material selection in H2S environments?",
+      "expected_values": ["ISO 15156", "ANSI/NACE MR0175/ISO 15156"],
+      "source_document": "NACE MR0175",
+      "difficulty": "easy",
+      "tags": ["NACE", "ISO", "H2S"]
+    },
+    {
+      "id": "REAL-2205-001",
+      "question": "What is the typical PREN range for 2205 duplex stainless steel?",
+      "expected_values": ["32-35", "34-36", "32", "35", ">32"],
+      "source_document": "2205 Datasheet",
+      "difficulty": "medium",
+      "tags": ["2205", "PREN", "corrosion"]
+    },
+    {
+      "id": "REAL-2205-002",
+      "question": "What is the typical ferrite content in 2205 duplex?",
+      "expected_values": ["40-60%", "50%", "40-50%", "approximately 50/50"],
+      "source_document": "2205 Datasheet",
+      "difficulty": "medium",
+      "tags": ["2205", "ferrite", "microstructure"]
+    },
+    {
+      "id": "REAL-2507-001",
+      "question": "What is the minimum PREN for super duplex 2507?",
+      "expected_values": ["40", ">40", "40-45", "42"],
+      "source_document": "2507 Datasheet",
+      "difficulty": "medium",
+      "tags": ["2507", "PREN", "super-duplex"]
+    },
+    {
+      "id": "REAL-MTR-001",
+      "question": "What standard governs material test certificates in Europe?",
+      "expected_values": ["EN 10204", "EN10204", "10204"],
+      "source_document": "EN 10204",
+      "difficulty": "easy",
+      "tags": ["MTR", "EN10204", "certificate"]
+    },
+    {
+      "id": "REAL-MTR-002",
+      "question": "What is the difference between EN 10204 3.1 and 3.2 certificates?",
+      "expected_values": ["independent", "third party", "manufacturer", "inspection body"],
+      "source_document": "EN 10204",
+      "difficulty": "hard",
+      "tags": ["MTR", "EN10204", "3.1", "3.2"]
+    },
+    {
+      "id": "REAL-NEG-001",
+      "question": "What is the yield strength of Inconel 625 per ASTM A790?",
+      "expected_answer": "REFUSE - Inconel 625 (N06625) is a nickel alloy, not covered by A790 which covers ferritic/austenitic (duplex) stainless steel",
+      "expect_refusal": true,
+      "difficulty": "trap",
+      "tags": ["negative-test", "out-of-scope"]
+    },
+    {
+      "id": "REAL-NEG-002",
+      "question": "What is the impact test requirement for A790 at -196°C?",
+      "expected_answer": "REFUSE - A790 does not mandate impact testing at specific cryogenic temperatures",
+      "expect_refusal": true,
+      "difficulty": "trap",
+      "tags": ["negative-test", "impact"]
+    },
+    {
+      "id": "REAL-NEG-003",
+      "question": "What is the exact price of S32750 pipe per foot?",
+      "expected_answer": "REFUSE - Pricing is not specified in ASTM standards",
+      "expect_refusal": true,
+      "difficulty": "trap",
+      "tags": ["negative-test", "out-of-scope", "pricing"]
+    }
+  ],
+  "metadata": {
+    "total_questions": 22,
+    "easy": 8,
+    "medium": 9,
+    "hard": 2,
+    "trap": 3,
+    "requires_document": true,
+    "minimum_documents": [
+      "ASTM A790",
+      "ASTM A312",
+      "ASTM A240",
+      "ASTM A923",
+      "NACE MR0175/ISO 15156",
+      "2205 Datasheet",
+      "2507 Datasheet"
+    ]
+  }
+}

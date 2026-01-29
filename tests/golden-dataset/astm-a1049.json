@@ -1,0 +1,81 @@
+{
+  "document": "ASTM A1049/A1049M-10",
+  "description": "Stainless Steel Forgings, Ferritic/Austenitic (Duplex), for Pressure Vessels and Related Components",
+  "revision": "2010",
+  "qa_pairs": [
+    {
+      "id": "A1049-001",
+      "question": "What product form does A1049 cover?",
+      "expected_values": ["forgings", "forged", "pressure vessel"],
+      "source_section": "Section 1",
+      "difficulty": "easy",
+      "tags": ["product-form", "forgings"]
+    },
+    {
+      "id": "A1049-002",
+      "question": "What is the minimum yield strength for F51 (S31803) forgings per A1049?",
+      "expected_values": ["65 ksi", "450 MPa"],
+      "source_table": "Table 3",
+      "difficulty": "easy",
+      "tags": ["S31803", "yield", "forgings", "F51"],
+      "verification": {
+        "numerical_value": 65,
+        "unit": "ksi",
+        "property": "yield_strength"
+      }
+    },
+    {
+      "id": "A1049-003",
+      "question": "What application is A1049 specifically designed for?",
+      "expected_values": ["pressure vessel", "pressure vessels", "boilers", "ASME"],
+      "source_section": "Section 1",
+      "difficulty": "easy",
+      "tags": ["application", "pressure-vessel"]
+    },
+    {
+      "id": "A1049-004",
+      "question": "What heat treatment does A1049 require for F51 (S31803)?",
+      "expected_values": ["solution annealed", "solution-annealed", "1870", "1020", "water quench"],
+      "source_table": "Table 2",
+      "difficulty": "medium",
+      "tags": ["heat-treatment", "annealing"]
+    },
+    {
+      "id": "A1049-005",
+      "question": "What ASTM standard is referenced for intermetallic phase detection in A1049?",
+      "expected_values": ["A923", "ASTM A923"],
+      "source_section": "Section 2",
+      "difficulty": "medium",
+      "tags": ["testing", "A923", "intermetallic"]
+    },
+    {
+      "id": "A1049-006",
+      "question": "What is the minimum tensile strength for F53 (S32750) super duplex forgings?",
+      "expected_values": ["116 ksi", "800 MPa"],
+      "source_table": "Table 3",
+      "difficulty": "medium",
+      "tags": ["S32750", "tensile", "F53"],
+      "verification": {
+        "numerical_value": 116,
+        "unit": "ksi",
+        "property": "tensile_strength"
+      }
+    },
+    {
+      "id": "A1049-NEG-001",
+      "question": "What wall thickness schedule is required for A1049 forgings?",
+      "expected_answer": "REFUSE - A1049 is for forgings, not pipe (wall thickness schedules apply to pipe, see A790 for duplex pipe)",
+      "expect_refusal": true,
+      "difficulty": "trap",
+      "tags": ["negative-test", "wrong-product-form"]
+    }
+  ],
+  "metadata": {
+    "total_questions": 7,
+    "easy": 3,
+    "medium": 3,
+    "hard": 0,
+    "trap": 1,
+    "requires_document": true
+  }
+}

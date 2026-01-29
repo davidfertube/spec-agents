@@ -1,0 +1,154 @@
+{
+  "document": "ASTM A790",
+  "description": "Seamless and Welded Ferritic/Austenitic Stainless Steel Pipe",
+  "revision": "2014",
+  "qa_pairs": [
+    {
+      "id": "A790-001",
+      "question": "What is the minimum yield strength for UNS S31803 seamless pipe?",
+      "expected_answer": "65 ksi (450 MPa)",
+      "source_table": "Table 2",
+      "source_page": 4,
+      "difficulty": "easy",
+      "tags": ["tensile", "S31803", "seamless", "yield"],
+      "verification": {
+        "numerical_value": 65,
+        "unit": "ksi",
+        "property": "yield_strength"
+      }
+    },
+    {
+      "id": "A790-002",
+      "question": "What is the minimum tensile strength for UNS S32750 (2507)?",
+      "expected_answer": "116 ksi (800 MPa)",
+      "source_table": "Table 2",
+      "source_page": 4,
+      "difficulty": "easy",
+      "tags": ["tensile", "S32750", "2507"],
+      "verification": {
+        "numerical_value": 116,
+        "unit": "ksi",
+        "property": "tensile_strength"
+      }
+    },
+    {
+      "id": "A790-003",
+      "question": "Does ASTM A790 require solution annealing?",
+      "expected_answer": "Yes, all pipe shall be furnished in the solution-annealed condition",
+      "source_section": "6.1 or 6.2",
+      "source_page": 3,
+      "difficulty": "medium",
+      "tags": ["heat-treatment", "solution-anneal"]
+    },
+    {
+      "id": "A790-004",
+      "question": "What is the maximum hardness allowed for S32750?",
+      "expected_answer": "32 HRC",
+      "source_table": "Table 3 or similar",
+      "source_page": 5,
+      "difficulty": "medium",
+      "tags": ["hardness", "S32750", "HRC"],
+      "verification": {
+        "numerical_value": 32,
+        "unit": "HRC",
+        "property": "hardness"
+      }
+    },
+    {
+      "id": "A790-005",
+      "question": "What is the minimum elongation for UNS S31803?",
+      "expected_answer": "25%",
+      "source_table": "Table 2",
+      "source_page": 4,
+      "difficulty": "easy",
+      "tags": ["elongation", "S31803"],
+      "verification": {
+        "numerical_value": 25,
+        "unit": "%",
+        "property": "elongation"
+      }
+    },
+    {
+      "id": "A790-006",
+      "question": "What chromium content range is specified for UNS S31803?",
+      "expected_answer": "21.0-23.0%",
+      "source_table": "Table 1",
+      "source_page": 3,
+      "difficulty": "medium",
+      "tags": ["chemical", "composition", "chromium", "S31803"]
+    },
+    {
+      "id": "A790-007",
+      "question": "What is the molybdenum content for UNS S32750 super duplex?",
+      "expected_answer": "3.0-5.0%",
+      "source_table": "Table 1",
+      "source_page": 3,
+      "difficulty": "medium",
+      "tags": ["chemical", "composition", "molybdenum", "S32750"]
+    },
+    {
+      "id": "A790-008",
+      "question": "What hydrostatic test pressure is required?",
+      "expected_answer": "Per applicable ASME/ASTM formula based on wall thickness and allowable stress",
+      "source_section": "Section 10 or 11",
+      "source_page": 6,
+      "difficulty": "hard",
+      "tags": ["hydrostatic", "testing"]
+    },
+    {
+      "id": "A790-009",
+      "question": "What is the maximum carbon content for UNS S31803?",
+      "expected_answer": "0.030% (0.03%)",
+      "source_table": "Table 1",
+      "source_page": 3,
+      "difficulty": "easy",
+      "tags": ["chemical", "carbon", "S31803"],
+      "verification": {
+        "numerical_value": 0.03,
+        "unit": "%",
+        "property": "carbon_max"
+      }
+    },
+    {
+      "id": "A790-010",
+      "question": "What nitrogen range is specified for S32750?",
+      "expected_answer": "0.24-0.32%",
+      "source_table": "Table 1",
+      "source_page": 3,
+      "difficulty": "medium",
+      "tags": ["chemical", "nitrogen", "S32750"]
+    },
+    {
+      "id": "A790-NEG-001",
+      "question": "What is the yield strength of 316L according to ASTM A790?",
+      "expected_answer": "REFUSE - 316L is not covered by A790 (austenitic grade covered by A312/A269)",
+      "difficulty": "trap",
+      "tags": ["negative-test", "out-of-scope", "316L"],
+      "expect_refusal": true
+    },
+    {
+      "id": "A790-NEG-002",
+      "question": "What is the impact test requirement for A790 pipe at -50°C?",
+      "expected_answer": "REFUSE - A790 does not specify mandatory impact testing at specific temperatures (see A923 for corrosion resistance tests)",
+      "difficulty": "trap",
+      "tags": ["negative-test", "impact", "temperature"],
+      "expect_refusal": true
+    },
+    {
+      "id": "A790-NEG-003",
+      "question": "What is the PREN of S31803 according to ASTM A790?",
+      "expected_answer": "REFUSE - A790 does not specify PREN values (PREN is calculated from chemistry, typically 32-35 for S31803)",
+      "difficulty": "trap",
+      "tags": ["negative-test", "PREN"],
+      "expect_refusal": true
+    }
+  ],
+  "metadata": {
+    "total_questions": 13,
+    "easy": 4,
+    "medium": 5,
+    "hard": 1,
+    "trap": 3,
+    "requires_document": true
+  }
+}
