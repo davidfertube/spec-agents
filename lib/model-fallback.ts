@@ -62,7 +62,7 @@ export const TEXT_MODELS = [
   "mixtral-8x7b-32768",
 ] as const;
 
-export const EMBEDDING_MODELS = ["gemini-embedding-001"] as const;
+export const EMBEDDING_MODELS = ["voyage-3-lite"] as const;
 
 export type TextModel = typeof TEXT_MODELS[number];
 export type EmbeddingModel = typeof EMBEDDING_MODELS[number];

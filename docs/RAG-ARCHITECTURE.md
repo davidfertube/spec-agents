@@ -18,16 +18,16 @@ Steel Agents is an AI-powered RAG (Retrieval-Augmented Generation) system design
            |                        |                        |
            v                        v                        v
     +--------------+         +--------------+         +--------------+
-    | Supabase     |         | unpdf        |         | Google       |
+    | Supabase     |         | unpdf        |         | Voyage AI    |
     | Storage      |         | Extract Text |         | Embeddings   |
-    | (50MB max)   |         | (mergePages) |         | (3072 dim)   |
+    | (50MB max)   |         | (mergePages) |         | (1024 dim)   |
     +--------------+         +--------------+         +--------------+
                                     |                        |
                                     v                        v
                              +--------------+         +--------------+
                              | Chunking     |         | Supabase     |
-                             | 1000 chars   |         | pgvector     |
-                             | 200 overlap  |         | Storage      |
+                             | 2000 chars   |         | pgvector     |
+                             | 300 overlap  |         | Storage      |
                              +--------------+         +--------------+
 
 

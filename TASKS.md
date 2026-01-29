@@ -1,63 +1,72 @@
-# Steel Agent - Launch Checklist
+# Steel Agents - Launch Checklist
 
 ## ✅ COMPLETED
 - [x] Frontend UI (Next.js 16)
-- [x] Backend RAG pipeline (FastAPI + LangGraph)
+- [x] Next.js API Routes (RAG pipeline)
 - [x] Source citations with expandable previews
-- [x] Steel crystal visualization
+- [x] Hybrid search (BM25 + vector)
+- [x] Query embedding cache
+- [x] Claim verification framework
 - [x] Mobile-responsive design
-- [x] Azure deployment infrastructure (Bicep)
-- [x] CI/CD pipelines (GitHub Actions)
-- [x] Unit tests (frontend + backend)
+- [x] CI/CD pipeline (GitHub Actions → Vercel)
+- [x] Unit tests (frontend + API routes)
 
 ---
 
 ## 🚀 YOUR TODO LIST (To Make It Production-Ready)
 
 ### Step 1: Get API Keys (5 min)
-- [ ] **Google AI Studio** → https://aistudio.google.com/app/apikey
-  - Create API key, copy it
-- [ ] **Pinecone** → https://app.pinecone.io
-  - Sign up, create index named `steel-index` (dimension: 768, metric: cosine)
-  - Copy API key
+- [ ] **Voyage AI** → https://www.voyageai.com
+  - Sign up, get API key (200M tokens FREE/month)
+- [ ] **Groq** → https://console.groq.com
+  - Sign up, get API key (14,400 req/day FREE)
+- [ ] **Supabase** → https://supabase.com
+  - Create project, get URL and anon key
 
 ### Step 2: Configure Environment (2 min)
-- [ ] Create `.env` file in project root:
+- [ ] Create `.env.local` file in project root:
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
-- [ ] Add your keys to `.env`:
+- [ ] Add your keys to `.env.local`:
 ```
-GOOGLE_API_KEY=your_google_api_key
-PINECONE_API_KEY=your_pinecone_api_key
-PINECONE_INDEX_NAME=steel-index
+VOYAGE_API_KEY=your_voyage_api_key
+GROQ_API_KEY=your_groq_api_key
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-### Step 3: Add Documents (10 min)
-- [ ] Create `/data` folder if it doesn't exist
-- [ ] Add PDF documents (ASTM standards, material specs, etc.)
-- [ ] Recommended: Start with 5-10 PDFs for testing
-
-### Step 4: Ingest Documents (5 min)
+### Step 3: Set Up Supabase Database (5 min)
+- [ ] Go to Supabase Dashboard → SQL Editor
+- [ ] Run the schema setup:
 ```bash
-# Install Python dependencies
-pip install -r requirements.txt
-
-# Run ingestion
-python backend/ingest.py
+# Copy and paste contents of supabase/schema.sql
 ```
+- [ ] Run the Voyage AI migration:
+```bash
+# Copy and paste contents of supabase/migrations/002_voyage_embeddings.sql
+```
+
+### Step 4: Create Storage Bucket (2 min)
+- [ ] Go to Supabase Dashboard → Storage
+- [ ] Click "New bucket"
+- [ ] Name: `documents`
+- [ ] Check "Public bucket" (for demo simplicity)
+- [ ] Click "Create bucket"
 
 ### Step 5: Start the App (1 min)
 ```bash
-# Terminal 1 - Frontend
-npm run dev
+# Install dependencies
+npm install
 
-# Terminal 2 - Backend
-uvicorn backend.server:app --reload --port 8000
+# Start development server
+npm run dev
 ```
 
 ### Step 6: Test It
 - [ ] Open http://localhost:3000
+- [ ] Upload a PDF (ASTM standard, material spec, etc.)
+- [ ] Wait for processing to complete (green checkmark)
 - [ ] Try these queries:
   - "What is the yield strength of A106 Grade B?"
   - "Does 4140 steel meet NACE MR0175 requirements?"
@@ -65,36 +74,28 @@ uvicorn backend.server:app --reload --port 8000
 
 ---
 
-## 🌐 AZURE DEPLOYMENT (Optional - For Live Demo)
+## 🌐 VERCEL DEPLOYMENT (One-Click Deploy)
 
-### Step 1: Azure Setup
-- [ ] Create Azure account (if needed)
-- [ ] Install Azure CLI: `brew install azure-cli`
-- [ ] Login: `az login`
+### Option 1: Deploy with Vercel Button
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/davidfertube/steel-venture)
 
-### Step 2: Create Service Principal
+### Option 2: Manual Deploy
 ```bash
-az ad sp create-for-rbac --name "steel-agent-gh" --role contributor \
-  --scopes /subscriptions/YOUR_SUBSCRIPTION_ID \
-  --sdk-auth
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel
+
+# Add environment variables in Vercel dashboard
+# → Settings → Environment Variables
 ```
 
-### Step 3: Add GitHub Secrets
-Go to: GitHub → Settings → Secrets → Actions
-- [ ] `AZURE_CLIENT_ID`
-- [ ] `AZURE_TENANT_ID`
-- [ ] `AZURE_SUBSCRIPTION_ID`
-- [ ] `GOOGLE_API_KEY`
-- [ ] `PINECONE_API_KEY`
-
-### Step 4: Deploy
-```bash
-# Deploy infrastructure
-gh workflow run infra-deploy.yml -f environment=dev
-
-# Push to trigger app deployment
-git push origin main
-```
+### Required Environment Variables in Vercel
+- `VOYAGE_API_KEY`
+- `GROQ_API_KEY`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
 ---
 
@@ -103,6 +104,7 @@ git push origin main
 - [ ] Take screenshot (1200x630)
 - [ ] Update portfolio project card
 - [ ] Add live demo link
+- [ ] Add to resume/LinkedIn
 
 ---
 
@@ -110,17 +112,33 @@ git push origin main
 
 | Task | Command |
 |------|---------|
-| Start frontend | `npm run dev` |
-| Start backend | `uvicorn backend.server:app --reload --port 8000` |
-| Run tests | `npm test && pytest backend/tests/` |
-| Ingest docs | `python backend/ingest.py` |
-| Build | `npm run build` |
+| Start dev server | `npm run dev` |
+| Build for production | `npm run build` |
+| Run tests | `npm test` |
+| Run linter | `npm run lint` |
+| Run evaluation | `npx tsx scripts/evaluate-accuracy.ts` |
 
 ---
 
 ## URLs
 
-- **Frontend**: http://localhost:3000
-- **Backend**: http://localhost:8000
-- **Health Check**: http://localhost:8000/health
+- **Frontend & API**: http://localhost:3000
+- **API Routes**: http://localhost:3000/api/chat
 - **GitHub**: https://github.com/davidfertube/steel-venture
+- **Supabase Dashboard**: https://supabase.com/dashboard
+
+---
+
+## Troubleshooting
+
+### "No documents indexed"
+Upload a PDF first, then wait for processing to complete (status changes to "indexed").
+
+### "Embedding API error"
+Verify `VOYAGE_API_KEY` is set. Get a free key at https://www.voyageai.com (200M tokens FREE/month).
+
+### "Database connection failed"
+Check Supabase credentials in `.env.local`. Make sure the schema and migration scripts have been run.
+
+### Build fails
+Run `npm run lint -- --fix` to auto-fix linting issues.

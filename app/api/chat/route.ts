@@ -16,7 +16,7 @@ import { generateVerifiedResponse } from "@/lib/verified-generation";
  * 1. Validates the user query
  * 2. Searches for relevant document chunks
  * 3. Builds context from retrieved documents
- * 4. Generates a response with citations using Gemini
+ * 4. Generates a response with citations using Groq (Llama 3.3 70B)
  *
  * Rate Limit Handling:
  * - Uses ModelFallbackClient for automatic model fallback
@@ -193,25 +193,44 @@ Please provide general guidance based on industry standards (ASTM, NACE, API), b
     // ========================================
     // Step 5: Build Sources Array with PDF Links
     // ========================================
-    const sources = chunks.map((chunk, index) => {
-      const doc = docMap.get(chunk.document_id);
-      // Get public URL for the document to enable direct page navigation
-      let documentUrl: string | undefined;
-      if (doc?.storage_path) {
-        const { data: urlData } = supabase.storage
-          .from("documents")
-          .getPublicUrl(doc.storage_path);
-        // Append page anchor for direct navigation (works in most PDF viewers)
-        documentUrl = `${urlData.publicUrl}#page=${chunk.page_number}`;
-      }
-      return {
-        ref: `[${index + 1}]`,
-        document: doc?.filename || "Unknown",
-        page: String(chunk.page_number),
-        content_preview: chunk.content.slice(0, 150) + "...",
-        document_url: documentUrl,
-      };
-    });
+    // Use signed URLs for reliable access (works even if bucket isn't public)
+    const sourcesWithUrls = await Promise.all(
+      chunks.map(async (chunk, index) => {
+        const doc = docMap.get(chunk.document_id);
+        let documentUrl: string | undefined;
+
+        if (doc?.storage_path) {
+          // Create a signed URL that expires in 1 hour (3600 seconds)
+          const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+            .from("documents")
+            .createSignedUrl(doc.storage_path, 3600);
+
+          if (!signedUrlError && signedUrlData?.signedUrl) {
+            documentUrl = signedUrlData.signedUrl;
+          } else {
+            // Fallback to public URL if signed URL fails
+            const { data: urlData } = supabase.storage
+              .from("documents")
+              .getPublicUrl(doc.storage_path);
+            documentUrl = urlData.publicUrl;
+          }
+        }
+
+        return {
+          ref: `[${index + 1}]`,
+          document: doc?.filename || "Unknown",
+          page: String(chunk.page_number),
+          content_preview: chunk.content.slice(0, 150) + "...",
+          document_url: documentUrl,
+          // Include storage path for PDF proxy endpoint
+          storage_path: doc?.storage_path,
+          // Include char offsets for precise citation highlighting in PDF viewer
+          char_offset_start: chunk.char_offset_start,
+          char_offset_end: chunk.char_offset_end,
+        };
+      })
+    );
+    const sources = sourcesWithUrls;
 
     // ========================================
     // Step 6: Return Response

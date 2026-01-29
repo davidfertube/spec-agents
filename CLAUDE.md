@@ -7,16 +7,16 @@
 | **Frontend** | READY | Deploy to Vercel |
 | **API Routes** | READY | Next.js API routes (no separate backend) |
 | **Database** | CONFIGURED | Supabase PostgreSQL + pgvector |
-| **LLM** | CONFIGURED | Google Gemini 2.5 Flash |
-| **Embeddings** | CONFIGURED | Google gemini-embedding-001 |
+| **LLM** | CONFIGURED | Groq (Llama 3.3 70B) with multi-provider fallback |
+| **Embeddings** | CONFIGURED | Voyage AI voyage-3-lite (200M tokens FREE/month) |
 
 ### What's Working
 - [x] PDF upload to Supabase Storage
 - [x] Text extraction with `unpdf`
-- [x] Embeddings generation with Google gemini-embedding-001
+- [x] Embeddings generation with Voyage AI (1024 dim, 1000+ RPM)
 - [x] Vector storage in Supabase pgvector
 - [x] Semantic search with cosine similarity
-- [x] LLM responses with Gemini 2.5 Flash
+- [x] LLM responses with Groq (Llama 3.3 70B) + multi-provider fallback
 - [x] Citations in responses ([1], [2], etc.)
 - [x] Lead capture form (with company field)
 - [x] Security hardening (input validation, file limits)
@@ -77,9 +77,9 @@ npm run dev
                     ┌───────────────┼───────────────┐
                     ▼               ▼               ▼
             ┌───────────┐   ┌───────────┐   ┌───────────┐
-            │  Supabase │   │  Google   │   │  Google   │
-            │  pgvector │   │  Gemini   │   │ Embeddings│
-            │ (vectors) │   │  (LLM)    │   │ (3072 dim) │
+            │  Supabase │   │   Groq    │   │ Voyage AI │
+            │  pgvector │   │ Llama 3.3 │   │ Embeddings│
+            │ (vectors) │   │  (LLM)    │   │ (1024 dim) │
             └───────────┘   └───────────┘   └───────────┘
 ```
 
@@ -93,7 +93,8 @@ npm run dev
 | `app/api/documents/process/route.ts` | Extract text, generate embeddings, store |
 | `app/api/leads/route.ts` | Lead capture form submission |
 | `lib/vectorstore.ts` | pgvector search functions |
-| `lib/embeddings.ts` | Google embedding generation |
+| `lib/embeddings.ts` | Voyage AI embedding generation |
+| `lib/embedding-cache.ts` | Query embedding cache (reduces API calls) |
 | `lib/supabase.ts` | Supabase client |
 
 ---
@@ -101,8 +102,9 @@ npm run dev
 ## Environment Variables
 
 ```bash
-# Required (3 variables)
-GOOGLE_API_KEY=xxx                      # Google AI Studio
+# Required (4 variables)
+VOYAGE_API_KEY=xxx                      # Voyage AI (voyageai.com)
+GROQ_API_KEY=xxx                        # Groq (console.groq.com)
 NEXT_PUBLIC_SUPABASE_URL=xxx            # Supabase project URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY=xxx       # Supabase anon key
 ```
@@ -169,8 +171,8 @@ git push origin main           # Auto-deploys via GitHub Actions to Vercel
 ### "No documents indexed"
 Upload a PDF first, then wait for processing to complete (status changes to "indexed").
 
-### "Google API error"
-Verify `GOOGLE_API_KEY` is set and has Gemini API enabled in Google AI Studio.
+### "Embedding API error"
+Verify `VOYAGE_API_KEY` is set. Get a free key at https://www.voyageai.com (200M tokens FREE/month).
 
 ### Build fails
 Run `npm run lint -- --fix` to auto-fix linting issues.
@@ -184,8 +186,8 @@ Run `npm run lint -- --fix` to auto-fix linting issues.
 | Frontend | Next.js 16, React 19, Tailwind CSS | Free |
 | Backend | Next.js API Routes | Free |
 | Database | Supabase PostgreSQL + pgvector | Free tier |
-| LLM | Google Gemini 2.5 Flash | Free tier |
-| Embeddings | Google gemini-embedding-001 | Free tier |
+| LLM | Groq Llama 3.3 70B (14,400 req/day) | Free tier |
+| Embeddings | Voyage AI voyage-3-lite (200M tokens/mo) | Free tier |
 | Hosting | Vercel | Free |
 | **Total** | | **$0/month** |
 

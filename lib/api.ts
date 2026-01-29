@@ -1,6 +1,6 @@
 /**
  * API client for Steel Agent backend
- * Handles communication with the FastAPI backend
+ * Handles communication with the Next.js API routes
  * Includes client-side demo mode fallback
  */
 
@@ -139,6 +139,11 @@ export interface Source {
   page: string;          // e.g., "5"
   content_preview: string; // First 200 chars of the chunk
   document_url?: string; // Public URL to open PDF at specific page
+  storage_path?: string; // Supabase storage path for PDF proxy
+  /** Starting character position within the page for citation highlighting */
+  char_offset_start?: number;
+  /** Ending character position within the page for citation highlighting */
+  char_offset_end?: number;
 }
 
 // Response types

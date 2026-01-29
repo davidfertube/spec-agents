@@ -11,7 +11,7 @@
  */
 
 import { supabase } from "./supabase";
-import { generateEmbedding } from "./embeddings";
+import { getCachedQueryEmbedding } from "./embedding-cache";
 import {
   preprocessQuery,
   getSearchWeights,
@@ -35,6 +35,10 @@ export interface HybridSearchResult {
   content: string;
   /** Page number in source PDF */
   page_number: number;
+  /** Starting character position within the page for citation highlighting */
+  char_offset_start?: number;
+  /** Ending character position within the page for citation highlighting */
+  char_offset_end?: number;
   /** BM25 (keyword) score (0-1) */
   bm25_score: number;
   /** Vector similarity score (0-1) */
@@ -88,8 +92,8 @@ export async function hybridSearchChunks(
     );
   }
 
-  // Step 2: Generate embedding for vector search
-  const embedding = await generateEmbedding(query);
+  // Step 2: Generate embedding for vector search (cached for repeat queries)
+  const embedding = await getCachedQueryEmbedding(query);
 
   // Step 3: Call hybrid search function in Supabase
   const { data, error } = await supabase.rpc("hybrid_search_chunks", {
@@ -156,6 +160,8 @@ export async function searchWithFallback(
       document_id: r.document_id,
       content: r.content,
       page_number: r.page_number,
+      char_offset_start: r.char_offset_start,
+      char_offset_end: r.char_offset_end,
       bm25_score: 0,
       vector_score: r.similarity,
       combined_score: r.similarity,

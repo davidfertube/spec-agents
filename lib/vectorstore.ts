@@ -1,11 +1,15 @@
 import { supabase } from "./supabase";
-import { generateEmbedding } from "./embeddings";
+import { getCachedQueryEmbedding } from "./embedding-cache";
 
 export interface Chunk {
   id?: number;
   document_id: number;
   content: string;
   page_number?: number;
+  /** Starting character position within the page for citation highlighting */
+  char_offset_start?: number;
+  /** Ending character position within the page for citation highlighting */
+  char_offset_end?: number;
   embedding?: number[];
 }
 
@@ -15,6 +19,10 @@ export interface SearchResult {
   content: string;
   page_number: number;
   similarity: number;
+  /** Starting character position within the page for citation highlighting */
+  char_offset_start?: number;
+  /** Ending character position within the page for citation highlighting */
+  char_offset_end?: number;
 }
 
 /**
@@ -47,7 +55,8 @@ export async function searchSimilarChunks(
   matchCount: number = 5,
   matchThreshold: number = 0.7
 ): Promise<SearchResult[]> {
-  const embedding = await generateEmbedding(query);
+  // Use cached embedding for repeat queries
+  const embedding = await getCachedQueryEmbedding(query);
 
   const { data, error } = await supabase.rpc("search_chunks", {
     query_embedding: embedding,

@@ -104,7 +104,7 @@ export function DemoVideo({ className }: DemoVideoProps) {
           transition={{ delay: 0.8 }}
           className="text-center text-sm text-muted-foreground mt-4"
         >
-          Experience intelligent document querying powered by RAG and Google Gemini
+          Experience intelligent document querying powered by RAG and Groq LLM
         </motion.p>
       </div>
     </motion.div>

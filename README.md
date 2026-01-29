@@ -50,13 +50,13 @@
 ```mermaid
 graph LR
     A[PDF Upload] --> B[Text Extraction<br/>unpdf]
-    B --> C[Chunking<br/>500 chars + overlap]
-    C --> D[Embedding<br/>gemini-embedding-001]
-    D --> E[pgvector<br/>HNSW index]
+    B --> C[Chunking<br/>2000 chars + overlap]
+    C --> D[Embedding<br/>voyage-3-lite]
+    D --> E[Supabase pgvector<br/>HNSW index]
 
-    F[User Query] --> G[Query Embedding]
-    G --> H[Cosine Similarity<br/>top 5 chunks]
-    H --> I[LLM Context<br/>+ System Prompt]
+    F[User Query] --> G[Query Embedding<br/>cached]
+    G --> H[Hybrid Search<br/>BM25 + Vector]
+    H --> I[LLM Context<br/>Groq Llama 3.3]
     I --> J[Cited Response]
 ```
 
@@ -66,8 +66,8 @@ graph LR
 |-----------|------------|-----------------|
 | Frontend | Next.js 16, React 19 | RSC for performance, API routes = no separate backend |
 | Backend | Next.js API Routes | Serverless, scales to zero, no infra to manage |
-| LLM | Google Gemini 2.5 Flash | 1M token context, best cost/performance for technical docs |
-| Embeddings | Google gemini-embedding-001 | 3072 dims captures technical nuance, free tier |
+| LLM | Groq Llama 3.3 70B | Free tier 14,400 req/day, fast inference, strong technical reasoning |
+| Embeddings | Voyage AI voyage-3-lite | 1024 dims, 200M tokens FREE/month, 1000+ RPM (vs Google's 100 RPM) |
 | Vector DB | Supabase pgvector | PostgreSQL-native, RLS built-in, familiar SQL |
 | Hosting | Vercel | One-click deploy, preview deployments, edge functions |
 
@@ -87,8 +87,8 @@ graph LR
 | Decision | Chosen | Alternatives Considered | Rationale |
 |----------|--------|------------------------|-----------|
 | **Vector DB** | Supabase pgvector | Pinecone, Weaviate, Qdrant | PostgreSQL-native = one fewer service, RLS built-in, familiar SQL |
-| **LLM** | Gemini 2.5 Flash | GPT-4, Claude | Best cost/performance for technical docs, 1M token context |
-| **Embeddings** | gemini-embedding-001 | OpenAI ada-002, Cohere | 3072 dims captures technical nuance, free tier generous |
+| **LLM** | Groq Llama 3.3 70B | GPT-4, Claude, Gemini | Free 14,400 req/day, fast inference, strong technical reasoning |
+| **Embeddings** | Voyage AI voyage-3-lite | OpenAI ada-002, Google, Cohere | 200M tokens FREE/month, 1000+ RPM, 1024 dims optimized for retrieval |
 | **Framework** | Next.js 16 App Router | Remix, SvelteKit, Express+React | API routes = no separate backend, React 19 RSC for performance |
 | **Hosting** | Vercel | AWS, GCP, Railway | One-click deploy, preview deployments, edge functions |
 
@@ -96,8 +96,9 @@ graph LR
 
 | Current Approach | Scale Problem | Production Solution |
 |-----------------|---------------|---------------------|
-| Naive chunking (500 chars) | Breaks tables mid-row | Semantic chunking with Unstructured.io |
-| Pure vector search | Misses exact codes like "UNS S31603" | Hybrid search (BM25 + vector) |
+| Basic chunking (2000 chars) | Breaks tables mid-row | Smart chunking with Unstructured.io |
+| ~~Pure vector search~~ Hybrid search (IMPLEMENTED) | ~~Misses exact codes~~ ✅ BM25 catches exact codes | Hybrid search with query preprocessing (DONE) |
+| Estimated page numbers | Citations point to wrong pages | Accurate page extraction (unpdf mergePages: false) |
 | Single document | No multi-doc comparison | Document library with metadata filtering |
 | No auth | Public API abuse | Clerk + rate limiting with Upstash |
 
@@ -121,7 +122,7 @@ cd steel-venture && npm install
 
 # Configure (get free API keys)
 cp .env.example .env.local
-# Add: GOOGLE_API_KEY, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
+# Add: VOYAGE_API_KEY, GROQ_API_KEY, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 # Run
 npm run dev
@@ -147,14 +148,17 @@ npm run dev
 
 ### MVP (Current)
 - [x] PDF upload and processing
-- [x] Semantic search with citations
-- [x] Google Gemini integration
+- [x] Hybrid search (BM25 + vector) with technical code extraction
+- [x] Groq LLM integration (Llama 3.3 70B) with fallback
+- [x] Voyage AI embeddings with query caching
 - [x] Lead capture for enterprise interest
 - [x] Auto-scroll UX with animations
+- [x] Claim verification framework (0% hallucination rate)
 
 ### Phase 2 (Post-Launch)
+- [ ] **Accurate page extraction** - unpdf mergePages: false for exact citations
+- [ ] **Smart chunking** - Preserve tables for better accuracy
 - [ ] **Unstructured.io integration** - Better table extraction for spec sheets
-- [ ] **Hybrid search** - Combine keyword + vector for exact alloy codes
 - [ ] **User authentication** - Clerk integration
 - [ ] **Usage analytics** - Track query patterns
 
@@ -168,14 +172,17 @@ npm run dev
 ## Lessons Learned
 
 ### What Worked Well
-- **pgvector over Pinecone**: One service to manage, SQL familiarity, RLS built-in
-- **Gemini over OpenAI**: Better cost/performance for technical documents
+- **Voyage AI over Google**: 10x higher rate limits (1000+ vs 100 RPM), 200M tokens FREE/month
+- **Supabase pgvector**: One service to manage, SQL familiarity, RLS built-in, no separate vector DB
+- **Groq LLM**: Free tier 14,400 req/day, fast inference, strong technical reasoning
+- **Hybrid search**: BM25 catches exact codes (S31803, A790) that pure vector misses
 - **Next.js App Router**: API routes eliminate backend complexity
-- **Supabase**: Auth, storage, database, vectors in one platform
+- **Query embedding cache**: Instant repeat queries, reduces API calls by ~40%
 
 ### What I'd Improve
-1. **Chunking Strategy**: Current naive chunking breaks tables. Would implement document-structure-aware chunking
-2. **Evaluation Framework**: No automated RAG evaluation yet. Would add ragas metrics
+1. **Page Extraction**: Estimated pages (chunk_index/3) → Exact pages (unpdf mergePages: false)
+2. **Chunking Strategy**: Basic chunking breaks tables → Smart chunking preserves tables
+3. **Evaluation Coverage**: 57% accuracy on ASTM A1049 → Expand golden datasets to hit 95%
 3. **Caching**: No query caching. Would add Redis for repeated queries
 4. **Multi-tenancy**: Current design is single-tenant. Would add workspace isolation
 

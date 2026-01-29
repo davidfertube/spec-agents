@@ -74,7 +74,7 @@ export default function PrivacyPage() {
               <h2 className="text-xl font-semibold mb-4">5. Data Sharing</h2>
               <p className="text-black/70 leading-relaxed mb-4">We do not sell your personal information. We may share data with:</p>
               <ul className="list-disc list-inside space-y-2 text-black/70">
-                <li><strong>Service Providers:</strong> Cloud hosting (Azure), AI processing (Google)</li>
+                <li><strong>Service Providers:</strong> Cloud hosting (Vercel), AI processing (Voyage AI, Groq)</li>
                 <li><strong>Legal Requirements:</strong> When required by law or to protect our rights</li>
                 <li><strong>Business Transfers:</strong> In connection with a merger or acquisition</li>
               </ul>
