@@ -554,7 +554,7 @@ export default function Home() {
                       animate={{ opacity: 1 }}
                       transition={{ duration: 0.5, delay: 0.2 }}
                     >
-                      STEEL AGENTS
+                      SPEC AGENTS
                     </motion.span>
                   </motion.h1>
                   <motion.p
@@ -603,11 +603,11 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: 1.0 }}
                   className="grid grid-cols-2 gap-4 sm:gap-6 pt-4 max-w-md mx-auto px-4"
                 >
-                  <div className="text-center sm:text-left">
+                  <div className="text-center">
                     <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-black">4+ hrs</p>
                     <p className="text-xs sm:text-sm text-black/60">Saved per day</p>
                   </div>
-                  <div className="text-center sm:text-left">
+                  <div className="text-center">
                     <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-black">100%</p>
                     <p className="text-xs sm:text-sm text-black/60">Cited sources</p>
                   </div>
