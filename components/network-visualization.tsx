@@ -164,39 +164,43 @@ export function NetworkVisualization() {
 
     return (
         <div
-            className="w-full h-full min-h-[400px] flex items-center justify-center p-8 bg-gradient-to-br from-slate-50 to-white rounded-3xl border border-slate-100 overflow-hidden relative"
+            className="w-full h-full min-h-[500px] flex items-center justify-center p-8 md:p-12 bg-gradient-to-br from-slate-50 to-white rounded-3xl border border-slate-100 overflow-hidden relative"
             ref={containerRef}
         >
-            <div className="relative flex w-full max-w-lg flex-col items-center justify-between gap-16">
+            <div className="relative flex w-full max-w-2xl flex-col items-center justify-between gap-24 md:gap-32">
 
                 {/* Top Row: Inputs (Files/Data) */}
-                <div className="flex flex-row items-center justify-between w-full px-8">
-                    <Circle ref={pdf1Ref} className="border-red-100 bg-red-50">
-                        <FileText className="h-6 w-6 text-red-500" />
+                <div className="flex flex-row items-center justify-between w-full px-4 md:px-12 gap-8 md:gap-16">
+                    <Circle ref={pdf1Ref} className="h-16 w-16 md:h-20 md:w-20 border-red-100 bg-red-50">
+                        <FileText className="h-7 w-7 md:h-9 md:w-9 text-red-500" />
                     </Circle>
-                    <Circle ref={dbRef} className="border-orange-100 bg-orange-50">
-                        <Database className="h-6 w-6 text-orange-500" />
+                    <Circle ref={dbRef} className="h-16 w-16 md:h-20 md:w-20 border-orange-100 bg-orange-50">
+                        <Database className="h-7 w-7 md:h-9 md:w-9 text-orange-500" />
                     </Circle>
-                    <Circle ref={pdf2Ref} className="border-blue-100 bg-blue-50">
-                        <FileText className="h-6 w-6 text-blue-500" />
+                    <Circle ref={pdf2Ref} className="h-16 w-16 md:h-20 md:w-20 border-blue-100 bg-blue-50">
+                        <FileText className="h-7 w-7 md:h-9 md:w-9 text-blue-500" />
                     </Circle>
-                    <Circle ref={jsonRef} className="border-purple-100 bg-purple-50">
-                        <FileJson className="h-6 w-6 text-purple-500" />
+                    <Circle ref={jsonRef} className="h-16 w-16 md:h-20 md:w-20 border-purple-100 bg-purple-50">
+                        <FileJson className="h-7 w-7 md:h-9 md:w-9 text-purple-500" />
                     </Circle>
                 </div>
 
-                {/* Middle: The AI Agent */}
-                <div className="relative">
-                    <Circle ref={agentRef} className="h-24 w-24 bg-black border-none shadow-xl shadow-green-500/20">
+                {/* Middle: The AI Agent with Label */}
+                <div className="relative flex items-center gap-6 md:gap-8 z-20">
+                    <span className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Spec</span>
+
+                    <Circle ref={agentRef} className="h-28 w-28 md:h-32 md:w-32 bg-black border-none shadow-2xl shadow-green-500/30 ring-4 ring-green-500/10">
                         <div className="absolute inset-0 rounded-full border-2 border-green-500/30 animate-ping opacity-20" />
-                        <BrainCircuit className="h-10 w-10 text-green-400" />
+                        <BrainCircuit className="h-12 w-12 md:h-14 md:w-14 text-green-400" />
                     </Circle>
+
+                    <span className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Agents</span>
                 </div>
 
                 {/* Bottom: The User / Output */}
-                <div className="flex flex-row items-center justify-center">
-                    <Circle ref={userRef} className="h-16 w-16 border-green-200 bg-green-50">
-                        <User className="h-8 w-8 text-green-700" />
+                <div className="flex flex-row items-center justify-center pt-8">
+                    <Circle ref={userRef} className="h-20 w-20 md:h-24 md:w-24 border-green-200 bg-green-50">
+                        <User className="h-9 w-9 md:h-10 md:w-10 text-green-700" />
                     </Circle>
                 </div>
 
@@ -205,10 +209,10 @@ export function NetworkVisualization() {
             {/* --- Connect Beams --- */}
 
             {/* Inputs -> Agent */}
-            <AnimatedBeam containerRef={containerRef} fromRef={pdf1Ref} toRef={agentRef} curvature={-30} duration={3} />
-            <AnimatedBeam containerRef={containerRef} fromRef={dbRef} toRef={agentRef} curvature={-15} duration={3} delay={0.5} />
-            <AnimatedBeam containerRef={containerRef} fromRef={pdf2Ref} toRef={agentRef} curvature={15} duration={3} delay={1} />
-            <AnimatedBeam containerRef={containerRef} fromRef={jsonRef} toRef={agentRef} curvature={30} duration={3} delay={1.5} />
+            <AnimatedBeam containerRef={containerRef} fromRef={pdf1Ref} toRef={agentRef} curvature={-40} duration={3} />
+            <AnimatedBeam containerRef={containerRef} fromRef={dbRef} toRef={agentRef} curvature={-20} duration={3} delay={0.5} />
+            <AnimatedBeam containerRef={containerRef} fromRef={pdf2Ref} toRef={agentRef} curvature={20} duration={3} delay={1} />
+            <AnimatedBeam containerRef={containerRef} fromRef={jsonRef} toRef={agentRef} curvature={40} duration={3} delay={1.5} />
 
             {/* Agent -> User (Bidirectional/Answer) */}
             <AnimatedBeam
