@@ -12,7 +12,7 @@ import { ResponseDisplay } from "@/components/response-display";
 import { RealtimeComparison } from "@/components/realtime-comparison";
 import { DocumentUpload } from "@/components/document-upload";
 import { Source, GenericLLMResponse } from "@/lib/api";
-import { PipelineVisualization } from "@/components/pipeline-visualization";
+import { NetworkVisualization } from "@/components/network-visualization";
 
 // Spline 3D Animation Component
 // Shows PDFs flowing into the Spec Agents brain
@@ -1208,7 +1208,7 @@ export default function Home() {
                   {/* Decorative background element */}
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-blue-50/50 rounded-full blur-3xl -z-10" />
                   {/* Processing Pipeline Animation */}
-                  <PipelineVisualization />
+                  <NetworkVisualization />
                 </div>
               </motion.div>
             </div>
