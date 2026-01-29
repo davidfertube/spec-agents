@@ -257,3 +257,59 @@ export function createValidationError(message: string): SafeErrorResponse {
     code: 'VALIDATION_ERROR',
   };
 }
+
+/**
+ * Create a specific error response for embedding generation failures
+ *
+ * This function examines the error and returns a user-friendly message
+ * that helps users understand what went wrong and what to do next.
+ *
+ * @param error - The caught error from embedding generation
+ * @returns Safe error response with actionable message
+ */
+export function createEmbeddingError(error: unknown): SafeErrorResponse {
+  // Log the full error for debugging
+  console.error('[Embedding Error]:', error);
+
+  if (error instanceof Error) {
+    const msg = error.message.toLowerCase();
+
+    // API key configuration issues
+    if (msg.includes('api key') || msg.includes('api_key') || msg.includes('invalid key')) {
+      return {
+        error: 'Document processing is temporarily unavailable. Please try again later or contact support.',
+        code: 'SERVICE_UNAVAILABLE',
+      };
+    }
+
+    // Rate limiting from Google API
+    if (msg.includes('rate limit') || msg.includes('quota') || msg.includes('resource exhausted')) {
+      return {
+        error: 'The AI service is currently busy. Please wait a minute and try again.',
+        code: 'RATE_LIMITED',
+      };
+    }
+
+    // Timeout errors
+    if (msg.includes('timeout') || msg.includes('timed out')) {
+      return {
+        error: 'Document processing timed out. Please try again.',
+        code: 'TIMEOUT',
+      };
+    }
+
+    // Network errors
+    if (msg.includes('network') || msg.includes('fetch failed') || msg.includes('econnrefused')) {
+      return {
+        error: 'Could not connect to the AI service. Please check your connection and try again.',
+        code: 'SERVICE_UNAVAILABLE',
+      };
+    }
+  }
+
+  // Default embedding error
+  return {
+    error: 'Failed to analyze document content. Please try uploading the document again.',
+    code: 'INTERNAL_ERROR',
+  };
+}

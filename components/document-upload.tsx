@@ -99,7 +99,16 @@ export function DocumentUpload({ onUploadComplete }: DocumentUploadProps) {
 
       if (!processResponse.ok) {
         const errorData = await processResponse.json().catch(() => ({}));
-        throw new Error(errorData.error || "Processing failed. Please try again.");
+        const errorMessage = errorData.error || errorData.message || errorData.details;
+
+        // Provide context-specific fallback based on status code
+        const fallbackMessage = processResponse.status === 429
+          ? "Service is busy. Please wait a moment and try again."
+          : processResponse.status >= 500
+          ? "Server error occurred. Please try again later."
+          : "Processing failed. Please try again.";
+
+        throw new Error(errorMessage || fallbackMessage);
       }
 
       // Update status to complete

@@ -3,7 +3,8 @@ import { supabase } from "@/lib/supabase";
 import { generateEmbeddings } from "@/lib/embeddings";
 import { storeChunks } from "@/lib/vectorstore";
 import { extractText } from "unpdf";
-import { handleApiError, createValidationError, getErrorStatusCode } from "@/lib/errors";
+import { handleApiError, createValidationError, createEmbeddingError, getErrorStatusCode } from "@/lib/errors";
+import { extractTextWithOCR, shouldAttemptOCR } from "@/lib/ocr";
 
 /**
  * Document Processing API Route
@@ -186,13 +187,29 @@ export async function POST(request: NextRequest) {
     // Step 5: Extract Text from PDF
     // ========================================
     const arrayBuffer = await fileData.arrayBuffer();
-    const { text } = await extractText(arrayBuffer, { mergePages: true });
+    let { text } = await extractText(arrayBuffer, { mergePages: true });
+
+    // If unpdf couldn't extract text, try OCR with Gemini Vision
+    if (shouldAttemptOCR(text || "", fileData.size)) {
+      console.log("[Process API] No text from unpdf, attempting OCR...");
+      try {
+        text = await extractTextWithOCR(arrayBuffer);
+        console.log(`[Process API] OCR extracted ${text.length} characters`);
+      } catch (ocrError) {
+        console.error("[Process API] OCR failed:", ocrError);
+        await updateDocumentStatus(documentId, "error");
+        const error = createValidationError(
+          "Could not extract text from PDF. The document may be corrupted or in an unsupported format."
+        );
+        return NextResponse.json(error, { status: getErrorStatusCode("VALIDATION_ERROR") });
+      }
+    }
 
     if (!text || text.trim().length === 0) {
       console.error("[Process API] No text extracted from document:", documentId);
       await updateDocumentStatus(documentId, "error");
       const error = createValidationError(
-        "Could not extract text from PDF. The document may be scanned images or corrupted."
+        "Could not extract text from PDF. The document appears to be empty or corrupted."
       );
       return NextResponse.json(error, { status: getErrorStatusCode("VALIDATION_ERROR") });
     }
@@ -216,7 +233,15 @@ export async function POST(request: NextRequest) {
     // ========================================
     // Step 7: Generate Embeddings
     // ========================================
-    const embeddings = await generateEmbeddings(textChunks);
+    let embeddings: number[][];
+    try {
+      embeddings = await generateEmbeddings(textChunks);
+    } catch (embeddingError) {
+      console.error("[Process API] Embedding generation failed:", embeddingError);
+      await updateDocumentStatus(documentId, "error");
+      const error = createEmbeddingError(embeddingError);
+      return NextResponse.json(error, { status: getErrorStatusCode(error.code) });
+    }
 
     // Verify embeddings count matches chunks
     if (embeddings.length !== textChunks.length) {
@@ -239,7 +264,14 @@ export async function POST(request: NextRequest) {
       embedding: embeddings[index],
     }));
 
-    await storeChunks(chunks);
+    try {
+      await storeChunks(chunks);
+    } catch (storageError) {
+      console.error("[Process API] Chunk storage failed:", storageError);
+      await updateDocumentStatus(documentId, "error");
+      const error = createValidationError("Failed to save document data. Please try uploading again.");
+      return NextResponse.json(error, { status: getErrorStatusCode("INTERNAL_ERROR") });
+    }
 
     // ========================================
     // Step 9: Update Status to Indexed
