@@ -153,10 +153,12 @@ export function PDFViewerModal({ source, isOpen, onClose }: PDFViewerModalProps)
           div.style.transformOrigin = "0% 0%";
 
           // Content-based highlighting: match if item.str appears in content_preview
+          // Use >= 4 to avoid matching short numbers like "75", "30" that appear everywhere in tables
+          // This still catches steel grades (S31266, TP304), table headers, etc.
           const itemText = item.str.toLowerCase().trim();
           const shouldHighlight = isTargetPage &&
             highlightText.length > 0 &&
-            itemText.length >= 2 &&  // Lowered from > 3 to catch table values like "4.3"
+            itemText.length >= 4 &&
             highlightText.includes(itemText);
 
           if (shouldHighlight) {

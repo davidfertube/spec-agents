@@ -110,11 +110,12 @@ export function PDFViewerPanel({
             div.style.whiteSpace = "nowrap";
 
             // Content-based highlighting: match if PDF text appears in highlight text
-            // (Fixed: was reversed - checking if short PDF item contains long highlight text)
+            // Use >= 4 to avoid matching short numbers like "75", "30" that appear everywhere
+            // This still catches steel grades (S31266, TP304), table headers, etc.
             const itemText = item.str.toLowerCase().trim();
             const normalizedHighlight = highlightText?.toLowerCase() || "";
             const shouldHighlight = normalizedHighlight.length > 0 &&
-              itemText.length >= 2 &&  // Catch table values like "4.3"
+              itemText.length >= 4 &&
               normalizedHighlight.includes(itemText);
 
             if (shouldHighlight) {
