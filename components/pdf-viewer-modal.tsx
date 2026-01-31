@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Source } from "@/lib/api";
 import * as pdfjsLib from "pdfjs-dist";
 
-// Configure pdf.js worker
+// Configure pdf.js worker - use unpkg which serves all npm package versions
+// Note: cdnjs only has up to v5.4.149, but pdfjs-dist is v5.4.530
 if (typeof window !== "undefined") {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 }
 
 interface PDFViewerModalProps {
