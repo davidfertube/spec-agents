@@ -1,10 +1,11 @@
 /**
  * API client for Steel Agent backend
  * Handles communication with the Next.js API routes
- * Includes client-side demo mode fallback
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// API_URL: Empty string uses relative paths (/api/chat) to same Next.js server
+// NOT a separate backend. API routes run on same server as frontend.
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 // Demo responses for when backend is unavailable
 const DEMO_RESPONSES: Record<string, { response: string; sources: Source[] }> = {
@@ -193,7 +194,8 @@ export class ApiRequestError extends Error {
 export async function queryKnowledgeBase(query: string): Promise<ChatResponse> {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    // 2 minute timeout (120s) - exceeds server RAG pipeline timeout (75s)
+    const timeoutId = setTimeout(() => controller.abort(), 120000);
 
     const response = await fetch(`${API_URL}/api/chat`, {
       method: 'POST',
@@ -241,7 +243,8 @@ export async function queryKnowledgeBase(query: string): Promise<ChatResponse> {
 export async function queryGenericLLM(query: string): Promise<GenericLLMResponse> {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    // 2 minute timeout (120s) - allows time for LLM response generation
+    const timeoutId = setTimeout(() => controller.abort(), 120000);
 
     const response = await fetch(`${API_URL}/api/chat/compare`, {
       method: 'POST',
