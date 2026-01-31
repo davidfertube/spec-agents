@@ -113,20 +113,150 @@ npm run build
    - Keep discussions constructive
    - Squash commits before merge if requested
 
+## AI Agent Development Workflow (2026 Best Practices)
+
+### Setting Up for Agent Development
+
+1. **Install AI Development Tools**:
+   ```bash
+   # LangGraph for multi-agent workflows
+   npm install @langchain/langgraph @langchain/core
+
+   # LangSmith for tracing and debugging
+   export LANGSMITH_API_KEY=your_key
+   export LANGSMITH_TRACING=true
+
+   # Evaluation frameworks
+   npm install ragas deepeval
+   ```
+
+2. **Configure MCP (Model Context Protocol)**:
+   ```json
+   // ~/.config/claude/claude_desktop_config.json
+   {
+     "mcpServers": {
+       "supabase": {
+         "command": "npx",
+         "args": ["-y", "@modelcontextprotocol/server-supabase"],
+         "env": {
+           "SUPABASE_URL": "your-url",
+           "SUPABASE_SERVICE_KEY": "your-key"
+         }
+       }
+     }
+   }
+   ```
+
+3. **Run Development Server with Hot Reload**:
+   ```bash
+   npm run dev
+   # API available at http://localhost:3000/api
+   ```
+
+### Agent Development Checklist
+
+When adding new agentic capabilities:
+
+- [ ] **Design**: Document agent reasoning pattern (ReAct/Plan-Execute/Reflection)
+- [ ] **Tools**: Define tool schemas with clear descriptions
+- [ ] **Memory**: Specify short-term (conversation) vs long-term (RAG) memory needs
+- [ ] **Evaluation**: Create golden dataset (10+ test cases)
+- [ ] **Observability**: Add tracing with LangSmith/OpenTelemetry
+- [ ] **Error Handling**: Implement fallbacks and graceful degradation
+- [ ] **Cost Tracking**: Monitor token usage and API costs
+- [ ] **Documentation**: Update AI-AGENTS.md with new patterns
+
+### Testing AI Agents
+
+```typescript
+// tests/agents/compliance-agent.test.ts
+import { describe, it, expect } from "vitest";
+import { ComplianceAgent } from "@/lib/agents/compliance";
+
+describe("ComplianceAgent", () => {
+  const agent = new ComplianceAgent();
+
+  it("should correctly identify compliant materials", async () => {
+    const result = await agent.checkCompliance({
+      material: "S32205",
+      specification: "NACE MR0175",
+      service: "sour"
+    });
+
+    expect(result.compliant).toBe(true);
+    expect(result.citations).toHaveLength(3);  // Multiple sources
+  });
+
+  it("should handle unknown materials gracefully", async () => {
+    const result = await agent.checkCompliance({
+      material: "XYZ999",
+      specification: "ASTM A790"
+    });
+
+    expect(result.compliant).toBe(false);
+    expect(result.reason).toContain("not found in database");
+  });
+});
+```
+
+### Evaluation-Driven Development
+
+1. **Create Test Dataset First**:
+   ```json
+   // tests/evaluation/compliance-dataset.json
+   {
+     "test_cases": [
+       {
+         "id": "COMP-001",
+         "input": {
+           "material": "S32205",
+           "spec": "NACE MR0175"
+         },
+         "expected_output": {
+           "compliant": true,
+           "hardness": "≤ 22 HRC",
+           "citations": ["NACE MR0175 Table A.1"]
+         }
+       }
+     ]
+   }
+   ```
+
+2. **Run Evaluation Before PR**:
+   ```bash
+   npm run eval:compliance
+   # Output: 18/20 passed (90% accuracy)
+   ```
+
+3. **Track Regressions**:
+   ```bash
+   git add tests/evaluation/results/
+   git commit -m "eval: Compliance agent accuracy 90% → 95%"
+   ```
+
 ## Areas for Contribution
 
 We welcome contributions in these areas:
 
-### High Priority
+### High Priority (Agentic AI)
 
-- [ ] Improve document chunking strategies for better RAG results
+- [ ] **Multi-Agent Orchestration**: Implement LangGraph workflow for specialist agents
+- [ ] **MCP Server Integration**: Build custom MCP servers for PDF processing
+- [ ] **Evaluation Framework**: Expand golden datasets to 100+ queries per spec
+- [ ] **Self-Correction Loop**: Add reflection agent for citation verification
+- [ ] **Query Decomposition**: Split complex multi-part questions into sub-queries
+
+### High Priority (RAG Improvements)
+
+- [ ] Improve document chunking strategies (preserve tables)
 - [ ] Add support for additional document formats (Word, Excel)
-- [ ] Improve citation accuracy and source attribution
+- [ ] Implement reranking with Cohere or Jina
 - [ ] Performance optimizations for large document sets
 
 ### Medium Priority
 
-- [ ] Add evaluation benchmarks for RAG quality
+- [ ] **Observability**: Integrate LangSmith or Helicone for trace debugging
+- [ ] **Cost Tracking**: Dashboard for token usage and API costs
 - [ ] Implement query rewriting for better search
 - [ ] Add metadata filtering for document search
 - [ ] UI/UX improvements and accessibility
@@ -136,7 +266,8 @@ We welcome contributions in these areas:
 - [ ] Add more example queries for different steel grades
 - [ ] Improve error messages and user feedback
 - [ ] Add loading states and animations
-- [ ] Documentation improvements
+- [ ] Create MCP tool definitions documentation
+- [ ] Write evaluation test cases for edge cases
 
 ## Reporting Bugs
 
