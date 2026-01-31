@@ -79,11 +79,32 @@ Respond ONLY with valid JSON (no markdown, no explanation):
       cleanedText = cleanedText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
     }
 
-    const result = JSON.parse(cleanedText);
+    // Safe JSON parsing with explicit fallback
+    let result;
+    try {
+      result = JSON.parse(cleanedText);
+    } catch {
+      console.warn("[Query Decomposition] JSON parse failed for:", cleanedText.slice(0, 200));
+      // Return safe fallback instead of throwing
+      return {
+        original: query,
+        intent: 'lookup' as QueryIntent,
+        subqueries: [query],
+        requires_aggregation: false,
+        reasoning: "Fallback: JSON parse failed",
+      };
+    }
 
-    // Validate result
+    // Validate result structure
     if (!result.intent || !result.subqueries || !Array.isArray(result.subqueries)) {
-      throw new Error("Invalid response format from LLM");
+      console.warn("[Query Decomposition] Invalid structure:", result);
+      return {
+        original: query,
+        intent: 'lookup' as QueryIntent,
+        subqueries: [query],
+        requires_aggregation: false,
+        reasoning: "Fallback: invalid response structure",
+      };
     }
 
     return {

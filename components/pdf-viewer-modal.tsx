@@ -123,13 +123,12 @@ export function PDFViewerModal({ source, isOpen, onClose }: PDFViewerModalProps)
         textLayer.style.width = `${viewport.width}px`;
         textLayer.style.height = `${viewport.height}px`;
 
-        // Get char offset range for highlighting
-        const charStart = source?.char_offset_start ?? -1;
-        const charEnd = source?.char_offset_end ?? (charStart >= 0 ? charStart + 200 : -1);
+        // Content-based highlighting: use content_preview for more reliable matching
+        // char_offset approach fails because PDF.js text extraction order doesn't match document char order
+        const highlightText = source?.content_preview?.slice(0, 150).replace(/\.{3}$/, "").trim().toLowerCase() || "";
         const targetPage = parseInt(source?.page || "0");
         const isTargetPage = currentPage === targetPage;
 
-        let charPosition = 0;
         let firstHighlightElement: HTMLDivElement | null = null;
 
         textContent.items.forEach((item) => {
@@ -153,13 +152,14 @@ export function PDFViewerModal({ source, isOpen, onClose }: PDFViewerModalProps)
           div.style.whiteSpace = "pre";
           div.style.transformOrigin = "0% 0%";
 
-          // Track character position for highlighting
-          const itemStart = charPosition;
-          const itemEnd = charPosition + item.str.length;
-          charPosition = itemEnd;
+          // Content-based highlighting: match if item.str appears in content_preview
+          const itemText = item.str.toLowerCase().trim();
+          const shouldHighlight = isTargetPage &&
+            highlightText.length > 0 &&
+            itemText.length > 3 &&  // Skip short items like single chars or spaces
+            highlightText.includes(itemText);
 
-          // Apply yellow highlight if within char offset range on target page
-          if (isTargetPage && charStart >= 0 && itemEnd > charStart && itemStart < charEnd) {
+          if (shouldHighlight) {
             div.style.backgroundColor = "rgba(255, 255, 0, 0.5)";
             div.style.borderRadius = "2px";
             div.style.padding = "0 1px";

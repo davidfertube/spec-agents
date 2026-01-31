@@ -426,6 +426,14 @@ RESPONSE GUIDELINES:
 
     console.log(`[Chat API] Deduplicated sources: ${sourcesWithUrls.length} → ${sources.length} unique (document, page) pairs`);
 
+    // DEBUG: Log document mapping for investigating wrong PDF issues
+    console.log("[Chat API] Source document mapping:", sources.map(s => ({
+      ref: s.ref,
+      document: s.document,
+      page: s.page,
+      storage_path: s.storage_path?.slice(-40), // Last 40 chars of path for debugging
+    })));
+
     // ========================================
     // Step 6: Return Response
     // ========================================

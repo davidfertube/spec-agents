@@ -79,11 +79,27 @@ Respond ONLY with valid JSON (no markdown, no explanation):
       cleanedText = cleanedText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
     }
 
-    // Parse scores
-    const result = JSON.parse(cleanedText);
+    // Safe JSON parsing with explicit fallback
+    let result;
+    try {
+      result = JSON.parse(cleanedText);
+    } catch {
+      console.warn("[Re-ranker] JSON parse failed for:", cleanedText.slice(0, 200));
+      // Return fallback instead of throwing
+      return chunks.slice(0, topK).map(chunk => ({
+        chunk,
+        relevance_score: 7,
+        relevance_reason: "Fallback: JSON parse failed",
+      }));
+    }
 
     if (!result.scores || !Array.isArray(result.scores)) {
-      throw new Error("Invalid response format from LLM");
+      console.warn("[Re-ranker] Invalid structure:", result);
+      return chunks.slice(0, topK).map(chunk => ({
+        chunk,
+        relevance_score: 7,
+        relevance_reason: "Fallback: invalid response structure",
+      }));
     }
 
     // Map scores back to chunks

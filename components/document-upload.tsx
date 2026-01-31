@@ -304,13 +304,21 @@ export function DocumentUpload({ onUploadComplete }: DocumentUploadProps) {
                   </div>
                 )}
                 {file.status === "processing" && (
-                  <div className="flex flex-col items-start sm:items-end gap-0.5">
+                  <div className="flex flex-col gap-2 w-full sm:w-auto sm:min-w-[200px]">
                     <div className="flex items-center gap-2">
                       <Loader2 className="w-5 h-5 animate-spin text-amber-600" />
-                      <span className="text-sm sm:text-base font-medium text-amber-600">Processing...</span>
+                      <span className="text-sm sm:text-base font-medium text-amber-600">
+                        Processing...
+                      </span>
                     </div>
-                    <span className="text-xs sm:text-sm text-amber-600/70">
-                      ~{estimatePageCount(file.size)} pages • {estimateProcessingTime(file.size)}
+                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-amber-600 h-2 rounded-full animate-pulse"
+                        style={{ width: "60%" }}
+                      />
+                    </div>
+                    <span className="text-xs text-amber-600/70">
+                      ~{estimatePageCount(file.size)} pages • {estimateProcessingTime(file.size)} estimated
                     </span>
                   </div>
                 )}
