@@ -750,7 +750,7 @@ export default function Home() {
 
       <main className="flex-1 pt-16">
         {/* Hero Section */}
-        <section className="relative py-16 sm:py-20 md:py-28 overflow-hidden">
+        <section className="relative py-16 sm:py-24 md:py-40 overflow-hidden">
           <div className="container-wide">
             <div className="flex flex-col lg:flex-row gap-12 lg:gap-8 items-center">
               {/* Center/Left: Text content */}
