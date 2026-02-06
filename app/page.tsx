@@ -945,7 +945,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.6 }}
-                className="bg-white rounded-2xl border border-black/5 shadow-xl shadow-black/5 p-8 md:p-10 max-w-4xl mx-auto"
+                className="mt-24 sm:mt-32 bg-white rounded-2xl border border-black/5 shadow-xl shadow-black/5 p-8 md:p-10 max-w-4xl mx-auto"
               >
                 <div className="text-center mb-8">
                   <span className="text-xs font-semibold tracking-wider text-black/40 uppercase">Live Comparison</span>
