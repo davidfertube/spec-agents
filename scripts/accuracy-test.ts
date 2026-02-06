@@ -721,7 +721,7 @@ const TEST_CASES: TestCase[] = [
 // Test Runner
 // ============================================
 
-async function querySpecAgents(query: string): Promise<{
+async function querySpecVault(query: string): Promise<{
   response: string;
   sources: Array<{ document: string; page?: string; ref: string }>;
   latencyMs: number;
@@ -877,7 +877,7 @@ async function runAccuracyTest(): Promise<void> {
   for (const testCase of TEST_CASES) {
     process.stdout.write(`  ${testCase.id}... `);
 
-    const { response, sources, latencyMs } = await querySpecAgents(testCase.query);
+    const { response, sources, latencyMs } = await querySpecVault(testCase.query);
     const evaluation = evaluateTest(testCase, response, sources);
 
     const result: TestResult = {

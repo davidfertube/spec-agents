@@ -1,4 +1,4 @@
-# Technical Narrative: Spec Agents RAG System
+# Technical Narrative: SpecVault RAG System
 
 **End-to-End Architecture for Technical Interviews**
 
@@ -423,4 +423,4 @@ Component Breakdown:
 
 ---
 
-**This completes the technical narrative for Spec Agents RAG system.** The system is production-ready with a clear path to 90%+ accuracy while maintaining zero hallucinations and staying on free tiers.
+**This completes the technical narrative for SpecVault RAG system.** The system is production-ready with a clear path to 90%+ accuracy while maintaining zero hallucinations and staying on free tiers.

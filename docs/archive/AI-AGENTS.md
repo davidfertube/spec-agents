@@ -26,7 +26,7 @@
 | No tool use | Dynamically selects & uses tools |
 | Human-in-the-loop for every step | Autonomous decision-making with human oversight |
 
-### Spec Agents: Agentic RAG Pattern
+### SpecVault: Agentic RAG Pattern
 
 ```mermaid
 graph TB
@@ -183,7 +183,7 @@ class CitationVerifier {
 }
 ```
 
-**Example** (Spec Agents):
+**Example** (SpecVault):
 ```
 Query: "What is the hardness limit for 4140 in sour service?"
 
@@ -452,10 +452,10 @@ class LongTermMemory {
 }
 ```
 
-### Example: Spec Agents Memory Architecture
+### Example: SpecVault Memory Architecture
 
 ```typescript
-class SpecAgentsMemory {
+class SpecVaultMemory {
   // Short-term: Current conversation
   private conversation: Message[] = [];
 
@@ -538,7 +538,7 @@ class AgentEvaluator {
 }
 ```
 
-### Example Evaluation (Spec Agents)
+### Example Evaluation (SpecVault)
 
 ```typescript
 const testCases = [
@@ -746,7 +746,7 @@ await client.traceRun({
 
 ---
 
-## Case Study: Spec Agents Agent Architecture
+## Case Study: SpecVault Agent Architecture
 
 ### Current Architecture (v1)
 
@@ -798,7 +798,7 @@ graph TD
 
 ## Next Steps
 
-1. Implement LangGraph workflow for Spec Agents
+1. Implement LangGraph workflow for SpecVault
 2. Add LangSmith tracing for debugging
 3. Create evaluation dataset (100+ queries)
 4. Set up continuous evaluation pipeline

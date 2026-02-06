@@ -1,5 +1,5 @@
 /**
- * KPI Assessment Framework for Spec Agents MVP
+ * KPI Assessment Framework for SpecVault MVP
  *
  * Evaluates the RAG system against 100 synthetic material engineer prompts
  * and calculates key performance indicators.
@@ -266,7 +266,7 @@ export function generateKPIReport(results: TestResult[]): KPIReport {
  */
 export function formatKPIReport(report: KPIReport): string {
   return `
-# Spec Agents MVP - KPI Assessment Report
+# SpecVault MVP - KPI Assessment Report
 
 **Generated:** ${report.timestamp}
 **Total Tests:** ${report.totalTests}

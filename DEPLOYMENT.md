@@ -1,6 +1,6 @@
-# Spec Agents - Deployment Guide
+# SpecVault - Deployment Guide
 
-This guide walks you through deploying Spec Agents to **Vercel** with **Supabase** as the backend.
+This guide walks you through deploying SpecVault to **Vercel** with **Supabase** as the backend.
 
 ---
 
@@ -54,7 +54,7 @@ This guide walks you through deploying Spec Agents to **Vercel** with **Supabase
 
 Click this button to deploy:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/davidfertube/spec-agents)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/davidfertube/specvault)
 
 This will:
 1. Fork the repository to your GitHub account
@@ -130,7 +130,7 @@ vercel login
 
 ```bash
 # From project root
-cd /Users/david/Downloads/repos/spec-agents
+cd /Users/david/Downloads/repos/specvault
 
 # Deploy to production
 vercel --prod

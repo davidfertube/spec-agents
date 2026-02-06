@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Spec Agents - Compliance Verification for Material Engineers",
+  title: "SpecVault - Compliance Verification for Material Engineers",
   description: "AI-powered steel specification search with traceable citations for O&G compliance",
 };
 

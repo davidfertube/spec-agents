@@ -160,7 +160,7 @@ export function ComparisonCard({ sourcesCount, isVisible }: ComparisonCardProps)
             </span>
           </motion.div>
           <h3 className="text-sm font-semibold text-foreground">
-            Why Spec Agents?
+            Why SpecVault?
           </h3>
         </div>
         {sourcesCount > 0 && (
@@ -192,7 +192,7 @@ export function ComparisonCard({ sourcesCount, isVisible }: ComparisonCardProps)
                 }}
                 className="w-2.5 h-2.5 rounded-full bg-green-500"
               />
-              <span className="text-sm font-semibold text-foreground">Spec Agents</span>
+              <span className="text-sm font-semibold text-foreground">SpecVault</span>
             </div>
           </motion.div>
           <motion.div
@@ -214,7 +214,7 @@ export function ComparisonCard({ sourcesCount, isVisible }: ComparisonCardProps)
             custom={index}
             className={`grid grid-cols-2 ${index !== COMPARISON_ITEMS.length - 1 ? "border-b border-border" : ""}`}
           >
-            {/* Spec Agents Cell */}
+            {/* SpecVault Cell */}
             <motion.div
               className="px-4 py-3 border-r border-border bg-green-50/50 dark:bg-green-950/20"
               whileHover={{ backgroundColor: "rgba(34, 197, 94, 0.1)" }}

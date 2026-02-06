@@ -404,7 +404,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("🧪 Spec Agents Accuracy Evaluation");
+  console.log("🧪 SpecVault Accuracy Evaluation");
   console.log("====================================");
   console.log(`API URL: ${API_BASE_URL}`);
   console.log(`Datasets: ${datasetFiles.join(", ")}`);

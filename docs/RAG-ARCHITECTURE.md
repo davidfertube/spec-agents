@@ -1,8 +1,8 @@
-# Spec Agents - RAG Architecture & Dataflow
+# SpecVault - RAG Architecture & Dataflow
 
 ## System Overview
 
-Spec Agents is an AI-powered RAG (Retrieval-Augmented Generation) system designed for steel specification compliance verification. It provides traceable, cited answers from uploaded ASTM/NACE/API specification documents.
+SpecVault is an AI-powered RAG (Retrieval-Augmented Generation) system designed for steel specification compliance verification. It provides traceable, cited answers from uploaded ASTM/NACE/API specification documents.
 
 ---
 

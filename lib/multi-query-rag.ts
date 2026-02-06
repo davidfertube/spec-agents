@@ -80,7 +80,7 @@ export async function multiQueryRAG(
   // identical results. The cache was too aggressive in matching queries, leading to
   // cached chunks from Query A being returned for Query B. The embedding cache
   // (for Voyage AI API calls) is still active and provides sufficient optimization.
-  // See: https://github.com/anthropics/spec-agents/issues/[issue-number]
+  // See: https://github.com/anthropics/specvault/issues/[issue-number]
   //
   // const cachedChunks = getCachedRAGResponse(query);
   // if (cachedChunks) {

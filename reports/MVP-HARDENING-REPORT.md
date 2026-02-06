@@ -7,7 +7,7 @@
 
 ## Summary
 
-This report documents the MVP hardening work completed to prepare Spec Agents for production deployment. The focus areas were:
+This report documents the MVP hardening work completed to prepare SpecVault for production deployment. The focus areas were:
 
 1. Distributed rate limiting with Upstash Redis
 2. PDF viewer simplification (removed highlighting)

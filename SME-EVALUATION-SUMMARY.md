@@ -1,8 +1,8 @@
-# Spec Agents - SME Evaluation Summary
+# SpecVault - SME Evaluation Summary
 
 ## What This Tool Does
 
-**Spec Agents** is an AI-powered document search tool specifically designed for materials engineers. Instead of manually searching through PDF specifications, you can:
+**SpecVault** is an AI-powered document search tool specifically designed for materials engineers. Instead of manually searching through PDF specifications, you can:
 
 1. **Upload your specification PDFs** (ASTM, API, NACE, etc.)
 2. **Ask questions in plain English** (e.g., "What is the yield strength of 2205 duplex?")

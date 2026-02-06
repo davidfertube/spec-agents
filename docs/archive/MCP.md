@@ -2,13 +2,13 @@
 
 ## Overview
 
-This document details enterprise-grade MCP integration patterns for Spec Agents, following 2026 best practices for agentic AI systems.
+This document details enterprise-grade MCP integration patterns for SpecVault, following 2026 best practices for agentic AI systems.
 
 ## Table of Contents
 
 - [What is MCP?](#what-is-mcp)
 - [Architecture Integration](#architecture-integration)
-- [MCP Servers for Spec Agents](#mcp-servers-for-spec-agents)
+- [MCP Servers for SpecVault](#mcp-servers-for-specvault)
 - [Implementation](#implementation)
 - [Security & Compliance](#security--compliance)
 - [Monitoring & Observability](#monitoring--observability)
@@ -23,7 +23,7 @@ This document details enterprise-grade MCP integration patterns for Spec Agents,
 - **Prompt Management**: Centralized prompt templates with version control
 - **Resource Access**: Secure, governed access to company data
 
-### Why MCP for Spec Agents?
+### Why MCP for SpecVault?
 
 | Traditional Approach | MCP Approach | Benefit |
 |---------------------|--------------|---------|
@@ -36,7 +36,7 @@ This document details enterprise-grade MCP integration patterns for Spec Agents,
 
 ## Architecture Integration
 
-### MCP Server Topology for Spec Agents
+### MCP Server Topology for SpecVault
 
 ```mermaid
 graph TB
@@ -62,7 +62,7 @@ graph TB
 
 ---
 
-## MCP Servers for Spec Agents
+## MCP Servers for SpecVault
 
 ### 1. Supabase MCP Server (Data Layer)
 
@@ -161,7 +161,7 @@ import { extractTextFromPDF, chunkDocument } from "@/lib/pdf-utils";
 
 const server = new Server(
   {
-    name: "spec-agents-pdf-processor",
+    name: "specvault-pdf-processor",
     version: "1.0.0",
   },
   {
@@ -532,7 +532,7 @@ spec:
     spec:
       containers:
       - name: pdf-processor
-        image: spec-agents/mcp-pdf:v1.0.0
+        image: specvault/mcp-pdf:v1.0.0
         env:
         - name: SUPABASE_URL
           valueFrom:
@@ -563,7 +563,7 @@ spec:
 ```typescript
 // Semantic versioning for MCP APIs
 const server = new Server({
-  name: "spec-agents-pdf",
+  name: "specvault-pdf",
   version: "2.1.0",  // Major.Minor.Patch
 }, {
   capabilities: {

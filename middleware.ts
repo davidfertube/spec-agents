@@ -6,7 +6,7 @@ import { checkRateLimit, getRateLimitHeaders, getClientIp } from './lib/rate-lim
 const ALLOWED_ORIGINS = [
   'http://localhost:3000',
   'http://localhost:3001',
-  'https://spec-agents.vercel.app',
+  'https://specvault.app',
   process.env.NEXT_PUBLIC_APP_URL,
   process.env.PRODUCTION_URL,
 ].filter(Boolean) as string[];

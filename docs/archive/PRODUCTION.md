@@ -1,6 +1,6 @@
 # Production Deployment & Operations Guide
 
-**Enterprise-grade deployment strategies for Spec Agents MVP → Scale**
+**Enterprise-grade deployment strategies for SpecVault MVP → Scale**
 
 ## Table of Contents
 
@@ -118,7 +118,7 @@ CMD ["node", "server.js"]
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: spec-agents-api
+  name: specvault-api
 spec:
   replicas: 3
   strategy:
@@ -130,7 +130,7 @@ spec:
     spec:
       containers:
       - name: api
-        image: spec-agents:v1.0.0
+        image: specvault:v1.0.0
         ports:
         - containerPort: 3000
         resources:
@@ -162,24 +162,24 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: spec-agents-api
+  name: specvault-api
 spec:
   type: LoadBalancer
   ports:
   - port: 80
     targetPort: 3000
   selector:
-    app: spec-agents
+    app: specvault
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: spec-agents-hpa
+  name: specvault-hpa
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: spec-agents-api
+    name: specvault-api
   minReplicas: 3
   maxReplicas: 20
   metrics:
@@ -240,8 +240,8 @@ jobs:
     steps:
       - name: Run smoke tests
         run: |
-          curl -f https://spec-agents.vercel.app/health || exit 1
-          curl -f https://spec-agents.vercel.app/api/health || exit 1
+          curl -f https://specvault.app/health || exit 1
+          curl -f https://specvault.app/api/health || exit 1
 
   notify:
     needs: [deploy, e2e-smoke-test]
@@ -303,7 +303,7 @@ logger.error({
 import { metrics } from "@opentelemetry/api";
 import { PrometheusExporter } from "@opentelemetry/exporter-prometheus";
 
-const meter = metrics.getMeter("spec-agents");
+const meter = metrics.getMeter("specvault");
 
 // Counter: Total queries
 const queryCounter = meter.createCounter("queries_total", {
@@ -355,7 +355,7 @@ import { trace } from "@opentelemetry/api";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 
-const tracer = trace.getTracer("spec-agents-api");
+const tracer = trace.getTracer("specvault-api");
 
 app.post("/api/chat", async (req, res) => {
   const span = tracer.startSpan("handle_query", {
@@ -409,7 +409,7 @@ Trace ID: abc123
 ```yaml
 # alerts.yml (Prometheus AlertManager)
 groups:
-  - name: spec-agents-critical
+  - name: specvault-critical
     rules:
       - alert: HighErrorRate
         expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
@@ -578,16 +578,16 @@ async function getSecret(secretName: string): Promise<string> {
 }
 
 // Usage
-const GROQ_API_KEY = await getSecret("prod/spec-agents/groq-api-key");
+const GROQ_API_KEY = await getSecret("prod/specvault/groq-api-key");
 ```
 
 **HashiCorp Vault**:
 ```bash
 # Store secret
-vault kv put secret/spec-agents/groq-api-key value="gsk_..."
+vault kv put secret/specvault/groq-api-key value="gsk_..."
 
 # Retrieve in app
-export GROQ_API_KEY=$(vault kv get -field=value secret/spec-agents/groq-api-key)
+export GROQ_API_KEY=$(vault kv get -field=value secret/specvault/groq-api-key)
 ```
 
 ### GDPR & Data Privacy
@@ -671,7 +671,7 @@ const supabase = createClient(
     },
     global: {
       headers: {
-        "X-Client-Info": "spec-agents-api"
+        "X-Client-Info": "specvault-api"
       }
     }
   }
@@ -732,7 +732,7 @@ async function setCachedQuery(query: string, response: string) {
 module.exports = {
   images: {
     loader: 'cloudflare',
-    path: 'https://spec-agents.com/'
+    path: 'https://specvault.com/'
   },
   assetPrefix: process.env.CDN_URL,  // CloudFlare CDN
 };
@@ -852,7 +852,7 @@ Level 4: Incident commander → CTO
 
 ---
 
-## Next Steps for Spec Agents
+## Next Steps for SpecVault
 
 1. **Week 1**: Add health checks + Sentry error tracking
 2. **Week 2**: Implement rate limiting with Upstash

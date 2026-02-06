@@ -1,6 +1,6 @@
-# Contributing to Spec Agents
+# Contributing to SpecVault
 
-Thank you for your interest in contributing to Spec Agents! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to SpecVault! This document provides guidelines and instructions for contributing.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ Thank you for your interest in contributing to Spec Agents! This document provid
 ## Quick Start
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/spec-agents`
+2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/specvault`
 3. Install dependencies: `npm install`
 4. Copy environment file: `cp .env.example .env.local`
 5. Start development: `npm run dev`
@@ -302,8 +302,8 @@ Use the [Feature Request Template](.github/ISSUE_TEMPLATE/feature_request.md).
 
 ## Questions?
 
-- Open a [Discussion](https://github.com/davidfertube/spec-agents/discussions)
-- Check existing [Issues](https://github.com/davidfertube/spec-agents/issues)
+- Open a [Discussion](https://github.com/davidfertube/specvault/discussions)
+- Check existing [Issues](https://github.com/davidfertube/specvault/issues)
 - Read the [Documentation](README.md)
 
 Thank you for contributing!

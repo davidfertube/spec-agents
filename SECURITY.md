@@ -36,7 +36,7 @@ We take security seriously. If you discover a security vulnerability, please fol
 
 ### Recommended Deployment Security
 
-When deploying Spec Agents in production:
+When deploying SpecVault in production:
 
 1. **API Keys**
    - Never commit API keys to version control
@@ -75,4 +75,4 @@ Before submitting code, ensure:
 
 ## Acknowledgments
 
-We appreciate security researchers who help keep Spec Agents safe. Responsible disclosure will be acknowledged in our release notes (with your permission).
+We appreciate security researchers who help keep SpecVault safe. Responsible disclosure will be acknowledged in our release notes (with your permission).

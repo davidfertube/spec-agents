@@ -1,4 +1,4 @@
-# CLAUDE.md - Spec Agents
+# CLAUDE.md - SpecVault
 
 ## Current Status (2026-01-27)
 

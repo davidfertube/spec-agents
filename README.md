@@ -1,12 +1,12 @@
-# Spec Agents
+# SpecVault
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://github.com/davidfertube/spec-agents/actions/workflows/test.yml/badge.svg)](https://github.com/davidfertube/spec-agents/actions/workflows/test.yml)
-[![Deploy](https://img.shields.io/badge/Deploy-Vercel-black)](https://vercel.com/new/clone?repository-url=https://github.com/davidfertube/spec-agents)
+[![Tests](https://github.com/davidfertube/specvault/actions/workflows/test.yml/badge.svg)](https://github.com/davidfertube/specvault/actions/workflows/test.yml)
+[![Deploy](https://img.shields.io/badge/Deploy-Vercel-black)](https://vercel.com/new/clone?repository-url=https://github.com/davidfertube/specvault)
 
 **AI-powered compliance verification tool for O&G materials engineers.** Query steel specifications instantly with traceable citations for compliance reports.
 
-[Live Demo](https://spec-agents.vercel.app) | [Documentation](CLAUDE.md) | [Contributing](CONTRIBUTING.md)
+[Live Demo](https://specvault.app) | [Documentation](CLAUDE.md) | [Contributing](CONTRIBUTING.md)
 
 ---
 
@@ -117,8 +117,8 @@ graph LR
 
 ```bash
 # Clone and install
-git clone https://github.com/davidfertube/spec-agents.git
-cd spec-agents && npm install
+git clone https://github.com/davidfertube/specvault.git
+cd specvault && npm install
 
 # Configure (get free API keys)
 cp .env.example .env.local
@@ -130,7 +130,7 @@ npm run dev
 ```
 
 ### One-Click Deploy
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/davidfertube/spec-agents)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/davidfertube/specvault)
 
 ---
 

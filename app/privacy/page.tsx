@@ -14,7 +14,7 @@ export default function PrivacyPage() {
               <div className="w-8 h-8 bg-black flex items-center justify-center">
                 <Boxes className="w-4 h-4 text-white" />
               </div>
-              <span className="text-lg font-semibold tracking-tight text-black">Spec Agents</span>
+              <span className="text-lg font-semibold tracking-tight text-black">SpecVault</span>
             </Link>
           </div>
         </div>

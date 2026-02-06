@@ -1,6 +1,6 @@
 # Stress Testing & Performance Measurement
 
-Comprehensive stress testing framework for the Spec Agents RAG system with synthetic data, KPI measurement, and continuous performance monitoring.
+Comprehensive stress testing framework for the SpecVault RAG system with synthetic data, KPI measurement, and continuous performance monitoring.
 
 ## Quick Start
 

@@ -21,7 +21,7 @@ import { Source, GenericLLMResponse } from "@/lib/api";
 import { NetworkVisualization } from "@/components/network-visualization";
 
 // Spline 3D Animation Component
-// Shows PDFs flowing into the Spec Agents brain
+// Shows PDFs flowing into the SpecVault brain
 import Spline from '@splinetool/react-spline';
 
 function Hero3DAnimation() {
@@ -453,7 +453,7 @@ function LeadForm() {
             </svg>
           </div>
           <h3 className="text-xl font-semibold text-black mb-2">You&apos;re on the list!</h3>
-          <p className="text-black/70">We&apos;ll contact you when Spec Agents is ready.</p>
+          <p className="text-black/70">We&apos;ll contact you when SpecVault is ready.</p>
         </CardContent>
       </Card>
     );
@@ -553,7 +553,7 @@ function LeadForm() {
         </form>
 
         <p className="text-xs text-black/50 text-center mt-4">
-          We&apos;ll contact you when Spec Agents is ready. No spam, ever.
+          We&apos;ll contact you when SpecVault is ready. No spam, ever.
         </p>
       </CardContent>
     </Card>
@@ -673,7 +673,7 @@ export default function Home() {
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <Link href="/" className="text-lg font-semibold tracking-tight text-black">
-              Spec Agents
+              SpecVault
             </Link>
 
             {/* Desktop Navigation */}
@@ -767,7 +767,7 @@ export default function Home() {
                       animate={{ opacity: 1 }}
                       transition={{ duration: 0.5, delay: 0.2 }}
                     >
-                      SPEC AGENTS
+                      SPECVAULT
                     </motion.span>
                   </motion.h1>
                   <motion.p
@@ -842,7 +842,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Why Spec Agents vs Generic LLMs Section */}
+        {/* Why SpecVault vs Generic LLMs Section */}
         <section id="why" className="relative py-12 sm:py-16 md:py-20 border-t border-black/5 bg-black/[0.02]">
           <div className="container-center">
             <motion.div
@@ -861,7 +861,7 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: 0.1 }}
                   className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-black"
                 >
-                  Why Spec Agents?
+                  Why SpecVault?
                 </motion.h2>
                 <motion.p
                   initial={{ opacity: 0, y: 10 }}
@@ -871,13 +871,13 @@ export default function Home() {
                   className="text-xl text-black/60 max-w-3xl mx-auto leading-relaxed"
                 >
                   Generic LLMs (ChatGPT, Claude, Gemini) hallucinate specs. <br className="hidden sm:block" />
-                  Spec Agents only answers from <span className="text-black font-semibold">your documents</span>.
+                  SpecVault only answers from <span className="text-black font-semibold">your documents</span>.
                 </motion.p>
               </div>
 
               {/* Comparison Grid */}
               <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto px-4">
-                {/* Spec Agents Card */}
+                {/* SpecVault Card */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
@@ -892,7 +892,7 @@ export default function Home() {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold text-green-700">Spec Agents</h3>
+                      <h3 className="text-2xl font-bold text-green-700">SpecVault</h3>
                       <p className="text-sm text-green-600/80 font-medium mt-1">Trustworthy & Traceable</p>
                     </div>
                   </div>
@@ -990,7 +990,7 @@ export default function Home() {
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-8">
-                  {/* Spec Agents Response */}
+                  {/* SpecVault Response */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
@@ -998,7 +998,7 @@ export default function Home() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span className="font-bold text-green-700">Spec Agents</span>
+                      <span className="font-bold text-green-700">SpecVault</span>
                     </div>
                     <div className="bg-green-50 rounded-xl p-5 border border-green-100 relative">
                       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-green-50 border-t border-l border-green-100 rotate-45 transform"></div>
@@ -1269,7 +1269,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
               <div>
-                <span className="font-semibold text-black">Spec Agents</span>
+                <span className="font-semibold text-black">SpecVault</span>
                 <span className="text-black/60 text-sm ml-2">
                   by Antigravity
                 </span>
@@ -1278,7 +1278,7 @@ export default function Home() {
           </div>
           <Separator className="my-8 bg-black/5" />
           <p className="text-center text-xs text-black/40 max-w-2xl mx-auto">
-            <strong>Disclaimer:</strong> Spec Agents provides AI-generated responses for reference only.
+            <strong>Disclaimer:</strong> SpecVault provides AI-generated responses for reference only.
             Always verify specifications against original source documents. Not intended for safety-critical
             decisions without professional engineering review. Users are responsible for their own document licenses.
           </p>

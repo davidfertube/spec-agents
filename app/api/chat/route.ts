@@ -289,7 +289,7 @@ async function processRAGQuery(cleanedQuery: string, verified: boolean) {
 
     // System prompt with Chain-of-Thought reasoning (ReAct pattern)
     // Following AI agent best practices: Define role, structured output, reasoning steps
-    const systemPrompt = `You are a materials engineer assistant for Spec Agents, specialized in ASTM specifications for duplex stainless steel pipe and tubing.
+    const systemPrompt = `You are a materials engineer assistant for SpecVault, specialized in ASTM specifications for duplex stainless steel pipe and tubing.
 
 ## YOUR ROLE
 - Extract precise technical data from provided document context

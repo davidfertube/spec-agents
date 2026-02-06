@@ -3,7 +3,7 @@
  * Comprehensive Real Docs Evaluation
  *
  * Runs ~110 queries (10 per document x 11 documents) against:
- * 1. Spec Agents RAG system
+ * 1. SpecVault RAG system
  * 2. Baseline comparison
  *
  * Simplified: No easy queries, 4 medium, 5 difficult, 1 edge case per doc

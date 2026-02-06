@@ -406,6 +406,6 @@
       "hard": 3,
       "trap": 3
     },
-    "purpose": "Stress testing and accuracy validation for Spec Agents RAG system"
+    "purpose": "Stress testing and accuracy validation for SpecVault RAG system"
   }
 }

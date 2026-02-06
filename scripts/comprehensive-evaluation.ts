@@ -3,7 +3,7 @@
  * Comprehensive RAG Evaluation - Real Tests with Baseline Comparison
  *
  * Compares:
- * 1. Spec Agents (RAG system)
+ * 1. SpecVault (RAG system)
  * 2. Baseline Opus 4.5 (no document context)
  *
  * Measures:
@@ -201,7 +201,7 @@ const TEST_CASES: TestCase[] = [
 // API Functions
 // ============================================
 
-async function querySpecAgents(query: string): Promise<{ response: string; sources: Source[]; latencyMs: number }> {
+async function querySpecVault(query: string): Promise<{ response: string; sources: Source[]; latencyMs: number }> {
   const startTime = Date.now();
 
   try {
@@ -328,7 +328,7 @@ function detectHallucination(response: string, testCase: TestCase): boolean {
 // ============================================
 
 async function runComprehensiveEvaluation(): Promise<void> {
-  console.log("🚀 Comprehensive RAG Evaluation - Spec Agents vs Baseline Opus 4.5\n");
+  console.log("🚀 Comprehensive RAG Evaluation - SpecVault vs Baseline Opus 4.5\n");
   console.log("=".repeat(70));
 
   // Check documents in database
@@ -353,7 +353,7 @@ async function runComprehensiveEvaluation(): Promise<void> {
 
     // Run both systems in parallel
     const [ragResult, baselineResult] = await Promise.all([
-      querySpecAgents(testCase.query),
+      querySpecVault(testCase.query),
       queryBaselineOpus(testCase.query)
     ]);
 
@@ -421,7 +421,7 @@ function generateReport(results: TestResult[]): void {
   const baselinePassed = results.filter(r => r.baselinePassed).length;
 
   console.log("\n📊 OVERALL ACCURACY:");
-  console.log(`   Spec Agents (RAG): ${ragPassed}/${total} (${((ragPassed/total)*100).toFixed(1)}%)`);
+  console.log(`   SpecVault (RAG): ${ragPassed}/${total} (${((ragPassed/total)*100).toFixed(1)}%)`);
   console.log(`   Baseline Opus 4.5: ${baselinePassed}/${total} (${((baselinePassed/total)*100).toFixed(1)}%)`);
   console.log(`   RAG Improvement:   ${ragPassed > baselinePassed ? '+' : ''}${ragPassed - baselinePassed} tests`);
 
@@ -430,7 +430,7 @@ function generateReport(results: TestResult[]): void {
   const baselineHalluc = results.filter(r => r.baselineHallucinated).length;
 
   console.log("\n🎭 HALLUCINATION RATE:");
-  console.log(`   Spec Agents (RAG): ${ragHalluc}/${total} (${((ragHalluc/total)*100).toFixed(1)}%)`);
+  console.log(`   SpecVault (RAG): ${ragHalluc}/${total} (${((ragHalluc/total)*100).toFixed(1)}%)`);
   console.log(`   Baseline Opus 4.5: ${baselineHalluc}/${total} (${((baselineHalluc/total)*100).toFixed(1)}%)`);
 
   // Citation accuracy
@@ -472,7 +472,7 @@ function generateReport(results: TestResult[]): void {
   const baselineP95 = baselineLatencies[Math.floor(total * 0.95)];
 
   console.log("\n⏱️ LATENCY:");
-  console.log(`   Spec Agents (RAG):`);
+  console.log(`   SpecVault (RAG):`);
   console.log(`     P50: ${ragP50}ms, P95: ${ragP95}ms`);
   console.log(`   Baseline Opus 4.5:`);
   console.log(`     P50: ${baselineP50}ms, P95: ${baselineP95}ms`);

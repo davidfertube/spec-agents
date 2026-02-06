@@ -193,7 +193,7 @@ export function NetworkVisualization() {
                     </Circle>
                     {/* Absolute positioning to keep text from affecting vertical alignment */}
                     <div className="absolute top-full mt-4 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                        <span className="block text-xl md:text-2xl font-bold text-slate-800 tracking-tight">Spec Agents</span>
+                        <span className="block text-xl md:text-2xl font-bold text-slate-800 tracking-tight">SpecVault</span>
                     </div>
                 </div>
 

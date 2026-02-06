@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides technical details for implementing and extending Spec Agents, a Next.js-based RAG application with **no separate backend** - all API logic runs in Next.js API Routes.
+This document provides technical details for implementing and extending SpecVault, a Next.js-based RAG application with **no separate backend** - all API logic runs in Next.js API Routes.
 
 ---
 
@@ -32,7 +32,7 @@ This document provides technical details for implementing and extending Spec Age
 ## Key Files & Directories
 
 ```
-/Users/david/Downloads/repos/spec-agents/
+/Users/david/Downloads/repos/specvault/
 ├── app/
 │   ├── page.tsx                          # Main landing page
 │   ├── layout.tsx                        # Root layout with providers
@@ -338,7 +338,7 @@ npx tsx scripts/evaluate-accuracy.ts --json > results.json
 ### Vercel (Recommended)
 
 **One-Click Deploy:**
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/davidfertube/spec-agents)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/davidfertube/specvault)
 
 **Manual Deploy:**
 ```bash

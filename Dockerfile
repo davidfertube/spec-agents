@@ -1,4 +1,4 @@
-# Spec Agents - Hugging Face Spaces Deployment
+# SpecVault - Hugging Face Spaces Deployment
 # This Dockerfile builds both frontend and backend for HF Spaces
 
 FROM node:20-slim AS frontend-builder

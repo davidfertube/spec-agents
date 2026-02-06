@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Report a bug to help us improve Spec Agents
+about: Report a bug to help us improve SpecVault
 title: '[BUG] '
 labels: 'bug'
 assignees: ''
