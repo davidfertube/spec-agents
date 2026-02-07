@@ -210,6 +210,26 @@ function extractTableTitle(text: string): string | undefined {
 }
 
 /**
+ * Extract table header rows for prepending to split table chunks.
+ * Returns the first few lines before data rows begin (title + column headers).
+ */
+function extractTableHeader(tableContent: string): string | null {
+  const lines = tableContent.split('\n').filter(l => l.trim());
+  if (lines.length < 3) return null;
+
+  const headerLines: string[] = [];
+  for (let i = 0; i < Math.min(lines.length, 5); i++) {
+    const line = lines[i].trim();
+    // Data rows start with UNS codes (S32205), ASTM grades, or numeric values
+    const isDataRow = /^\s*(?:[SNCGHJKWRT]\d{5}|F\d{2}|[A-Z]\d{3,4}\b|\d+(?:\.\d+)?[%\s])/.test(line);
+    if (isDataRow && headerLines.length > 0) break;
+    headerLines.push(line);
+  }
+
+  return headerLines.length > 0 ? headerLines.join('\n') : null;
+}
+
+/**
  * Detect if text is a list
  */
 function isList(text: string): { isList: boolean; type: 'bullet' | 'numbered' | null } {
@@ -439,7 +459,10 @@ export function semanticChunk(
         // Use table title as section_title if available, otherwise use current section
         const tableSectionTitle = table.title || currentSection;
 
-        if (table.content.length <= maxChunkSize) {
+        // Tables get extra budget to stay intact (reduces splits that lose context)
+        const tableMaxSize = maxChunkSize + 1000;
+
+        if (table.content.length <= tableMaxSize) {
           allChunks.push({
             content: table.content,
             metadata: {
@@ -454,27 +477,36 @@ export function semanticChunk(
             char_offset_end: table.endIndex - charOffset,
           });
         } else {
-          // Table is too large, chunk it
+          // Table is too large: chunk it, but prepend header to each subsequent chunk
+          // so data rows always have column labels for context
+          const header = extractTableHeader(table.content);
+          const headerPrefix = header ? header + '\n' : '';
+
           const tableChunks = chunkTextWithOverlap(
             table.content,
             table.startIndex - charOffset,
-            targetChunkSize,
+            targetChunkSize - headerPrefix.length, // Reserve space for header in size budget
             overlapSize
           );
 
-          for (const chunk of tableChunks) {
+          for (let idx = 0; idx < tableChunks.length; idx++) {
+            // First chunk already has the header; prepend to subsequent chunks only
+            const content = idx === 0
+              ? tableChunks[idx].content
+              : headerPrefix + tableChunks[idx].content;
+
             allChunks.push({
-              content: chunk.content,
+              content,
               metadata: {
                 page_number: pageNumber,
                 section_title: tableSectionTitle,
                 chunk_type: 'table',
-                has_codes: detectTechnicalCodes(chunk.content),
+                has_codes: detectTechnicalCodes(content),
                 confidence: 0.85,
                 parent_section: currentSection,
               },
-              char_offset_start: chunk.start,
-              char_offset_end: chunk.end,
+              char_offset_start: tableChunks[idx].start,
+              char_offset_end: tableChunks[idx].end,
             });
           }
         }

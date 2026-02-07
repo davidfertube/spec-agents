@@ -66,10 +66,10 @@ const UNS_PATTERN = /\b[SNCGHJKWRT]\d{5}\b/gi;
 const ASTM_A_PATTERN = /\b(?:ASTM\s*)?A\d{3,4}(?:[/-]\d{2,4})?\b/gi;
 
 /**
- * API standards
- * Examples: API 5L, API 5CT, API 6A
+ * API standards — requires "API" prefix to avoid false positives on bare numbers
+ * Examples: API 5L, API 5CT, API 6A, API 16C, API 5CRA, API-5CT
  */
-const API_PATTERN = /\b(?:API\s+)?\d{1,2}[A-Z]{0,2}(?:T|L|CT)?\b/gi;
+const API_PATTERN = /\bAPI[\s-]+(?:SPEC(?:IFICATION)?\s+)?(\d{1,2}[A-Z]{1,4})\b/gi;
 
 /**
  * Common duplex and stainless steel grades
@@ -330,7 +330,15 @@ export function preprocessQuery(query: string): ProcessedQuery {
   // Extract all technical codes
   const unsMatches = original.match(UNS_PATTERN) || [];
   const astmMatches = original.match(ASTM_A_PATTERN) || [];
-  const apiMatches = original.match(API_PATTERN) || [];
+
+  // API_PATTERN uses capture groups — extract the code without "API" prefix
+  const apiMatches: string[] = [];
+  const apiRegex = /\bAPI[\s-]+(?:SPEC(?:IFICATION)?\s+)?(\d{1,2}[A-Z]{1,4})\b/gi;
+  let apiMatch;
+  while ((apiMatch = apiRegex.exec(original)) !== null) {
+    apiMatches.push(apiMatch[1]);
+  }
+
   const gradeMatches = original.match(GRADE_PATTERN) || [];
   const naceMatches = [
     ...(original.match(NACE_PATTERN) || []),

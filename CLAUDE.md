@@ -3,11 +3,10 @@
 ## Quick Reference
 
 - **Framework**: Next.js 16, React 19, Tailwind CSS
-- **LLM**: Gemini 2.5 Flash (primary) with multi-provider fallback (Groq, Cerebras, Together AI)
+- **LLM**: Claude Sonnet 4.5 (primary) with multi-provider fallback (Groq, Cerebras, OpenRouter)
 - **Embeddings**: Voyage AI voyage-3-lite (1024 dim, 200M tokens FREE/month)
 - **Database**: Supabase PostgreSQL + pgvector
 - **Hosting**: Vercel (free tier)
-- **Total Cost**: $0/month (all free tiers)
 
 ---
 
@@ -59,7 +58,7 @@ git push origin main           # Auto-deploys to Vercel via GitHub Actions
 
 ## Architecture
 
-### Accuracy Results (Feb 2025)
+### Accuracy Results (Feb 2026)
 
 | Metric | Result | Target | Status |
 |--------|--------|--------|--------|
@@ -76,8 +75,8 @@ Golden datasets: `tests/golden-dataset/*.json` (8 files, 80+ queries total)
 1. **Query Analysis**: `query-preprocessing.ts` extracts UNS/ASTM/API codes, `query-enhancement.ts` adds keywords
 2. **Hybrid Search**: `multi-query-rag.ts` decomposes complex queries, runs BM25 + vector search via `hybrid-search.ts`
 3. **Re-ranking**: `reranker.ts` scores candidates with LLM-based cross-encoder (800-char chunk window, sub-query aware)
-4. **Context Building**: Top 3 chunks assembled with `[1][2][3]` refs, deduped by (doc, page) — cross-document dedup prevented
-5. **Generation**: Gemini 2.5 Flash with CoT system prompt, SSE streaming
+4. **Context Building**: Top 5 chunks assembled with `[1][2][3]` refs, deduped by (doc, page) — cross-document dedup prevented
+5. **Generation**: Claude Sonnet 4.5 with CoT system prompt, SSE streaming
 
 ### Key Files
 
@@ -92,6 +91,8 @@ Golden datasets: `tests/golden-dataset/*.json` (8 files, 80+ queries total)
 | `lib/model-fallback.ts` | Multi-provider LLM fallback chain |
 | `lib/semantic-chunking.ts` | Table-preserving chunking (1500 chars, 200 overlap) |
 | `lib/document-mapper.ts` | Resolves ASTM codes to document IDs |
+| `lib/verified-generation.ts` | Answer grounding + claim verification |
+| `lib/langfuse.ts` | Observability + RAG pipeline tracing |
 | `lib/evaluation-engine.ts` | Pattern-based RAG evaluation |
 | `lib/rag-metrics.ts` | RAGAS-style LLM-as-judge evaluation |
 | `components/realtime-comparison.tsx` | Side-by-side RAG vs generic LLM display |
@@ -118,7 +119,8 @@ Reranker truncates chunks to **800 chars** (was 400) for relevance scoring. This
 - **Code-first**: "A789 tubing", "A790 pipe"
 - **API pattern**: "API 5CT", "API 6A", "API 16C"
 
-### Groq TPM Limits
+### Groq TPM Limits (Fallback Only)
+Groq is now a fallback provider (primary is Claude Sonnet 4.5).
 Free tier: 6000 TPM. Chunks limited to 3 (was 5) to stay under limit.
 If 429 errors occur, `model-fallback.ts` auto-switches providers.
 
@@ -136,16 +138,20 @@ See `app/api/chat/route.ts` lines 70-107.
 
 ```bash
 # Required
+ANTHROPIC_API_KEY=xxx             # Claude Sonnet 4.5 — primary LLM (console.anthropic.com)
 VOYAGE_API_KEY=xxx                # Voyage AI (voyageai.com)
-GROQ_API_KEY=xxx                  # Groq (console.groq.com)
-GOOGLE_API_KEY=xxx                # Gemini 2.5 Flash (ai.google.dev)
 NEXT_PUBLIC_SUPABASE_URL=xxx      # Supabase project URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY=xxx # Supabase anon key
 
-# Optional (fallback LLMs)
-ANTHROPIC_API_KEY=xxx             # Claude (baseline comparisons)
+# Optional (fallback LLMs + OCR)
+GOOGLE_API_KEY=xxx                # Gemini (ai.google.dev) — used for OCR vision
+GROQ_API_KEY=xxx                  # Groq fallback (console.groq.com)
 CEREBRAS_API_KEY=xxx              # Cerebras fallback
-TOGETHER_API_KEY=xxx              # Together AI fallback
+
+# Optional (observability)
+LANGFUSE_SECRET_KEY=xxx           # LangFuse tracing (langfuse.com)
+LANGFUSE_PUBLIC_KEY=xxx           # LangFuse public key
+LANGFUSE_BASE_URL=xxx             # LangFuse base URL
 ```
 
 ---
@@ -155,7 +161,9 @@ TOGETHER_API_KEY=xxx              # Together AI fallback
 | Method | Endpoint | Request | Response |
 |--------|----------|---------|----------|
 | POST | `/api/chat` | `{ query, stream? }` | SSE stream → `{ response, sources }` |
+| POST | `/api/chat/compare` | `{ query }` | `{ response }` (generic LLM, no RAG) |
 | POST | `/api/documents/upload` | `FormData(file)` | `{ success, message }` |
+| POST | `/api/documents/upload-url` | `{ filename, contentType }` | `{ signedUrl }` |
 | POST | `/api/documents/process` | `{ documentId }` | `{ success, chunks }` |
 | POST | `/api/leads` | `{ firstName, lastName, email, company?, phone? }` | `{ success }` |
 

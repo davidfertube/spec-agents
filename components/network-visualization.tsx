@@ -134,12 +134,12 @@ function AnimatedBeam({
 const Circle = React.forwardRef<
     HTMLDivElement,
     { className?: string; children?: React.ReactNode; color?: string }
->(({ className, children, color = "bg-white" }, ref) => {
+>(({ className, children, color = "bg-white dark:bg-neutral-800" }, ref) => {
     return (
         <div
             ref={ref}
             className={cn(
-                "z-10 flex h-14 w-14 items-center justify-center rounded-full border border-slate-200 shadow-md backdrop-blur-sm transition-transform hover:scale-110",
+                "z-10 flex h-14 w-14 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 shadow-md backdrop-blur-sm transition-transform hover:scale-110",
                 color,
                 className
             )}

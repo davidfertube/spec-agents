@@ -13,6 +13,7 @@ import { enhanceQuery, shouldEnhanceQuery } from "@/lib/query-enhancement";
 import { detectFormulaRequest, hasFormulaInChunks, getFormulaRefusalInstruction } from "@/lib/formula-detector";
 import { groundResponse } from "@/lib/answer-grounding";
 import { validateResponseCoherence } from "@/lib/response-validator";
+import { getLangfuse, flushLangfuse } from "@/lib/langfuse";
 
 /**
  * Chat API Route - RAG-powered Q&A (with Streaming)
@@ -21,7 +22,7 @@ import { validateResponseCoherence } from "@/lib/response-validator";
  * 1. Validates the user query
  * 2. Searches for relevant document chunks
  * 3. Builds context from retrieved documents
- * 4. Generates a response with citations using Groq (Llama 3.3 70B)
+ * 4. Generates a response with citations using Claude Sonnet 4.5
  *
  * Streaming:
  * - Uses SSE to keep connection alive during long RAG operations
@@ -30,7 +31,7 @@ import { validateResponseCoherence } from "@/lib/response-validator";
  *
  * Rate Limit Handling:
  * - Uses ModelFallbackClient for automatic model fallback
- * - If primary model (gemini-2.5-flash) is rate limited, falls back to alternatives
+ * - Primary: Claude Sonnet 4.5, falls back to Groq/Cerebras/OpenRouter
  * - Prevents API failures and avoids overage charges
  *
  * Security features:
@@ -128,6 +129,13 @@ async function processRAGQuery(cleanedQuery: string, verified: boolean, document
   // DEBUG: Log incoming query to trace request flow
   console.log(`[Chat API] Incoming query: "${cleanedQuery}"`);
 
+  // LangFuse tracing (opt-in — no-op if LANGFUSE_SECRET_KEY not set)
+  const langfuse = getLangfuse();
+  const trace = langfuse?.trace({
+    name: "rag-query",
+    input: { query: cleanedQuery, verified, documentId },
+  });
+
   // ========================================
   // Optional: Use Verified Generation Pipeline
   // ========================================
@@ -167,7 +175,9 @@ async function processRAGQuery(cleanedQuery: string, verified: boolean, document
     }
 
     // Preprocess query to extract technical codes (UNS, ASTM, grades)
+    const preprocessSpan = trace?.span({ name: "query-preprocessing", input: { searchQuery } });
     const processedQuery = preprocessQuery(searchQuery);
+    preprocessSpan?.end({ output: { codes: processedQuery.extractedCodes, enhanced: searchQuery } });
 
     // Log if technical codes were detected (helps with debugging)
     if (processedQuery.boostExactMatch) {
@@ -181,12 +191,14 @@ async function processRAGQuery(cleanedQuery: string, verified: boolean, document
     try {
       // Use agentic multi-query RAG (query decomposition + hybrid search + re-ranking)
       // Use enhanced query for search, but original query is shown to user
-      // Reduced from 5 to 3 chunks to stay under Groq's 6000 TPM free tier limit
+      // 5 chunks — Claude Sonnet 4.5 (200K context) is primary; Groq TPM limit only applies as fallback
+      const ragSpan = trace?.span({ name: "multi-query-rag", input: { searchQuery, topK: 5, documentId } });
       const ragResult = await withTimeout(
-        multiQueryRAG(searchQuery, 3, documentId),
+        multiQueryRAG(searchQuery, 5, documentId),
         TIMEOUTS.MULTI_QUERY_RAG || 45000, // Use dedicated timeout for RAG pipeline
         "Multi-query RAG"
       );
+      ragSpan?.end({ output: { chunkCount: ragResult.chunks.length, metadata: ragResult.searchMetadata, evaluationConfidence: ragResult.evaluationConfidence } });
 
       chunks = ragResult.chunks;
       retrievalConfidence = ragResult.evaluationConfidence;
@@ -263,7 +275,7 @@ async function processRAGQuery(cleanedQuery: string, verified: boolean, document
           // Apply document filter even in fallback mode to fix A789/A790 confusion
           // Pass full query to catch "per A790" patterns
           const documentIds = await resolveSpecsToDocuments(processedQuery.extractedCodes, cleanedQuery);
-          chunks = await searchWithFallback(searchQuery, 3, documentIds);
+          chunks = await searchWithFallback(searchQuery, 5, documentIds);
           console.log(`[Chat API] Fallback search returned ${chunks.length} chunks${documentIds ? ` (filtered to docs: ${documentIds.join(", ")})` : ""}`);
         } catch (fallbackError) {
           console.error("[Chat API] Fallback search also failed:", fallbackError);
@@ -325,12 +337,12 @@ async function processRAGQuery(cleanedQuery: string, verified: boolean, document
 
     // System prompt with Chain-of-Thought reasoning (ReAct pattern)
     // Following AI agent best practices: Define role, structured output, reasoning steps
-    const systemPrompt = `You are a materials engineer assistant for SpecVault, specialized in ASTM specifications for duplex stainless steel pipe and tubing.
+    const systemPrompt = `You are a materials engineer assistant for SpecVault, specialized in ASTM and API specifications for steel pipe, tubing, forgings, and oilfield equipment.
 
 ## YOUR ROLE
 - Extract precise technical data from provided document context
+- Summarize and organize data when asked for overviews or summaries
 - Cite every fact with source references [1], [2], etc.
-- Refuse to answer if information isn't in the context
 - Never use training knowledge - ONLY the document context
 
 ## CHAIN-OF-THOUGHT REASONING (Think before answering)
@@ -343,18 +355,29 @@ Before answering, mentally work through these steps:
 
 ## CRITICAL RULES
 1. ONLY use the document context provided - never external knowledge
-2. If context doesn't contain the answer: "I cannot answer this question because it's not in the uploaded documents. Please upload relevant specifications."
+2. If the context contains NO relevant data at all: "I cannot answer this question because it's not in the uploaded documents. Please upload relevant specifications."
+   If the context contains relevant tables, dimensions, or specs: Extract and present the available data with citations, even if it doesn't fully answer every aspect.
 3. For refusal-category questions (pricing, corrosion rates, vendor info): Always refuse - these are never in specs
 4. Quote EXACT values from documents (e.g., "65 ksi [450 MPa]", "0.030 max", "1900-2100°F")
+5. For summary/overview questions: Extract and organize the key data points from the context. Present tables, dimensions, pressure ratings, and specifications in a structured format. You HAVE enough information if the context contains relevant tables or data — organize and present what IS available rather than refusing.
+6. When a user references a section number (e.g., "in 5", "Section 5"), look for that section heading and its associated tables in the context.
 
 ## SPECIFICATION-SPECIFIC KNOWLEDGE
 - A790 = Seamless and Welded Duplex Stainless Steel PIPE
 - A789 = Seamless and Welded Duplex Stainless Steel TUBING
+- A312 = Seamless, Welded, and Heavily Cold Worked Austenitic Stainless Steel Pipes
+- A872 = Centrifugally Cast Duplex Stainless Steel Pipe
+- A1049 = Stainless Steel Forgings, Ferritic/Austenitic (Duplex), for Pressure Vessels
+- API 6A = Wellhead and Christmas Tree Equipment (valves, flanges, plugs, hangers, actuators)
+- API 5CT = Casing and Tubing for Oil and Gas Wells
+- API 16C = Choke and Kill Systems
+- API 5CRA = Corrosion-Resistant Alloy Seamless Pipe
 - These are DIFFERENT specifications with potentially different values
 - When asked about A790, only cite A790 documents
 - When asked about A789, only cite A789 documents
 - S32205 = UNS designation for 2205 duplex (22Cr-5Ni-3Mo)
 - S32750 = UNS designation for 2507 super duplex (25Cr-7Ni-4Mo)
+- For API specs: Look for equipment dimensions, pressure ratings, material requirements, test pressures, PSL levels, temperature ratings
 
 ## TABLE DATA EXTRACTION
 - Look for "Table X" references when asked about mechanical properties or composition
@@ -461,75 +484,174 @@ RESPONSE GUIDELINES:
    "I cannot answer this question unless specific test data is included in the uploaded documents."`;
 
     // Generate response with timeout protection and automatic model fallback
-    // If gemini-2.5-flash is rate limited, automatically tries fallback models
+    // Primary: Claude Sonnet 4.5, falls back to Groq/Cerebras/OpenRouter if rate limited
     const fullPrompt = finalSystemPrompt + "\n\n" + userPrompt;
 
+    const generationSpan = trace?.span({ name: "llm-generation", input: { promptLength: fullPrompt.length } });
     const { text: responseText, modelUsed } = await withTimeout(
-      fallbackClient.generateContent(fullPrompt, "gemini-2.5-flash"),
+      fallbackClient.generateContent(fullPrompt),
       TIMEOUTS.LLM_GENERATION,
       "LLM response generation"
     );
+    generationSpan?.end({ output: { modelUsed, responseLength: responseText.length } });
 
-    // Log which model was used (helpful for monitoring rate limits)
-    if (modelUsed !== "gemini-2.5-flash") {
-      console.log(`[Chat API] Used fallback model: ${modelUsed}`);
-    }
+    console.log(`[Chat API] Model used: ${modelUsed}`);
 
     // ========================================
     // Step 4.5: Agentic Post-Generation Verification (C1 + C2)
     // ========================================
+    const verificationSpan = trace?.span({ name: "post-generation-verification" });
     let finalResponseText = responseText;
-    let hasRegenerated = false;
+    let regenCount = 0;
+    const MAX_REGENS = 3; // Budget: up to 3 regeneration attempts across all checks
 
     // C1: Answer Grounding — verify numerical claims against source chunks
     const grounding = groundResponse(responseText, chunks);
-    console.log(`[Chat API] Grounding: ${grounding.score}% (${grounding.groundedNumbers}/${grounding.totalNumbers} numbers verified)`);
+    let groundingScore = grounding.score;
+    console.log(`[Chat API] Grounding: ${groundingScore}% (${grounding.groundedNumbers}/${grounding.totalNumbers} numbers verified)`);
 
-    if (!grounding.passed && grounding.ungroundedNumbers.length > 0) {
+    if (!grounding.passed && grounding.ungroundedNumbers.length > 0 && regenCount < MAX_REGENS) {
       console.log(`[Chat API] Grounding failed — ungrounded numbers: ${grounding.ungroundedNumbers.map(n => n.original).join(', ')}`);
       try {
         const groundingPrefix = `CRITICAL: Your previous response contained numbers NOT found in the source documents: ${grounding.ungroundedNumbers.map(n => n.original).join(', ')}. Do NOT use these numbers. Only quote values that appear EXACTLY in the context below.\n\n`;
         const { text: regeneratedText } = await withTimeout(
-          fallbackClient.generateContent(groundingPrefix + fullPrompt, "gemini-2.5-flash"),
+          fallbackClient.generateContent(groundingPrefix + fullPrompt),
           TIMEOUTS.LLM_GENERATION,
           "LLM regeneration (grounding)"
         );
         finalResponseText = regeneratedText;
-        hasRegenerated = true;
+        regenCount++;
 
         const reGrounding = groundResponse(finalResponseText, chunks);
+        groundingScore = reGrounding.score;
         console.log(`[Chat API] Re-grounding: ${reGrounding.score}% (${reGrounding.groundedNumbers}/${reGrounding.totalNumbers})`);
       } catch (regenError) {
         console.warn(`[Chat API] Grounding regeneration failed, keeping original:`, regenError);
       }
     }
 
-    // C2: Response Self-Reflection — check if response answers the question
-    let coherenceScore = 100; // Default if skipped
-    if (!hasRegenerated && chunks.length > 0) {
-      try {
-        const validation = await validateResponseCoherence(cleanedQuery, finalResponseText);
-        coherenceScore = validation.coherenceScore;
-        console.log(`[Chat API] Coherence: ${coherenceScore}% — ${validation.reason}`);
+    // C1.5: Refusal Detection — catch false refusals (runs independently of grounding)
+    // Broadened patterns to catch more LLM refusal phrasings
+    const REFUSAL_PATTERNS = [
+      /I cannot (provide|answer|find|determine|locate)/i,
+      /not\s+(available|provided|included|found|present)\s+in\s+(the\s+)?(uploaded|provided|given)/i,
+      /unable to (answer|provide|find|determine)/i,
+      /I don['']t have (enough|sufficient)\s+information/i,
+      /does not contain\b/i,
+      /no relevant (data|information|content)/i,
+      /not (in|within) the (uploaded|provided) documents/i,
+      /cannot be determined from/i,
+      /not found in the uploaded/i,
+      /is not (?:included |covered |addressed )?in (?:the )?(?:uploaded|provided|given)/i,
+    ];
+    const detectRefusal = (text: string) => REFUSAL_PATTERNS.some(p => p.test(text));
 
-        if (!validation.passed && validation.missingAspects) {
+    if (detectRefusal(finalResponseText) && chunks.length > 0) {
+      // Multi-attempt anti-refusal loop (up to 2 attempts within regen budget)
+      const maxRefusalAttempts = 2;
+      for (let attempt = 1; attempt <= maxRefusalAttempts && regenCount < MAX_REGENS; attempt++) {
+        console.log(`[Chat API] False refusal detected (attempt ${attempt}) — regenerating with anti-refusal prompt`);
+        try {
+          const chunkSummary = chunks.slice(0, 3).map((c, i) =>
+            `[${i + 1}] Page ${c.page_number}: ${c.content.slice(0, 120)}...`
+          ).join('\n');
+          const refusalPrefix = `CRITICAL: Your previous response INCORRECTLY refused to answer. The retrieved document chunks DO contain relevant information. Here is a summary of what's available:\n${chunkSummary}\n\nRe-read the full context below and extract the relevant data. Present tables, values, and specifications you find. Only refuse if the context truly contains ZERO relevant information about the topic.\n\n`;
+          const { text: unrefusedText } = await withTimeout(
+            fallbackClient.generateContent(refusalPrefix + fullPrompt),
+            TIMEOUTS.LLM_GENERATION,
+            "LLM regeneration (anti-refusal)"
+          );
+          finalResponseText = unrefusedText;
+          regenCount++;
+          console.log(`[Chat API] Anti-refusal regeneration complete (attempt ${attempt})`);
+
+          // Check if the new response still refuses
+          if (!detectRefusal(finalResponseText)) {
+            console.log(`[Chat API] Refusal resolved after attempt ${attempt}`);
+            break;
+          }
+        } catch (regenError) {
+          console.warn(`[Chat API] Anti-refusal regeneration failed:`, regenError);
+          break;
+        }
+      }
+    }
+
+    // C2: Response Self-Reflection — coherence validation loop (up to 2 attempts)
+    let coherenceScore = 100; // Default if skipped
+    if (chunks.length > 0) {
+      const MAX_COHERENCE_ATTEMPTS = 2;
+      for (let attempt = 1; attempt <= MAX_COHERENCE_ATTEMPTS; attempt++) {
+        try {
+          const validation = await validateResponseCoherence(cleanedQuery, finalResponseText);
+          coherenceScore = validation.coherenceScore;
+          console.log(`[Chat API] Coherence (attempt ${attempt}): ${coherenceScore}% — ${validation.reason}`);
+
+          if (validation.passed) break; // Coherent enough, stop
+
+          if (regenCount >= MAX_REGENS) {
+            console.log(`[Chat API] Regen budget exhausted — keeping current response`);
+            break;
+          }
+
+          const coherencePrefix = validation.missingAspects
+            ? `IMPORTANT: Your previous answer did not address: ${validation.missingAspects}. Make sure to directly answer the user's question.\n\n`
+            : `IMPORTANT: Your previous answer did not adequately address the user's question. The retrieved document chunks contain relevant information. Extract and present the available data with citations, organizing tables and key data points clearly.\n\n`;
           console.log(`[Chat API] Low coherence — regenerating with guidance`);
           try {
-            const coherencePrefix = `IMPORTANT: Your previous answer did not address: ${validation.missingAspects}. Make sure to directly answer the user's question.\n\n`;
             const { text: coherentText } = await withTimeout(
-              fallbackClient.generateContent(coherencePrefix + fullPrompt, "gemini-2.5-flash"),
+              fallbackClient.generateContent(coherencePrefix + fullPrompt),
               TIMEOUTS.LLM_GENERATION,
               "LLM regeneration (coherence)"
             );
             finalResponseText = coherentText;
-            hasRegenerated = true;
-            coherenceScore = 70; // Assume improvement after regeneration
+            regenCount++;
           } catch (regenError) {
             console.warn(`[Chat API] Coherence regeneration failed, keeping original:`, regenError);
+            break;
           }
+        } catch (validationError) {
+          console.warn(`[Chat API] Coherence check failed, skipping:`, validationError);
+          break;
         }
-      } catch (validationError) {
-        console.warn(`[Chat API] Coherence check failed, skipping:`, validationError);
+      }
+    }
+    verificationSpan?.end({ output: { groundingScore, coherenceScore, regenCount } });
+
+    // C5.5: Confidence-driven final gate — regenerate if overall confidence is very low
+    // Placed before source building so the regenerated text gets proper citation remapping
+    const earlyConfidence = Math.round(
+      retrievalConfidence * 0.30 + groundingScore * 0.40 + coherenceScore * 0.30
+    );
+    if (earlyConfidence < 55 && chunks.length > 0 && regenCount < MAX_REGENS) {
+      console.log(`[Chat API] Low early confidence (${earlyConfidence}%) — triggering confidence-driven regeneration`);
+      let guidance = '';
+      if (retrievalConfidence < 50) {
+        guidance = 'Focus on extracting ANY relevant data from the provided context, even partial information. Present what IS available rather than refusing.';
+      } else if (groundingScore < 50) {
+        guidance = 'Ensure all numerical values you cite are EXACTLY as they appear in the source documents.';
+      } else if (coherenceScore < 50) {
+        guidance = 'Directly answer what was asked with specific data and citations from the context.';
+      } else {
+        guidance = 'Carefully re-read the context and provide a thorough, well-cited answer.';
+      }
+      try {
+        const { text: regenText } = await withTimeout(
+          fallbackClient.generateContent(`IMPORTANT: ${guidance}\n\n` + fullPrompt),
+          TIMEOUTS.LLM_GENERATION,
+          "LLM regeneration (confidence)"
+        );
+        if (!detectRefusal(regenText)) {
+          finalResponseText = regenText;
+          regenCount++;
+          const reGrounding = groundResponse(finalResponseText, chunks);
+          groundingScore = reGrounding.score;
+          console.log(`[Chat API] Confidence regen accepted — new grounding: ${groundingScore}%`);
+        } else {
+          console.log(`[Chat API] Confidence regen produced refusal — keeping original`);
+        }
+      } catch (regenError) {
+        console.warn(`[Chat API] Confidence regeneration failed:`, regenError);
       }
     }
 
@@ -631,7 +753,6 @@ RESPONSE GUIDELINES:
   // ========================================
   // Step 6: Compute Confidence & Return Response (C5)
   // ========================================
-  const groundingScore = grounding.score;
   const overallConfidence = Math.round(
     retrievalConfidence * 0.30 +
     groundingScore * 0.40 +
@@ -640,6 +761,13 @@ RESPONSE GUIDELINES:
 
   console.log(`[Chat API] Confidence: overall=${overallConfidence}% (retrieval=${retrievalConfidence}, grounding=${groundingScore}, coherence=${coherenceScore})`);
   console.log(`[Chat API] Returning response with ${sources.length} sources (${remappedResponse.length} chars)`);
+
+  // Finalize LangFuse trace
+  trace?.update({
+    output: { response: remappedResponse.slice(0, 500), sourceCount: sources.length, modelUsed },
+    metadata: { confidence: overallConfidence, retrievalConfidence, groundingScore, coherenceScore },
+  });
+  await flushLangfuse();
 
   return {
     response: remappedResponse,

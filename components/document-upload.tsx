@@ -217,7 +217,7 @@ export function DocumentUpload({ onUploadComplete }: DocumentUploadProps) {
   };
 
   return (
-    <Card className="border border-black/10">
+    <Card className="border border-black/10 dark:border-white/10">
       <CardContent className="p-6">
         {/* Show upload area only if no file or file has error */}
         {(!file || file.status === "error") && (
@@ -230,17 +230,17 @@ export function DocumentUpload({ onUploadComplete }: DocumentUploadProps) {
             onDrop={handleDrop}
             className={`
               border-2 border-dashed rounded-lg p-6 sm:p-8 text-center transition-colors
-              ${isDragging ? "border-black bg-black/5" : "border-black/20 hover:border-black/40"}
+              ${isDragging ? "border-black dark:border-white bg-black/5 dark:bg-white/5" : "border-black/20 dark:border-white/20 hover:border-black/40 dark:hover:border-white/40"}
             `}
           >
-            <Upload className="w-12 h-12 sm:w-10 sm:h-10 mx-auto mb-4 text-black/40" />
-            <p className="text-base sm:text-lg font-medium text-black mb-2">
+            <Upload className="w-12 h-12 sm:w-10 sm:h-10 mx-auto mb-4 text-black/40 dark:text-white/40" />
+            <p className="text-base sm:text-lg font-medium text-black dark:text-white mb-2">
               Drop your PDF here
             </p>
-            <p className="text-sm sm:text-base text-black/60 mb-2">
+            <p className="text-sm sm:text-base text-black/60 dark:text-white/60 mb-2">
               or click to browse your files
             </p>
-            <p className="text-xs sm:text-sm text-black/40 mb-4">
+            <p className="text-xs sm:text-sm text-black/40 dark:text-white/40 mb-4">
               Up to 50MB • 500+ pages supported
             </p>
             <input
@@ -264,30 +264,30 @@ export function DocumentUpload({ onUploadComplete }: DocumentUploadProps) {
             <div
               className={`flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 rounded-lg transition-all ${
                 file.status === "complete"
-                  ? "bg-green-50 border-2 border-green-500"
+                  ? "bg-green-50 dark:bg-green-950/30 border-2 border-green-500"
                   : file.status === "error"
-                  ? "bg-red-50 border-2 border-red-300"
-                  : "bg-black/5 border-2 border-black/10"
+                  ? "bg-red-50 dark:bg-red-950/30 border-2 border-red-300 dark:border-red-800"
+                  : "bg-black/5 dark:bg-white/5 border-2 border-black/10 dark:border-white/10"
               }`}
             >
               <div className="flex items-center gap-3 flex-1 min-w-0 w-full sm:w-auto">
                 <FileText className={`w-6 h-6 flex-shrink-0 ${
-                  file.status === "complete" ? "text-green-600" : "text-black/60"
+                  file.status === "complete" ? "text-green-600 dark:text-green-400" : "text-black/60 dark:text-white/60"
                 }`} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm sm:text-base font-medium text-black truncate">
+                  <p className="text-sm sm:text-base font-medium text-black dark:text-white truncate">
                     {file.name}
                   </p>
-                  <p className="text-xs sm:text-sm text-black/60">
+                  <p className="text-xs sm:text-sm text-black/60 dark:text-white/60">
                     {formatFileSize(file.size)}
                   </p>
                 </div>
                 <button
                   onClick={removeFile}
-                  className="p-2 touch-target hover:bg-black/10 rounded-full transition-colors sm:hidden"
+                  className="p-2 touch-target hover:bg-black/10 dark:hover:bg-white/10 rounded-full transition-colors sm:hidden"
                   title="Remove file"
                 >
-                  <X className="w-5 h-5 text-black/60" />
+                  <X className="w-5 h-5 text-black/60 dark:text-white/60" />
                 </button>
               </div>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
@@ -337,10 +337,10 @@ export function DocumentUpload({ onUploadComplete }: DocumentUploadProps) {
                 )}
                 <button
                   onClick={removeFile}
-                  className="hidden sm:block p-2 touch-target hover:bg-black/10 rounded-full transition-colors"
+                  className="hidden sm:block p-2 touch-target hover:bg-black/10 dark:hover:bg-white/10 rounded-full transition-colors"
                   title="Remove file"
                 >
-                  <X className="w-4 h-4 text-black/60" />
+                  <X className="w-4 h-4 text-black/60 dark:text-white/60" />
                 </button>
               </div>
             </div>
@@ -357,7 +357,7 @@ export function DocumentUpload({ onUploadComplete }: DocumentUploadProps) {
                 />
                 <label
                   htmlFor="file-replace"
-                  className="text-sm text-black/50 hover:text-black cursor-pointer transition-colors"
+                  className="text-sm text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white cursor-pointer transition-colors"
                 >
                   Upload a different document
                 </label>

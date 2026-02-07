@@ -67,6 +67,35 @@ function extractCodesFromFilename(filename: string): {
 }
 
 /**
+ * Extract specification codes from chunk content (broader matching than filename)
+ * Used to catch documents with non-standard filenames like "Casing_and_Tubing_Specifications.pdf"
+ */
+function extractCodesFromContent(content: string): {
+  astm: string[];
+  api: string[];
+} {
+  const upper = content.toUpperCase();
+
+  // ASTM A-series codes
+  const astmMatches = upper.match(/\bA\d{3,4}(?![M\d])/g) || [];
+  const uniqueAstm = [...new Set(astmMatches)];
+
+  // API spec codes — require "API" or "SPEC" context to avoid false positives
+  const apiMatches: string[] = [];
+  const apiRegex = /(?:API|SPEC(?:IFICATION)?)\s+(\d{1,2}[A-Z]{1,4})\b/gi;
+  let match;
+  while ((match = apiRegex.exec(upper)) !== null) {
+    const code = match[1];
+    if (/^\d{1,2}[A-Z]{1,4}$/.test(code)) {
+      apiMatches.push(code);
+    }
+  }
+  const uniqueApi = [...new Set(apiMatches)];
+
+  return { astm: uniqueAstm, api: uniqueApi };
+}
+
+/**
  * Refresh the document cache from database
  *
  * Builds a mapping from spec codes to document IDs.
@@ -126,6 +155,37 @@ async function refreshDocumentCache(): Promise<void> {
     console.log(
       `[Document Mapper] Document ${doc.id} (${doc.filename}): ASTM=[${astm.join(", ")}], UNS=[${uns.join(", ")}], API=[${api.join(", ")}]`
     );
+  }
+
+  // Phase 2: Extract codes from first 5 chunks per document
+  // This catches documents with non-standard filenames (e.g., "Casing_and_Tubing_Specifications.pdf")
+  for (const doc of documents) {
+    const { data: sampleChunks } = await supabase
+      .from("chunks")
+      .select("content")
+      .eq("document_id", doc.id)
+      .limit(5);
+
+    if (sampleChunks && sampleChunks.length > 0) {
+      const combined = sampleChunks.map(c => c.content).join(" ");
+      const contentCodes = extractCodesFromContent(combined);
+
+      const addedCodes: string[] = [];
+      for (const code of [...contentCodes.astm, ...contentCodes.api]) {
+        const existing = documentCache.get(code) || [];
+        if (!existing.includes(doc.id)) {
+          existing.push(doc.id);
+          documentCache.set(code, existing);
+          addedCodes.push(code);
+        }
+      }
+
+      if (addedCodes.length > 0) {
+        console.log(
+          `[Document Mapper] Document ${doc.id} content-extracted codes: [${addedCodes.join(", ")}]`
+        );
+      }
+    }
   }
 
   cacheTimestamp = Date.now();
@@ -234,9 +294,9 @@ export async function resolveSpecsToDocuments(
     }
   }
 
-  // Also check for API specifications in the query (e.g., "API 5CT", "API 6A")
+  // Also check for API specifications in the query (e.g., "API 5CT", "API 6A", "API-5CRA")
   if (fullQuery && rawAstmCodes.length === 0) {
-    const apiPattern = /\bAPI\s+(\d{1,2}[A-Z]{0,3})\b/i;
+    const apiPattern = /\bAPI[\s-]+(?:SPEC(?:IFICATION)?\s+)?(\d{1,2}[A-Z]{1,4})\b/i;
     const apiMatch = fullQuery.match(apiPattern);
     if (apiMatch) {
       const apiCode = apiMatch[1].toUpperCase();

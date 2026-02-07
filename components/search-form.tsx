@@ -78,10 +78,10 @@ export function SearchForm({
             disabled={isLoading}
             className={`w-full py-3 px-4 text-base rounded-lg border-2 transition-all duration-300
               ${query
-                ? 'bg-black/5 border-black text-black'
-                : 'bg-transparent border-black/20 text-black placeholder:text-black/40'
+                ? 'bg-black/5 dark:bg-white/5 border-black dark:border-white text-black dark:text-white'
+                : 'bg-transparent border-black/20 dark:border-white/20 text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40'
               }
-              focus:outline-none focus:border-black focus:bg-black/5
+              focus:outline-none focus:border-black dark:focus:border-white focus:bg-black/5 dark:focus:bg-white/5
               disabled:opacity-50`}
             placeholder="Ask about steel specs, compliance, or material properties..."
           />
@@ -93,7 +93,7 @@ export function SearchForm({
                 exit={{ opacity: 0, scale: 0.8 }}
                 type="button"
                 onClick={() => setQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-black/40 hover:text-black transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-colors"
                 aria-label="Clear search"
               >
                 <X className="h-4 w-4" />

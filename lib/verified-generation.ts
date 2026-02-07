@@ -177,7 +177,7 @@ export async function generateVerifiedResponse(
     }
 
     const { text, modelUsed } = await withTimeout(
-      fallbackClient.generateContent(enhancedPrompt + "\n\n" + userPrompt, "gemini-2.5-flash"),
+      fallbackClient.generateContent(enhancedPrompt + "\n\n" + userPrompt),
       TIMEOUTS.LLM_GENERATION,
       "LLM generation"
     );
@@ -258,7 +258,7 @@ export async function generateVerifiedResponse(
     docMap,
     finalVerification,
     knowledgeInsights,
-    "gemini-2.5-flash",
+    "claude-sonnet-4-5",
     wasRegenerated
   );
 }

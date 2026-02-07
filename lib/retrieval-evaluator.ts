@@ -79,7 +79,7 @@ Set retry_strategy to suggest how to improve retrieval if confidence < 60:
 - "more_candidates": Right topic but best answer might be in lower-ranked results`;
 
   try {
-    const { text } = await client.generateContent(prompt, "gemini-2.5-flash");
+    const { text } = await client.generateContent(prompt);
 
     let cleaned = text.trim();
     if (cleaned.startsWith('```')) {

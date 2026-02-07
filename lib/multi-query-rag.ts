@@ -26,6 +26,7 @@ import {
 } from "./latency-optimizer";
 import { evaluateRetrieval } from "./retrieval-evaluator";
 import { validateCoverage } from "./coverage-validator";
+import { getLangfuse } from "./langfuse";
 
 export interface MultiQueryRAGResult {
   chunks: HybridSearchResult[];
@@ -178,6 +179,10 @@ export async function multiQueryRAG(
     console.log(`[Multi-Query RAG] Section refs detected: [${sectionRefs.join(", ")}]`);
   }
 
+  // LangFuse tracing (opt-in)
+  const langfuse = getLangfuse();
+  const ragTrace = langfuse?.span({ name: "multi-query-rag-internal", input: { query, topK, documentIds } });
+
   // Step 1: Decompose query (skip for simple queries)
   let decomposition: DecomposedQuery;
   if (complexity.skipDecomposition) {
@@ -223,11 +228,12 @@ export async function multiQueryRAG(
     const coverage = validateCoverage(decomposition, allResults);
     console.log(`[Multi-Query RAG] Coverage: ${Math.round(coverage.coverageRatio * 100)}% (${decomposition.subqueries.length - coverage.missingSubqueries.length}/${decomposition.subqueries.length} sub-queries)`);
 
-    if (!coverage.covered) {
-      console.log(`[Multi-Query RAG] Missing sub-queries: ${coverage.missingSubqueries.join(', ')} — triggering gap fill`);
+    const subqueriesToBoost = [...coverage.missingSubqueries, ...coverage.thinSubqueries];
+    if (subqueriesToBoost.length > 0) {
+      console.log(`[Multi-Query RAG] Gap fill needed — missing: [${coverage.missingSubqueries.join(', ')}], thin: [${coverage.thinSubqueries.join(', ')}]`);
       try {
         const gapResults = await Promise.all(
-          coverage.missingSubqueries.map(async (subquery) => {
+          subqueriesToBoost.map(async (subquery) => {
             const results = await searchWithFallback(subquery, candidatesPerSubquery * 2, documentIds, sectionRefs);
             console.log(`[Multi-Query RAG] Gap fill for "${subquery}" returned ${results.length} results`);
             return results;
@@ -285,70 +291,107 @@ export async function multiQueryRAG(
   const evaluation = await evaluateRetrieval(query, finalChunks);
   console.log(`[Multi-Query RAG] Retrieval evaluation: confidence=${evaluation.confidence}, relevant=${evaluation.isRelevant}, reason="${evaluation.reason}"`);
 
-  if (!evaluation.isRelevant && evaluation.suggestedRetryStrategy) {
-    const strategy = evaluation.suggestedRetryStrategy;
-    console.log(`[Multi-Query RAG] Low confidence — adaptive retry with strategy: ${strategy}`);
+  // Adaptive retry with strategy tracking — avoids repeating ineffective strategies
+  const triedStrategies = new Set<string>();
+  let bestConfidence = evaluation.confidence;
+  const RETRY_STRATEGIES = ['section_lookup', 'broader_search', 'more_candidates'] as const;
+  const MAX_RETRIES = 2;
+  const MAX_RETRY_TIME_MS = 50000;
 
-    try {
-      let retryChunks: HybridSearchResult[];
-
-      if (strategy === 'broader_search') {
-        // Remove document/section filters, search all docs with more candidates
-        const retryCandidates = Math.ceil(60 / decomposition.subqueries.length);
-        const retryResults = await Promise.all(
-          decomposition.subqueries.map(async (subquery) => {
-            return await searchWithFallback(subquery, retryCandidates, null, null);
-          })
-        );
-        const retryMerged = mergeResults(retryResults);
-        console.log(`[Multi-Query RAG] Broader retry: ${retryMerged.length} candidates (no filters)`);
-        retryChunks = await rerankAndSelect(query, retryMerged, topK, decomposition.subqueries);
-      } else if (strategy === 'section_lookup') {
-        // Augment sub-queries with section keywords for better section matching
-        const sectionKeywords = extractSectionKeywords(query);
-        const retryCandidates = Math.ceil(40 / decomposition.subqueries.length);
-        const retryResults = await Promise.all(
-          decomposition.subqueries.map(async (subquery) => {
-            const augmented = sectionKeywords.length > 0
-              ? `${subquery} ${sectionKeywords.join(' ')}`
-              : subquery;
-            return await searchWithFallback(augmented, retryCandidates, documentIds, sectionRefs || sectionKeywords);
-          })
-        );
-        const retryMerged = mergeResults(retryResults);
-        console.log(`[Multi-Query RAG] Section retry: ${retryMerged.length} candidates (augmented with: ${sectionKeywords.join(', ')})`);
-        retryChunks = await rerankAndSelect(query, retryMerged, topK, decomposition.subqueries);
-      } else {
-        // 'more_candidates' — current behavior: 2x candidates
-        const retryCandidates = Math.ceil(80 / decomposition.subqueries.length);
-        const retryResults = await Promise.all(
-          decomposition.subqueries.map(async (subquery) => {
-            return await searchWithFallback(subquery, retryCandidates, documentIds, sectionRefs);
-          })
-        );
-        const retryMerged = mergeResults(retryResults);
-        console.log(`[Multi-Query RAG] More candidates retry: ${retryMerged.length} candidates (2x)`);
-        retryChunks = await rerankAndSelect(query, retryMerged, topK, decomposition.subqueries);
+  if (!evaluation.isRelevant) {
+    for (let retryAttempt = 0; retryAttempt < MAX_RETRIES; retryAttempt++) {
+      const elapsed = Date.now() - startTime;
+      if (elapsed > MAX_RETRY_TIME_MS) {
+        console.log(`[Multi-Query RAG] Retry time budget exhausted (${elapsed}ms) — stopping`);
+        break;
       }
 
-      // Evaluate retry results
-      const retryEvaluation = await evaluateRetrieval(query, retryChunks);
-      console.log(`[Multi-Query RAG] Retry evaluation: confidence=${retryEvaluation.confidence}`);
-
-      // Use whichever result set has higher confidence
-      if (retryEvaluation.confidence > evaluation.confidence) {
-        console.log(`[Multi-Query RAG] Retry improved confidence: ${evaluation.confidence} → ${retryEvaluation.confidence}`);
-        finalChunks = retryChunks;
-      } else {
-        console.log(`[Multi-Query RAG] Retry did not improve, keeping original results`);
+      // Pick strategy: use evaluator suggestion if untried, otherwise pick next untried
+      let strategy: string | undefined = evaluation.suggestedRetryStrategy;
+      if (!strategy || triedStrategies.has(strategy)) {
+        strategy = RETRY_STRATEGIES.find(s => !triedStrategies.has(s));
       }
-    } catch (retryError) {
-      console.warn(`[Multi-Query RAG] Retry failed, keeping original results:`, retryError);
+      if (!strategy) {
+        console.log(`[Multi-Query RAG] All retry strategies exhausted`);
+        break;
+      }
+
+      triedStrategies.add(strategy);
+      console.log(`[Multi-Query RAG] Retry attempt ${retryAttempt + 1} with strategy: ${strategy}`);
+
+      try {
+        let retryChunks: HybridSearchResult[];
+
+        if (strategy === 'broader_search') {
+          const retryCandidates = Math.ceil(60 / decomposition.subqueries.length);
+          const retryResults = await Promise.all(
+            decomposition.subqueries.map(async (subquery) => {
+              return await searchWithFallback(subquery, retryCandidates, null, null);
+            })
+          );
+          const retryMerged = mergeResults(retryResults);
+          console.log(`[Multi-Query RAG] Broader retry: ${retryMerged.length} candidates (no filters)`);
+          retryChunks = await rerankAndSelect(query, retryMerged, topK, decomposition.subqueries);
+        } else if (strategy === 'section_lookup') {
+          const sectionKeywords = extractSectionKeywords(query);
+          const retryCandidates = Math.ceil(40 / decomposition.subqueries.length);
+          const retryResults = await Promise.all(
+            decomposition.subqueries.map(async (subquery) => {
+              const augmented = sectionKeywords.length > 0
+                ? `${subquery} ${sectionKeywords.join(' ')}`
+                : subquery;
+              return await searchWithFallback(augmented, retryCandidates, documentIds, sectionRefs || sectionKeywords);
+            })
+          );
+          const retryMerged = mergeResults(retryResults);
+          console.log(`[Multi-Query RAG] Section retry: ${retryMerged.length} candidates (augmented with: ${sectionKeywords.join(', ')})`);
+          retryChunks = await rerankAndSelect(query, retryMerged, topK, decomposition.subqueries);
+        } else {
+          const retryCandidates = Math.ceil(80 / decomposition.subqueries.length);
+          const retryResults = await Promise.all(
+            decomposition.subqueries.map(async (subquery) => {
+              return await searchWithFallback(subquery, retryCandidates, documentIds, sectionRefs);
+            })
+          );
+          const retryMerged = mergeResults(retryResults);
+          console.log(`[Multi-Query RAG] More candidates retry: ${retryMerged.length} candidates (2x)`);
+          retryChunks = await rerankAndSelect(query, retryMerged, topK, decomposition.subqueries);
+        }
+
+        const retryEvaluation = await evaluateRetrieval(query, retryChunks);
+        console.log(`[Multi-Query RAG] Retry evaluation: confidence=${retryEvaluation.confidence}`);
+
+        if (retryEvaluation.confidence > bestConfidence) {
+          console.log(`[Multi-Query RAG] Retry improved confidence: ${bestConfidence} → ${retryEvaluation.confidence}`);
+          finalChunks = retryChunks;
+          bestConfidence = retryEvaluation.confidence;
+        } else {
+          console.log(`[Multi-Query RAG] Retry did not improve (${retryEvaluation.confidence} <= ${bestConfidence})`);
+        }
+
+        // If we've reached acceptable confidence, stop retrying
+        if (bestConfidence >= 60) {
+          console.log(`[Multi-Query RAG] Confidence sufficient (${bestConfidence}%) — stopping retries`);
+          break;
+        }
+      } catch (retryError) {
+        console.warn(`[Multi-Query RAG] Retry ${retryAttempt + 1} failed:`, retryError);
+      }
     }
   }
 
   const totalTime = Date.now() - startTime;
   console.log(`[Multi-Query RAG] Total pipeline time: ${totalTime}ms`);
+
+  ragTrace?.end({
+    output: {
+      chunkCount: finalChunks.length,
+      totalCandidates: merged.length,
+      reranked,
+      evaluationConfidence: evaluation.confidence,
+      totalTimeMs: totalTime,
+    },
+  });
 
   return {
     chunks: finalChunks,

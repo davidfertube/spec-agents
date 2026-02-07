@@ -62,17 +62,14 @@ USER QUESTION: ${cleanedQuery}
 Provide a helpful answer based on your general training knowledge. You may mention typical values or standards, but note that you cannot verify these against specific documents.`;
 
     // Generate response with timeout protection and automatic model fallback
-    // If gemini-2.5-flash is rate limited, automatically tries fallback models
+    // Primary: Claude Sonnet 4.5, falls back to Groq/Cerebras/OpenRouter
     const { text: responseText, modelUsed } = await withTimeout(
-      fallbackClient.generateContent(genericPrompt, "gemini-2.5-flash"),
+      fallbackClient.generateContent(genericPrompt),
       TIMEOUTS.LLM_GENERATION,
       "Generic LLM response generation"
     );
 
-    // Log which model was used (helpful for monitoring rate limits)
-    if (modelUsed !== "gemini-2.5-flash") {
-      console.log(`[Compare API] Used fallback model: ${modelUsed}`);
-    }
+    console.log(`[Compare API] Model used: ${modelUsed}`);
 
     // ========================================
     // Step 3: Return Response (No Sources)

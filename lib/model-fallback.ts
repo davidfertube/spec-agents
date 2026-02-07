@@ -2,20 +2,22 @@
  * Multi-Provider LLM Fallback System
  * ===================================
  *
- * Provides reliable LLM access by falling back across multiple free providers:
- * 1. Groq - 14,400 requests/day, ultra-fast (primary)
- * 2. Cerebras - 1M tokens/day, very fast
- * 3. Together AI - $25 free credits
- * 4. OpenRouter - 50-1000 requests/day, many free models
+ * Provides reliable LLM access by falling back across multiple providers:
+ * 1. Anthropic Claude Sonnet 4.5 - Primary (best accuracy for technical RAG)
+ * 2. Groq - Llama 3.3 70B (free tier fallback, ultra-fast)
+ * 3. Cerebras - Llama 3.3 70B (free tier fallback)
+ * 4. OpenRouter - Free models (last resort)
  *
  * Best models for steel specification RAG:
- * - Llama 3.1/3.3 70B: Best free option for technical accuracy
- * - Requires: accurate numerical extraction, citation following, no hallucination
+ * - Claude Sonnet 4.5: Best accuracy for technical documents, low hallucination
+ * - Claude Haiku 4.5: Fast fallback for simpler queries
+ * - Llama 3.3 70B: Best free option for technical accuracy
  */
 
 import Groq from "groq-sdk";
 import { sleep } from "@/lib/utils/sleep";
 import { isRateLimitError } from "@/lib/utils/error-detection";
+import { getLangfuse } from "@/lib/langfuse";
 
 // ============================================
 // Provider Configuration
@@ -30,12 +32,12 @@ interface ProviderConfig {
 }
 
 const PROVIDERS: ProviderConfig[] = [
-  // Anthropic Opus 4.5 - Primary provider (user has credits)
+  // Anthropic Claude - Primary provider (best technical accuracy)
   {
     name: "Anthropic",
     baseUrl: "https://api.anthropic.com/v1",
     envKey: "ANTHROPIC_API_KEY",
-    models: ["claude-3-5-sonnet-20241022", "claude-3-haiku-20240307", "claude-3-sonnet-20240229"],
+    models: ["claude-sonnet-4-5-20250929", "claude-haiku-4-5-20251001"],
   },
   // Fallback providers (free tiers)
   {
@@ -244,6 +246,17 @@ export class ModelFallbackClient {
           // Strip <think>...</think> tags from qwen/reasoning models
           const cleanText = text.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
 
+          // LangFuse generation tracking (opt-in)
+          try {
+            getLangfuse()?.generation({
+              name: "llm-call",
+              model: `${provider.name}/${model}`,
+              input: prompt.slice(0, 200),
+              output: cleanText.slice(0, 200),
+              metadata: { provider: provider.name, fullModel: model },
+            });
+          } catch { /* tracing should never block generation */ }
+
           return { text: cleanText, modelUsed: `${provider.name}/${model}` };
         } catch (error) {
           lastError = error instanceof Error ? error : new Error(String(error));
@@ -334,19 +347,17 @@ export function getEmbeddingRateLimiter(): EmbeddingRateLimiter {
 /**
  * Best models for steel specification RAG tasks:
  *
- * FREE TIER (Recommended order):
- * 1. Llama 3.3 70B (Groq/Cerebras) - Best accuracy for technical docs
- * 2. Llama 3.1 70B - Excellent numerical extraction
- * 3. Mixtral 8x7B - Good balance of speed/quality
+ * PRIMARY (Current):
+ * 1. Claude Sonnet 4.5 - Best accuracy for technical docs, excellent citation following
+ * 2. Claude Haiku 4.5 - Fast fallback, good for simpler queries
  *
- * PAID (If budget allows):
- * 1. Claude Opus 4.5 - Best overall for technical accuracy
- * 2. GPT-4o - Strong reasoning, good citations
- * 3. Claude Sonnet 4 - Good balance cost/quality
+ * FREE TIER FALLBACKS:
+ * 1. Llama 3.3 70B (Groq/Cerebras) - Best free option for technical accuracy
+ * 2. Llama 3.1 8B - Fast but less accurate, emergency fallback
  *
- * For this steel RAG task, Llama 3.3 70B is recommended because:
- * - Accurate numerical value extraction (yield strength, PREN, etc.)
- * - Good at following citation instructions
- * - Low hallucination rate on technical content
- * - Available free on multiple providers
+ * Claude Sonnet 4.5 is recommended for steel RAG because:
+ * - Superior numerical value extraction (yield strength, PREN, etc.)
+ * - Excellent at following citation instructions
+ * - Very low hallucination rate on technical content
+ * - Better table interpretation and data extraction from context
  */

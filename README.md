@@ -20,7 +20,7 @@ Evaluated against 80 golden queries across 8 ASTM/API documents:
 | **Source Citation** | 96.3% (77/80) |
 | **Hallucination Rate** | ~0% |
 | **P50 / P95 Latency** | 13.0s / 24.2s |
-| **Infrastructure Cost** | $0/month (all free tiers) |
+| **Infrastructure Cost** | ~$0/month (free tiers + low-volume API) |
 
 Complex multi-hop queries (comparisons, multi-part) score **96.9%** — higher than single-lookup queries.
 
@@ -60,8 +60,8 @@ graph LR
 
 | Layer | Technology | Rationale |
 |-------|------------|-----------|
-| **LLM** | Gemini 2.5 Flash | Primary generation + CoT prompting; free tier |
-| **LLM Fallback** | Groq → Cerebras → Together AI → OpenRouter | Auto-failover on rate limits via `model-fallback.ts` |
+| **LLM** | Claude Sonnet 4.5 | Primary generation + CoT prompting via Anthropic API |
+| **LLM Fallback** | Groq → Cerebras → OpenRouter | Auto-failover on rate limits via `model-fallback.ts` |
 | **Embeddings** | Voyage AI voyage-3-lite (1024-dim) | 200M tokens/month free, 1000+ RPM |
 | **Vector DB** | Supabase pgvector (HNSW) | PostgreSQL-native vectors + metadata + RLS in one DB |
 | **Framework** | Next.js 16, React 19, TypeScript | API routes eliminate separate backend |
@@ -87,12 +87,12 @@ BM25 keyword search + vector similarity search fused with adaptive weighting. Do
 **Key file:** `lib/hybrid-search.ts`
 
 ### 4. LLM Re-ranking
-Top 40 candidates scored by Gemini Flash on a 0-10 relevance scale, reduced to top 3. Chunks truncated to 800 characters — wide enough to preserve 6-8 table rows (header + data) for ASTM specification tables. Sub-query aware: chunks are scored against the specific sub-query that retrieved them.
+Top 40 candidates scored by Claude Sonnet 4.5 on a 0-10 relevance scale, reduced to top 5. Chunks truncated to 800 characters — wide enough to preserve 6-8 table rows (header + data) for ASTM specification tables. Sub-query aware: chunks are scored against the specific sub-query that retrieved them.
 
 **Key file:** `lib/reranker.ts`
 
 ### 5. Generation
-Gemini 2.5 Flash with a strict document-only chain-of-thought prompt. SSE streaming with 3-second heartbeat keeps connections alive past Vercel's 10-second hobby tier timeout. Formula guard injects refusal instructions when formulas are requested but not found in context. Cross-document dedup is intentionally document-scoped — chunks from different specs are never merged even with 80%+ vocabulary overlap.
+Claude Sonnet 4.5 with a strict document-only chain-of-thought prompt. SSE streaming with 3-second heartbeat keeps connections alive past Vercel's 10-second hobby tier timeout. Formula guard injects refusal instructions when formulas are requested but not found in context. Cross-document dedup is intentionally document-scoped — chunks from different specs are never merged even with 80%+ vocabulary overlap.
 
 **Key file:** `app/api/chat/route.ts`
 
@@ -106,9 +106,7 @@ Gemini 2.5 Flash with a strict document-only chain-of-thought prompt. SSE stream
 
 **Evaluation-Driven Development.** 80 golden queries across 8 documents with pattern-based validation. RAGAS LLM-as-judge metrics (faithfulness, relevancy). A789/A790 confusion matrix testing. Accuracy improved from 57% → 81% → 91.3% through systematic root cause analysis — the single biggest fix was widening the reranker chunk window from 400 to 800 characters so table data was visible during scoring (+4-6%).
 
-**Multi-Provider LLM Failover.** `model-fallback.ts` chains Gemini → Groq → Cerebras → OpenRouter with automatic switching on rate limit errors. Each provider uses OpenAI-compatible format. Zero-downtime on any single provider outage.
-
-**Zero-Cost Production Stack.** Voyage AI (200M tokens/month free), Gemini Flash (free tier), Supabase (500MB DB + 1GB storage free), Vercel (serverless free tier). No paid services required for MVP-scale usage.
+**Multi-Provider LLM Failover.** `model-fallback.ts` chains Claude → Groq → Cerebras → OpenRouter with automatic switching on rate limit errors. Each provider uses OpenAI-compatible format. Zero-downtime on any single provider outage.
 
 ---
 
@@ -119,7 +117,7 @@ git clone https://github.com/davidfertube/specvault.git
 cd specvault && npm install
 
 cp .env.example .env.local
-# Add: GOOGLE_API_KEY, VOYAGE_API_KEY, GROQ_API_KEY,
+# Add: ANTHROPIC_API_KEY, VOYAGE_API_KEY,
 #      NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 npm run dev    # http://localhost:3000
@@ -184,6 +182,8 @@ lib/
   semantic-chunking.ts         # Table-preserving variable-size chunking
   document-mapper.ts           # Spec code → document ID resolution
   model-fallback.ts            # Multi-provider LLM failover chain
+  verified-generation.ts       # Answer grounding + claim verification
+  langfuse.ts                  # Observability + RAG pipeline tracing
   embeddings.ts                # Voyage AI embedding client
   embedding-cache.ts           # 1-hour query embedding cache
   evaluation-engine.ts         # Pattern-based RAG evaluation
@@ -212,10 +212,8 @@ tests/
 
 ## Roadmap
 
-- [ ] BGE cross-encoder re-ranking (replace LLM reranking — 20-40% faster, no API cost)
-- [ ] Numerical fingerprinting in chunk metadata for exact number matching
-- [ ] User authentication (Clerk)
-- [ ] Multi-tenant workspace isolation
+- [ ] BGE cross-encoder re-ranking (replace LLM reranking — faster, no API cost)
+- [ ] User authentication (Clerk) + multi-tenant workspace isolation
 - [ ] In-app PDF viewer with citation highlighting
 - [ ] REST API for workflow integration
 

@@ -77,7 +77,7 @@ Respond ONLY with valid JSON (no markdown, no explanation):
 }`;
 
   try {
-    const { text } = await client.generateContent(prompt, "gemini-2.5-flash");
+    const { text } = await client.generateContent(prompt);
 
     // Clean up response - remove markdown code blocks if present
     let cleanedText = text.trim();

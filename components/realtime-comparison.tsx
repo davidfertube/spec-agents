@@ -288,9 +288,9 @@ export function RealtimeComparison({
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.7 }}
-                      className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded-md"
+                      className="mt-3 p-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-md"
                     >
-                      <p className="text-xs text-amber-700 flex items-center gap-1.5">
+                      <p className="text-xs text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
                         <AlertTriangle className="h-3 w-3" />
                         <span>AI-assisted — verify against source documents</span>
                       </p>

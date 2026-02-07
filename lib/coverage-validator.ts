@@ -18,6 +18,8 @@ export interface CoverageResult {
   coverageMap: Record<string, number>;
   /** Sub-queries with 0 matching chunks */
   missingSubqueries: string[];
+  /** Sub-queries with results but significantly fewer than others */
+  thinSubqueries: string[];
   /** Fraction of sub-queries covered (0-1) */
   coverageRatio: number;
 }
@@ -49,6 +51,19 @@ export function validateCoverage(
     }
   }
 
+  // Detect thin coverage: sub-queries with results but significantly fewer than others
+  const thinSubqueries: string[] = [];
+  const resultCounts = Object.values(coverageMap).filter(c => c > 0);
+  if (resultCounts.length >= 2) {
+    const maxCount = Math.max(...resultCounts);
+    const thinThreshold = Math.max(3, Math.floor(maxCount * 0.2));
+    for (const [subquery, count] of Object.entries(coverageMap)) {
+      if (count > 0 && count < thinThreshold) {
+        thinSubqueries.push(subquery);
+      }
+    }
+  }
+
   const totalSubqueries = decomposition.subqueries.length;
   const coveredCount = totalSubqueries - missingSubqueries.length;
   const coverageRatio = totalSubqueries > 0 ? coveredCount / totalSubqueries : 1;
@@ -57,6 +72,7 @@ export function validateCoverage(
     covered: missingSubqueries.length === 0,
     coverageMap,
     missingSubqueries,
+    thinSubqueries,
     coverageRatio,
   };
 }

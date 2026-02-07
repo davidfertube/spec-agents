@@ -55,11 +55,14 @@ Respond with ONLY valid JSON (no markdown):
 
 Scoring guide:
 - 80-100: Fully answers the question with specific data
-- 50-79: Partially answers but misses key aspects
-- 0-49: Doesn't address the question or gives irrelevant info`;
+- 60-79: Partially answers but misses key aspects
+- 30-59: Provides minimal or incomplete information
+- 0-29: Refuses to answer OR gives completely irrelevant info
+
+IMPORTANT: If the response says "I cannot answer" or "I cannot provide", score it 0-20 regardless of other content, and always set "missing" to describe what the user was asking for.`;
 
   try {
-    const { text } = await client.generateContent(prompt, "gemini-2.5-flash");
+    const { text } = await client.generateContent(prompt);
 
     let cleaned = text.trim();
     if (cleaned.startsWith('```')) {
@@ -71,9 +74,9 @@ Scoring guide:
 
     return {
       coherenceScore: score,
-      passed: score >= 50,
+      passed: score >= 60,
       reason: result.reason || "No reason provided",
-      missingAspects: score < 50 && result.missing ? result.missing : undefined,
+      missingAspects: score < 60 && result.missing ? result.missing : undefined,
     };
   } catch (error) {
     console.warn("[Response Validator] Validation failed, assuming coherent:", error);
