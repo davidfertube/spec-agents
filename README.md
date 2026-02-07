@@ -4,230 +4,231 @@
 [![Tests](https://github.com/davidfertube/specvault/actions/workflows/test.yml/badge.svg)](https://github.com/davidfertube/specvault/actions/workflows/test.yml)
 [![Deploy](https://img.shields.io/badge/Deploy-Vercel-black)](https://vercel.com/new/clone?repository-url=https://github.com/davidfertube/specvault)
 
-**AI-powered compliance verification tool for O&G materials engineers.** Query steel specifications instantly with traceable citations for compliance reports.
+**Production-grade RAG system for O&G materials compliance.** Upload steel specifications (ASTM, API, NACE), ask technical questions, get cited answers with zero hallucinations.
 
-[Live Demo](https://specvault.app) | [Documentation](CLAUDE.md) | [Contributing](CONTRIBUTING.md)
-
----
-
-## The Problem We Solve
-
-| Industry Pain Point | Impact | Our Solution |
-|---------------------|--------|--------------|
-| Engineers spend **2-4 hours/day** searching specs manually | $150K+/year in lost productivity per engineer | Instant AI-powered search across all specs |
-| Wrong material specification | **$10M+ liability** per incident | Every answer has traceable citations |
-| NACE/ASTM/API docs scattered across systems | Compliance audit failures | Single searchable knowledge base |
-| Junior engineers lack tribal knowledge | Extended onboarding, costly mistakes | AI assistant with senior-level expertise |
+[Live Demo](https://specvault.app) · [Developer Docs](CLAUDE.md) · [Contributing](CONTRIBUTING.md)
 
 ---
 
-## Built For Energy Industry Compliance
+## Performance
 
-### Supported Standards
-- **NACE MR0175/ISO 15156** - Sour service material requirements
-- **ASTM A106/A53/A333** - Pipe specifications
-- **API 5L/5CT** - Line pipe and casing
-- **ASME B31.3** - Process piping
+Evaluated against 80 golden queries across 8 ASTM/API documents:
 
-### Example Queries
-```
-"What is the maximum hardness for 4140 in sour service per NACE MR0175?"
-→ 22 HRC maximum per NACE MR0175 Section 7.3.1 [1]
+| Metric | Result |
+|--------|--------|
+| **Overall Accuracy** | 91.3% (73/80) |
+| **Source Citation** | 96.3% (77/80) |
+| **Hallucination Rate** | ~0% |
+| **P50 / P95 Latency** | 13.0s / 24.2s |
+| **Infrastructure Cost** | $0/month (all free tiers) |
 
-"Compare A106 Grade B vs A333 Grade 6 for low-temperature service"
-→ A333 Grade 6 is impact tested to -50°F, A106 is not rated for low-temp [1][2]
-
-"Does duplex 2205 meet PREN requirements for seawater service?"
-→ UNS S32205 has PREN ≥34, exceeds 32 minimum for seawater per NORSOK M-001 [1]
-```
+Complex multi-hop queries (comparisons, multi-part) score **96.9%** — higher than single-lookup queries.
 
 ---
 
-## Architecture Deep Dive
+## Architecture
 
-### RAG Pipeline Flow
+### Query Pipeline
 
 ```mermaid
 graph LR
-    A[PDF Upload] --> B[Text Extraction<br/>unpdf]
-    B --> C[Chunking<br/>2000 chars + overlap]
-    C --> D[Embedding<br/>voyage-3-lite]
-    D --> E[Supabase pgvector<br/>HNSW index]
+    A[User Query] --> B[Query Analysis]
+    B --> C[Multi-Query RAG]
+    C --> D[Hybrid Search]
+    D --> E[LLM Re-ranking]
+    E --> F[Generation]
+    F --> G[Cited Response]
 
-    F[User Query] --> G[Query Embedding<br/>cached]
-    G --> H[Hybrid Search<br/>BM25 + Vector]
-    H --> I[LLM Context<br/>Groq Llama 3.3]
-    I --> J[Cited Response]
+    style A fill:#1a1a2e,color:#fff
+    style G fill:#16213e,color:#fff
 ```
 
-### Technical Stack
+### Document Ingestion
 
-| Component | Technology | Why This Choice |
-|-----------|------------|-----------------|
-| Frontend | Next.js 16, React 19 | RSC for performance, API routes = no separate backend |
-| Backend | Next.js API Routes | Serverless, scales to zero, no infra to manage |
-| LLM | Groq Llama 3.3 70B | Free tier 14,400 req/day, fast inference, strong technical reasoning |
-| Embeddings | Voyage AI voyage-3-lite | 1024 dims, 200M tokens FREE/month, 1000+ RPM (vs Google's 100 RPM) |
-| Vector DB | Supabase pgvector | PostgreSQL-native, RLS built-in, familiar SQL |
-| Hosting | Vercel | One-click deploy, preview deployments, edge functions |
+```mermaid
+graph LR
+    A[PDF Upload] --> B[Text Extraction]
+    B --> C[Semantic Chunking]
+    C --> D[Embedding]
+    D --> E[pgvector Storage]
 
-### Why This Architecture Works
+    style A fill:#1a1a2e,color:#fff
+    style E fill:#16213e,color:#fff
+```
 
-1. **Serverless-First**: No servers to manage, scales to zero, pay-per-use
-2. **Single Database**: pgvector = vectors + metadata + auth all in PostgreSQL
-3. **Edge-Ready**: Vercel edge functions for low-latency global access
-4. **Cost-Optimized**: Free tier covers MVP, predictable scaling costs
+### Tech Stack
+
+| Layer | Technology | Rationale |
+|-------|------------|-----------|
+| **LLM** | Gemini 2.5 Flash | Primary generation + CoT prompting; free tier |
+| **LLM Fallback** | Groq → Cerebras → Together AI → OpenRouter | Auto-failover on rate limits via `model-fallback.ts` |
+| **Embeddings** | Voyage AI voyage-3-lite (1024-dim) | 200M tokens/month free, 1000+ RPM |
+| **Vector DB** | Supabase pgvector (HNSW) | PostgreSQL-native vectors + metadata + RLS in one DB |
+| **Framework** | Next.js 16, React 19, TypeScript | API routes eliminate separate backend |
+| **Hosting** | Vercel | Serverless, scales to zero |
 
 ---
 
-## Engineering Decisions & Trade-offs
+## 5-Stage RAG Pipeline
 
-### Why These Technology Choices?
+### 1. Query Analysis
+Extracts technical identifiers (UNS codes like `S32205`, ASTM specs like `A790`, API specs like `5CT`, grades like `316L`) and sets adaptive BM25/vector search weights. Queries with exact codes get higher keyword weight (0.6 BM25); natural language queries lean semantic (0.7 vector).
 
-| Decision | Chosen | Alternatives Considered | Rationale |
-|----------|--------|------------------------|-----------|
-| **Vector DB** | Supabase pgvector | Pinecone, Weaviate, Qdrant | PostgreSQL-native = one fewer service, RLS built-in, familiar SQL |
-| **LLM** | Groq Llama 3.3 70B | GPT-4, Claude, Gemini | Free 14,400 req/day, fast inference, strong technical reasoning |
-| **Embeddings** | Voyage AI voyage-3-lite | OpenAI ada-002, Google, Cohere | 200M tokens FREE/month, 1000+ RPM, 1024 dims optimized for retrieval |
-| **Framework** | Next.js 16 App Router | Remix, SvelteKit, Express+React | API routes = no separate backend, React 19 RSC for performance |
-| **Hosting** | Vercel | AWS, GCP, Railway | One-click deploy, preview deployments, edge functions |
+**Key file:** `lib/query-preprocessing.ts`
 
-### What I'd Do Differently at Scale
+### 2. Multi-Query Decomposition
+Complex queries are decomposed into parallel sub-queries. *"Compare A789 vs A790 yield strength for S32205"* becomes two independent lookups merged after retrieval. Simple queries skip decomposition entirely (fast path).
 
-| Current Approach | Scale Problem | Production Solution |
-|-----------------|---------------|---------------------|
-| Basic chunking (2000 chars) | Breaks tables mid-row | Smart chunking with Unstructured.io |
-| ~~Pure vector search~~ Hybrid search (IMPLEMENTED) | ~~Misses exact codes~~ ✅ BM25 catches exact codes | Hybrid search with query preprocessing (DONE) |
-| Estimated page numbers | Citations point to wrong pages | Accurate page extraction (unpdf mergePages: false) |
-| Single document | No multi-doc comparison | Document library with metadata filtering |
-| No auth | Public API abuse | Clerk + rate limiting with Upstash |
+**Key file:** `lib/multi-query-rag.ts`
 
-### Security Model
+### 3. Hybrid Search
+BM25 keyword search + vector similarity search fused with adaptive weighting. Document filtering via `document-mapper.ts` prevents cross-specification contamination — critical because A789 (tubing) and A790 (pipe) have different yield strengths for the same grade (70 ksi vs 65 ksi for S32205). Table content gets a +0.15 score boost.
 
-| Layer | Protection |
-|-------|------------|
-| Input | Zod validation, file type/size limits (50MB max) |
-| API | CORS configured, rate limiting (planned) |
-| Database | Row Level Security (RLS) on Supabase |
-| Secrets | Environment variables only, no hardcoded keys |
+**Key file:** `lib/hybrid-search.ts`
+
+### 4. LLM Re-ranking
+Top 40 candidates scored by Gemini Flash on a 0-10 relevance scale, reduced to top 3. Chunks truncated to 800 characters — wide enough to preserve 6-8 table rows (header + data) for ASTM specification tables. Sub-query aware: chunks are scored against the specific sub-query that retrieved them.
+
+**Key file:** `lib/reranker.ts`
+
+### 5. Generation
+Gemini 2.5 Flash with a strict document-only chain-of-thought prompt. SSE streaming with 3-second heartbeat keeps connections alive past Vercel's 10-second hobby tier timeout. Formula guard injects refusal instructions when formulas are requested but not found in context. Cross-document dedup is intentionally document-scoped — chunks from different specs are never merged even with 80%+ vocabulary overlap.
+
+**Key file:** `app/api/chat/route.ts`
+
+---
+
+## Engineering Highlights
+
+**Cross-Spec Contamination Prevention.** A789 and A790 share most of their content but have different mechanical properties for the same UNS designations. `document-mapper.ts` resolves ASTM/API codes to specific document IDs so queries like *"yield strength per A790"* never pull A789 data. Content-level dedup is scoped per-document, not globally.
+
+**Table-Preserving Semantic Chunking.** Variable-size chunks (1500 target, 800 min, 2500 max, 200 overlap) detect table boundaries and keep them intact. ASTM specification tables — the primary source of mechanical property data — are never split mid-row. Each chunk carries metadata: section title, chunk type (table/text/list), and detected technical codes.
+
+**Evaluation-Driven Development.** 80 golden queries across 8 documents with pattern-based validation. RAGAS LLM-as-judge metrics (faithfulness, relevancy). A789/A790 confusion matrix testing. Accuracy improved from 57% → 81% → 91.3% through systematic root cause analysis — the single biggest fix was widening the reranker chunk window from 400 to 800 characters so table data was visible during scoring (+4-6%).
+
+**Multi-Provider LLM Failover.** `model-fallback.ts` chains Gemini → Groq → Cerebras → OpenRouter with automatic switching on rate limit errors. Each provider uses OpenAI-compatible format. Zero-downtime on any single provider outage.
+
+**Zero-Cost Production Stack.** Voyage AI (200M tokens/month free), Gemini Flash (free tier), Supabase (500MB DB + 1GB storage free), Vercel (serverless free tier). No paid services required for MVP-scale usage.
 
 ---
 
 ## Quick Start
 
 ```bash
-# Clone and install
 git clone https://github.com/davidfertube/specvault.git
 cd specvault && npm install
 
-# Configure (get free API keys)
 cp .env.example .env.local
-# Add: VOYAGE_API_KEY, GROQ_API_KEY, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
+# Add: GOOGLE_API_KEY, VOYAGE_API_KEY, GROQ_API_KEY,
+#      NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-# Run
-npm run dev
-# Open http://localhost:3000
+npm run dev    # http://localhost:3000
 ```
 
+### Supabase Setup
+
+1. Create a project at [supabase.com](https://supabase.com)
+2. Run `supabase/schema.sql` in SQL Editor
+3. Run `supabase/migrations/002_voyage_embeddings.sql`
+4. Create a `documents` storage bucket
+
 ### One-Click Deploy
+
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/davidfertube/specvault)
 
 ---
 
-## Cost Analysis
+## Evaluation & Testing
 
-| Tier | Monthly Cost | Capacity |
-|------|--------------|----------|
-| **Free** | $0 | 100 queries/day, demos |
-| **Production** | $80-155 | 10K queries/month |
-| **Enterprise** | $220-420 | Unlimited, dedicated support |
+```bash
+# Unit tests
+npm test
+
+# 80-query accuracy suite (requires running dev server)
+npm run test:accuracy
+npm run test:accuracy:verbose
+
+# RAGAS LLM-as-judge evaluation
+npm run evaluation:rag
+npm run evaluation:rag:verbose
+
+# A789/A790 confusion matrix
+npm run test:confusion
+
+# Performance profiling
+npm run test:performance
+npm run test:bottleneck
+```
+
+Golden datasets: `tests/golden-dataset/*.json` — 8 specification files, 80+ queries with expected answers and validation patterns.
+
+---
+
+## Project Structure
+
+```
+app/
+  api/
+    chat/route.ts              # Main RAG endpoint (5-stage pipeline)
+    chat/compare/route.ts      # Generic LLM comparison (no RAG)
+    documents/process/route.ts  # PDF extraction → chunking → embedding
+    documents/upload/route.ts   # Upload confirmation
+    documents/upload-url/route.ts # Signed URL for direct upload
+    leads/route.ts             # Lead capture
+  page.tsx                     # Landing page
+lib/
+  multi-query-rag.ts           # Query decomposition + parallel retrieval
+  hybrid-search.ts             # BM25 + vector fusion search
+  reranker.ts                  # LLM-based re-ranking (800-char window)
+  query-preprocessing.ts       # Technical code extraction + adaptive weights
+  semantic-chunking.ts         # Table-preserving variable-size chunking
+  document-mapper.ts           # Spec code → document ID resolution
+  model-fallback.ts            # Multi-provider LLM failover chain
+  embeddings.ts                # Voyage AI embedding client
+  embedding-cache.ts           # 1-hour query embedding cache
+  evaluation-engine.ts         # Pattern-based RAG evaluation
+  rag-metrics.ts               # RAGAS-style LLM-as-judge metrics
+tests/
+  golden-dataset/              # 8 spec files, 80+ golden queries
+  evaluation/                  # Accuracy + confusion tests
+  performance/                 # Bottleneck profiling
+  stress/                      # k6 load testing
+```
+
+---
+
+## API
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/chat` | RAG query with SSE streaming → `{ response, sources }` |
+| POST | `/api/chat/compare` | Generic LLM comparison (no document context) |
+| POST | `/api/documents/upload` | Confirm PDF upload |
+| POST | `/api/documents/upload-url` | Get signed upload URL |
+| POST | `/api/documents/process` | Process PDF → extract, chunk, embed, store |
+| POST | `/api/leads` | Lead capture form |
 
 ---
 
 ## Roadmap
 
-### MVP (Current)
-- [x] PDF upload and processing
-- [x] Hybrid search (BM25 + vector) with technical code extraction
-- [x] Groq LLM integration (Llama 3.3 70B) with fallback
-- [x] Voyage AI embeddings with query caching
-- [x] Lead capture for enterprise interest
-- [x] Auto-scroll UX with animations
-- [x] Claim verification framework (0% hallucination rate)
-
-### Phase 2 (Post-Launch)
-- [ ] **Accurate page extraction** - unpdf mergePages: false for exact citations
-- [ ] **Smart chunking** - Preserve tables for better accuracy
-- [ ] **Unstructured.io integration** - Better table extraction for spec sheets
-- [ ] **User authentication** - Clerk integration
-- [ ] **Usage analytics** - Track query patterns
-
-### Phase 3 (Scale)
-- [ ] **Multi-tenant** - Separate document spaces per company
-- [ ] **API access** - Integrate into existing engineering workflows
-- [ ] **Compliance reports** - Auto-generate material compliance matrices
-
----
-
-## Lessons Learned
-
-### What Worked Well
-- **Voyage AI over Google**: 10x higher rate limits (1000+ vs 100 RPM), 200M tokens FREE/month
-- **Supabase pgvector**: One service to manage, SQL familiarity, RLS built-in, no separate vector DB
-- **Groq LLM**: Free tier 14,400 req/day, fast inference, strong technical reasoning
-- **Hybrid search**: BM25 catches exact codes (S31803, A790) that pure vector misses
-- **Next.js App Router**: API routes eliminate backend complexity
-- **Query embedding cache**: Instant repeat queries, reduces API calls by ~40%
-
-### What I'd Improve
-1. **Page Extraction**: Estimated pages (chunk_index/3) → Exact pages (unpdf mergePages: false)
-2. **Chunking Strategy**: Basic chunking breaks tables → Smart chunking preserves tables
-3. **Evaluation Coverage**: 57% accuracy on ASTM A1049 → Expand golden datasets to hit 95%
-3. **Caching**: No query caching. Would add Redis for repeated queries
-4. **Multi-tenancy**: Current design is single-tenant. Would add workspace isolation
-
-### Hard Problems Solved
-1. **Citation Accuracy**: Mapping LLM references back to exact source pages
-2. **Table Extraction**: PDFs have complex table structures, unpdf handles most cases
-3. **Embedding Dimension Mismatch**: Migrated from 768 to 3072 dims mid-project
+- [ ] BGE cross-encoder re-ranking (replace LLM reranking — 20-40% faster, no API cost)
+- [ ] Numerical fingerprinting in chunk metadata for exact number matching
+- [ ] User authentication (Clerk)
+- [ ] Multi-tenant workspace isolation
+- [ ] In-app PDF viewer with citation highlighting
+- [ ] REST API for workflow integration
 
 ---
 
 ## Built By
 
-**David Fernandez** | Senior Full-Stack Engineer
+**David Fernandez** — [Portfolio](https://davidfernandez.dev) · [GitHub](https://github.com/davidfertube)
 
-[Portfolio](https://davidfernandez.dev) | [GitHub](https://github.com/davidfertube)
-
-### What This Project Demonstrates
-
-| Competency | Evidence |
-|------------|----------|
-| **System Design** | End-to-end RAG architecture with clear trade-offs |
-| **Full-Stack** | Next.js 16, React 19, TypeScript, API design |
-| **AI/ML Engineering** | Vector embeddings, LLM prompt engineering, citation system |
-| **Production Mindset** | Security hardening, error handling, input validation |
-| **Domain Knowledge** | O&G materials, NACE/ASTM/API compliance requirements |
-| **DevOps** | CI/CD pipelines, one-click deployments |
-
-### Project Stats
-
-| Metric | Value |
-|--------|-------|
-| Development Time | ~3 weeks (solo) |
-| Lines of Code | ~5,000 TypeScript |
-| Test Coverage | Core API routes covered |
-| Dependencies | Minimal, production-ready |
-
-### Technologies I'd Use at Enterprise Scale
-
-- **Better PDF Parsing**: Azure Document Intelligence, Unstructured.io
-- **Hybrid Search**: Azure AI Search, Elasticsearch
-- **Observability**: Datadog, Sentry, structured logging
-- **Auth**: Clerk, Auth0, or Azure AD B2C
+Solo build. ~25,000 lines of TypeScript across 33 library modules, 7 API routes, 17 components, and an 80-query evaluation suite. Accuracy improved from 57% to 91.3% through systematic root cause analysis and evaluation-driven iteration.
 
 ---
 
 ## License
 
-[MIT](LICENSE) - Use freely, attribution appreciated.
+[MIT](LICENSE)

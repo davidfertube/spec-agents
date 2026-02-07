@@ -30,8 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files
 .env*
+.env*.local
 
 # vercel
 .vercel
@@ -40,31 +41,14 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Azure Functions
-backend/local.settings.json
-backend/.python_packages
-.azure
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.Python
-*.egg-info/
-.eggs/
-*.egg
-venv/
-.venv/
-
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 
+# Generated evaluation reports (CI creates these at runtime)
+/reports/
+
 # Data files (PDFs for ingestion)
 data/*.pdf
-
-# clerk configuration (can include secrets)
-/.clerk/
-.env*.local

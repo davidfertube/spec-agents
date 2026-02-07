@@ -13,6 +13,8 @@ import {
   aggregateMetrics,
 } from '../lib/evaluation-engine';
 
+const REPORTS_DIR = path.join(__dirname, '..', 'reports');
+
 interface ReportSummary {
   timestamp: string;
   totalQueries: number;
@@ -282,8 +284,13 @@ function generateMarkdownReport(
  * Main report generation function
  */
 async function main() {
-  const resultsPath = path.join(__dirname, 'evaluation-results.json');
-  const quickResultsPath = path.join(__dirname, 'quick-evaluation-results.json');
+  // Ensure reports directory exists
+  if (!fs.existsSync(REPORTS_DIR)) {
+    fs.mkdirSync(REPORTS_DIR, { recursive: true });
+  }
+
+  const resultsPath = path.join(REPORTS_DIR, 'evaluation-results.json');
+  const quickResultsPath = path.join(REPORTS_DIR, 'quick-evaluation-results.json');
 
   // Try to load results from either file
   let resultsData: { results: EvaluationResult[]; metrics: ComparisonMetrics } | null = null;
@@ -306,13 +313,13 @@ async function main() {
 
   // Generate summary JSON
   const summary = generateSummaryJson(metrics);
-  const summaryPath = path.join(__dirname, 'evaluation-summary.json');
+  const summaryPath = path.join(REPORTS_DIR, 'evaluation-summary.json');
   fs.writeFileSync(summaryPath, JSON.stringify(summary, null, 2));
   console.log(`Summary JSON written to: ${summaryPath}`);
 
   // Generate markdown report
   const report = generateMarkdownReport(results, metrics);
-  const reportPath = path.join(__dirname, 'evaluation-report.md');
+  const reportPath = path.join(REPORTS_DIR, 'evaluation-report.md');
   fs.writeFileSync(reportPath, report);
   console.log(`Markdown report written to: ${reportPath}`);
 

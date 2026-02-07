@@ -179,4 +179,3 @@ TOGETHER_API_KEY=xxx              # Together AI fallback
 - [MCP.md](MCP.md) - MCP server configuration
 - [CONTRIBUTING.md](CONTRIBUTING.md) - How to contribute
 - [SECURITY.md](SECURITY.md) - Security policy
-- [TECHNICAL-NARRATIVE.md](TECHNICAL-NARRATIVE.md) - 5-stage RAG pipeline details

@@ -1,4 +1,4 @@
-# MCP Configuration - Spec Agents
+# MCP Configuration - SpecVault
 
 ## Current Setup
 
@@ -74,6 +74,6 @@ Query documents table, inspect vector search results, debug indexed chunks direc
 
 ---
 
-## Legacy
+## Note
 
-`docs/archive/MCP.md` describes an aspirational MCP architecture (custom PDF processor, Voyage embedding server, etc.) that was planned but not implemented. The current system uses Next.js API routes directly instead of MCP servers for the RAG pipeline.
+An aspirational MCP architecture (custom PDF processor, Voyage embedding server, etc.) was planned but not implemented. The current system uses Next.js API routes directly instead of MCP servers for the RAG pipeline.

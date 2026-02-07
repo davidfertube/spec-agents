@@ -16,41 +16,38 @@ describe('API Client', () => {
 
   describe('queryKnowledgeBase', () => {
     it('should send query and return response on success', async () => {
-      const mockResponse = { response: 'Test response about steel specifications' };
+      const mockResponse = { response: 'Test response about steel specifications', sources: [] };
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
         json: () => Promise.resolve(mockResponse),
       });
 
       const result = await queryKnowledgeBase('What is A106 Grade B?');
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:8000/api/chat',
+        '/api/chat',
         expect.objectContaining({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: 'What is A106 Grade B?' }),
+          body: JSON.stringify({ query: 'What is A106 Grade B?', stream: true }),
         })
       );
       expect(result).toEqual(mockResponse);
     });
 
-    it('should fall back to demo mode on server error', async () => {
-      mockFetch.mockResolvedValue({
+    it('should throw ApiRequestError on server error', async () => {
+      mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 500,
         statusText: 'Internal Server Error',
         json: () => Promise.resolve({ detail: 'Server error occurred' }),
       });
 
-      // Demo fallback returns a response instead of throwing
-      const result = await queryKnowledgeBase('yield strength');
-      expect(result).toHaveProperty('response');
-      expect(result).toHaveProperty('sources');
-      expect(result.response).toContain('ASTM A106');
+      await expect(queryKnowledgeBase('yield strength')).rejects.toThrow(ApiRequestError);
     });
 
-    it('should fall back to demo mode on 404 error', async () => {
+    it('should throw ApiRequestError on 404 error', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 404,
@@ -58,19 +55,13 @@ describe('API Client', () => {
         json: () => Promise.reject(new Error('Invalid JSON')),
       });
 
-      // Demo fallback returns a response instead of throwing
-      const result = await queryKnowledgeBase('nace compliance');
-      expect(result).toHaveProperty('response');
-      expect(result.response).toContain('NACE');
+      await expect(queryKnowledgeBase('nace compliance')).rejects.toThrow(ApiRequestError);
     });
 
-    it('should fall back to demo mode on network error', async () => {
+    it('should throw ApiRequestError on network error', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-      // Demo fallback returns a response instead of throwing
-      const result = await queryKnowledgeBase('compare materials');
-      expect(result).toHaveProperty('response');
-      expect(result).toHaveProperty('sources');
+      await expect(queryKnowledgeBase('compare materials')).rejects.toThrow(ApiRequestError);
     });
   });
 
@@ -84,7 +75,7 @@ describe('API Client', () => {
 
       expect(result).toBe(true);
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:8000/health',
+        '/health',
         expect.objectContaining({
           method: 'GET',
         })
