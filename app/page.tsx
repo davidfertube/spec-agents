@@ -1021,6 +1021,7 @@ export default function Home() {
                           isLoading={isLoading}
                           error={error}
                           confidence={confidence}
+                          onRetry={() => setError(null)}
                         />
                       </motion.div>
                     </>

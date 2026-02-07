@@ -91,9 +91,9 @@ export async function POST(request: NextRequest) {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(result)}\n\n`));
         controller.close();
       } catch (error) {
-        // Send error response
-        const errorMsg = error instanceof Error ? error.message : "Unknown error";
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: errorMsg })}\n\n`));
+        // Send safe error response — never leak raw error messages to client
+        const { response } = handleApiError(error, "Chat API Stream");
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: response.error, code: response.code })}\n\n`));
         controller.close();
       } finally {
         clearInterval(heartbeatInterval);

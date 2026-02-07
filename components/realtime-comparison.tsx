@@ -24,6 +24,7 @@ interface RealtimeComparisonProps {
   isLoading: boolean;
   error: string | null;
   confidence?: ConfidenceScore | null;
+  onRetry?: () => void;
 }
 
 // Typewriter effect hook
@@ -126,6 +127,7 @@ export function RealtimeComparison({
   isLoading,
   error,
   confidence,
+  onRetry,
 }: RealtimeComparisonProps) {
   const steelAgent = useTypewriter(steelAgentResponse || "", 12);
   const genericLLM = useTypewriter(genericLLMResponse || "", 12);
@@ -147,9 +149,19 @@ export function RealtimeComparison({
       >
         <div className="flex items-start gap-3">
           <AlertTriangle className="h-5 w-5 text-destructive mt-0.5 shrink-0" />
-          <div className="space-y-1">
+          <div className="space-y-2">
             <p className="font-medium text-destructive">Error</p>
             <p className="text-sm text-destructive/90">{error}</p>
+            {onRetry && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRetry}
+                className="mt-2 border-destructive/50 text-destructive hover:bg-destructive/10"
+              >
+                Try again
+              </Button>
+            )}
           </div>
         </div>
       </motion.div>
