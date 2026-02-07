@@ -27,6 +27,7 @@ import {
 import { evaluateRetrieval } from "./retrieval-evaluator";
 import { validateCoverage } from "./coverage-validator";
 import { getLangfuse } from "./langfuse";
+import { withTimeout, TIMEOUTS } from "./timeout";
 
 export interface MultiQueryRAGResult {
   chunks: HybridSearchResult[];
@@ -72,7 +73,11 @@ async function rerankAndSelect(
 ): Promise<HybridSearchResult[]> {
   if (candidates.length > topK) {
     try {
-      const ranked = await rerankChunks(query, candidates, topK, subqueries);
+      const ranked = await withTimeout(
+        rerankChunks(query, candidates, topK, subqueries),
+        TIMEOUTS.RERANKING,
+        "Chunk reranking"
+      );
       return ranked.map(r => r.chunk);
     } catch {
       return candidates.sort((a, b) => b.combined_score - a.combined_score).slice(0, topK);
@@ -261,7 +266,11 @@ export async function multiQueryRAG(
   if (shouldRerank && merged.length > topK) {
     try {
       console.log(`[Multi-Query RAG] Re-ranking ${merged.length} candidates for ${decomposition.intent} query`);
-      const rankedResults = await rerankChunks(query, merged, topK, decomposition.subqueries);
+      const rankedResults = await withTimeout(
+        rerankChunks(query, merged, topK, decomposition.subqueries),
+        TIMEOUTS.RERANKING,
+        "Initial chunk reranking"
+      );
       finalChunks = rankedResults.map(r => r.chunk);
       reranked = true;
       console.log(`[Multi-Query RAG] Re-ranking complete, selected top ${topK}`);
@@ -285,10 +294,52 @@ export async function multiQueryRAG(
     console.log(`[Multi-Query RAG] Returning all ${finalChunks.length} candidates`);
   }
 
+  // P1: Cross-spec balanced retrieval
+  // When comparing multiple documents (e.g., A789 vs A790), ensure each
+  // document has at least 1 chunk in the final set. Without this, the
+  // reranker may select all chunks from one document since they share
+  // similar content, causing the LLM to miss data from the other spec.
+  if (documentIds && documentIds.length >= 2) {
+    const docChunkMap = new Map<number, HybridSearchResult[]>();
+    for (const chunk of finalChunks) {
+      const arr = docChunkMap.get(chunk.document_id) || [];
+      arr.push(chunk);
+      docChunkMap.set(chunk.document_id, arr);
+    }
+
+    const missingDocs = documentIds.filter(id => !docChunkMap.has(id));
+    if (missingDocs.length > 0) {
+      console.log(`[Multi-Query RAG] Cross-spec balance: ${missingDocs.length} doc(s) missing from final set — injecting best chunks`);
+      for (const missingDocId of missingDocs) {
+        // Find best chunk from merged candidates for this document
+        const bestFromDoc = merged
+          .filter(c => c.document_id === missingDocId)
+          .sort((a, b) => b.combined_score - a.combined_score)[0];
+
+        if (bestFromDoc) {
+          // Replace the lowest-scoring chunk in finalChunks
+          const lowestIdx = finalChunks.reduce((minIdx, chunk, idx, arr) =>
+            chunk.combined_score < arr[minIdx].combined_score ? idx : minIdx, 0);
+          console.log(`[Multi-Query RAG] Swapping chunk from doc ${finalChunks[lowestIdx].document_id} (score=${finalChunks[lowestIdx].combined_score.toFixed(3)}) with doc ${missingDocId} (score=${bestFromDoc.combined_score.toFixed(3)})`);
+          finalChunks[lowestIdx] = bestFromDoc;
+        }
+      }
+    }
+  }
+
   // ========================================
   // Step 5: Evaluate retrieval quality and retry if needed (agentic loop)
   // ========================================
-  const evaluation = await evaluateRetrieval(query, finalChunks);
+  const evaluation = await withTimeout(
+    evaluateRetrieval(query, finalChunks),
+    TIMEOUTS.RETRIEVAL_EVALUATION,
+    "Retrieval evaluation"
+  ).catch(() => ({
+    isRelevant: true as const,
+    confidence: 50,
+    reason: "Evaluation timed out, proceeding with available chunks",
+    suggestedRetryStrategy: undefined as string | undefined,
+  }));
   console.log(`[Multi-Query RAG] Retrieval evaluation: confidence=${evaluation.confidence}, relevant=${evaluation.isRelevant}, reason="${evaluation.reason}"`);
 
   // Adaptive retry with strategy tracking — avoids repeating ineffective strategies
@@ -296,7 +347,7 @@ export async function multiQueryRAG(
   let bestConfidence = evaluation.confidence;
   const RETRY_STRATEGIES = ['section_lookup', 'broader_search', 'more_candidates'] as const;
   const MAX_RETRIES = 2;
-  const MAX_RETRY_TIME_MS = 50000;
+  const MAX_RETRY_TIME_MS = 25000;
 
   if (!evaluation.isRelevant) {
     for (let retryAttempt = 0; retryAttempt < MAX_RETRIES; retryAttempt++) {
@@ -358,7 +409,16 @@ export async function multiQueryRAG(
           retryChunks = await rerankAndSelect(query, retryMerged, topK, decomposition.subqueries);
         }
 
-        const retryEvaluation = await evaluateRetrieval(query, retryChunks);
+        const retryEvaluation = await withTimeout(
+          evaluateRetrieval(query, retryChunks),
+          TIMEOUTS.RETRIEVAL_EVALUATION,
+          "Retry retrieval evaluation"
+        ).catch(() => ({
+          isRelevant: true as const,
+          confidence: bestConfidence,
+          reason: "Retry evaluation timed out",
+          suggestedRetryStrategy: undefined as string | undefined,
+        }));
         console.log(`[Multi-Query RAG] Retry evaluation: confidence=${retryEvaluation.confidence}`);
 
         if (retryEvaluation.confidence > bestConfidence) {

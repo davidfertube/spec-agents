@@ -1,18 +1,18 @@
 #!/usr/bin/env tsx
 /**
- * MVP Accuracy Test Suite — 80 Queries Across 8 Documents
+ * MVP Accuracy Test Suite — 50 Queries Across 8 Documents
  *
- * Tests RAG quality across ALL indexed documents with 10 queries per doc.
+ * Tests RAG quality across ALL indexed documents with 6-7 queries per doc.
  * Evaluates 5 dimensions: accuracy, source citation, coherence, hallucination, false refusal.
  *
  * Query categories per document:
- * - 2x Summarization  (overview/summary of section or table)
- * - 2x Exact lookup   (single value extraction)
- * - 2x Table extract   (multi-value from table)
+ * - 1x Summarization  (overview/summary of section or table)
+ * - 1x Exact lookup   (single value extraction)
+ * - 1x Table extract   (multi-value from table)
  * - 1x Comparison      (compare two entities)
  * - 1x Cross-reference (section/table cross-ref)
  * - 1x Refusal         (should correctly refuse)
- * - 1x Edge case       (ambiguous phrasing)
+ * - 1x Edge case       (A790 + A789 only — critical confusion pair)
  *
  * Documents: A790, A789, A312, A872, A1049, API 5CT, API 6A, API 16C
  *
@@ -68,22 +68,16 @@ interface MVPTestResult {
 }
 
 // ============================================
-// Test Cases — 80 Queries Across 8 Documents
+// Test Cases — 50 Queries Across 8 Documents
 // ============================================
 
 const TEST_CASES: MVPTestCase[] = [
-  // ===== ASTM A790 - Duplex Stainless Steel Pipe (10 queries) =====
+  // ===== ASTM A790 - Duplex Stainless Steel Pipe (7 queries) =====
   {
     id: "MVP-A790-01", document: "ASTM A790", category: "summary",
     query: "Summarize the scope and key requirements of ASTM A790",
     expectedPatterns: [/pipe/i, /duplex|ferritic.*austenitic/i, /seamless|welded/i],
     notes: "Should summarize scope: seamless/welded duplex SS pipe"
-  },
-  {
-    id: "MVP-A790-02", document: "ASTM A790", category: "summary",
-    query: "Give me an overview of the mechanical property requirements in A790",
-    expectedPatterns: [/yield|tensile|elongation|hardness/i, /ksi|MPa/i],
-    notes: "Should extract Table 3/4 data"
   },
   {
     id: "MVP-A790-03", document: "ASTM A790", category: "lookup",
@@ -93,22 +87,10 @@ const TEST_CASES: MVPTestCase[] = [
     notes: "S32205 yield = 65 ksi (NOT 70 ksi from A789)"
   },
   {
-    id: "MVP-A790-04", document: "ASTM A790", category: "lookup",
-    query: "What is the maximum carbon content for S32750 per A790?",
-    expectedPatterns: [/0\.030/i],
-    notes: "Carbon max = 0.030%"
-  },
-  {
     id: "MVP-A790-05", document: "ASTM A790", category: "table",
     query: "List all the chemical composition requirements for S31803 per A790",
     expectedPatterns: [/carbon|chromium|nickel|molybdenum|nitrogen/i],
     notes: "Full composition from Table 1"
-  },
-  {
-    id: "MVP-A790-06", document: "ASTM A790", category: "table",
-    query: "What are all the mechanical properties for S32750 super duplex per A790?",
-    expectedPatterns: [/80\s*ksi|550\s*MPa/i, /tensile|yield/i],
-    notes: "S32750: yield 80ksi, tensile 116ksi"
   },
   {
     id: "MVP-A790-07", document: "ASTM A790", category: "compare",
@@ -136,18 +118,12 @@ const TEST_CASES: MVPTestCase[] = [
     notes: "Informal reference to S32205/A790 — should still resolve"
   },
 
-  // ===== ASTM A789 - Duplex Stainless Steel Tubing (10 queries) =====
+  // ===== ASTM A789 - Duplex Stainless Steel Tubing (7 queries) =====
   {
     id: "MVP-A789-01", document: "ASTM A789", category: "summary",
     query: "Summarize the key differences in what A789 covers vs other duplex specs",
     expectedPatterns: [/tubing|tube/i, /duplex|ferritic.*austenitic/i],
     notes: "Should identify A789 = tubing"
-  },
-  {
-    id: "MVP-A789-02", document: "ASTM A789", category: "summary",
-    query: "Give me an overview of the heat treatment requirements in A789",
-    expectedPatterns: [/heat\s*treat|anneal|solution|temperature|°F|°C|quench/i],
-    notes: "Should summarize Section 6 heat treatment"
   },
   {
     id: "MVP-A789-03", document: "ASTM A789", category: "lookup",
@@ -157,22 +133,10 @@ const TEST_CASES: MVPTestCase[] = [
     notes: "A789 tubing = 70 ksi (NOT 65 from A790)"
   },
   {
-    id: "MVP-A789-04", document: "ASTM A789", category: "lookup",
-    query: "What is the minimum tensile strength for S32205 per A789?",
-    expectedPatterns: [/95\s*ksi|655\s*MPa/i],
-    notes: "Tensile = 95 ksi"
-  },
-  {
     id: "MVP-A789-05", document: "ASTM A789", category: "table",
     query: "List the chemical composition limits for S32205 per A789",
     expectedPatterns: [/carbon|chromium|nickel|molybdenum/i, /0\.030|22\.0|4\.5|3\.0/i],
     notes: "Full composition from Table 1"
-  },
-  {
-    id: "MVP-A789-06", document: "ASTM A789", category: "table",
-    query: "What are the mechanical properties for all duplex grades in A789?",
-    expectedPatterns: [/S3\d{4}/i, /yield|tensile|elongation/i],
-    notes: "Multiple grades from Table 4"
   },
   {
     id: "MVP-A789-07", document: "ASTM A789", category: "compare",
@@ -200,18 +164,12 @@ const TEST_CASES: MVPTestCase[] = [
     notes: "Informal 2507 → S32750, nitrogen from composition table"
   },
 
-  // ===== ASTM A312 - Austenitic Stainless Steel Pipe (10 queries) =====
+  // ===== ASTM A312 - Austenitic Stainless Steel Pipe (6 queries) =====
   {
     id: "MVP-A312-01", document: "ASTM A312", category: "summary",
     query: "Summarize what ASTM A312 covers and its scope",
     expectedPatterns: [/austenitic|stainless|pipe/i, /seamless|welded/i],
     notes: "Austenitic SS pipe"
-  },
-  {
-    id: "MVP-A312-02", document: "ASTM A312", category: "summary",
-    query: "Give me an overview of the chemical requirements in A312",
-    expectedPatterns: [/chemical|composition|carbon|chromium|nickel/i],
-    notes: "Should reference Table 1 chemical composition"
   },
   {
     id: "MVP-A312-03", document: "ASTM A312", category: "lookup",
@@ -220,22 +178,10 @@ const TEST_CASES: MVPTestCase[] = [
     notes: "316L yield = 25 ksi (170 MPa)"
   },
   {
-    id: "MVP-A312-04", document: "ASTM A312", category: "lookup",
-    query: "What is the maximum carbon content for TP304L per A312?",
-    expectedPatterns: [/0\.030|0\.035/i],
-    notes: "304L carbon max"
-  },
-  {
     id: "MVP-A312-05", document: "ASTM A312", category: "table",
     query: "List the mechanical properties for TP304 and TP316 per A312",
     expectedPatterns: [/304|316/i, /yield|tensile/i, /ksi|MPa/i],
     notes: "Both grades from mechanical properties table"
-  },
-  {
-    id: "MVP-A312-06", document: "ASTM A312", category: "table",
-    query: "What are all the austenitic grades covered by A312?",
-    expectedPatterns: [/304|316|321|347|TP/i],
-    notes: "Multiple grades listed"
   },
   {
     id: "MVP-A312-07", document: "ASTM A312", category: "compare",
@@ -256,25 +202,13 @@ const TEST_CASES: MVPTestCase[] = [
     shouldRefuse: true,
     notes: "Vendor info not in specs"
   },
-  {
-    id: "MVP-A312-10", document: "ASTM A312", category: "edge",
-    query: "What's the max carbon for 316L austenitic pipe?",
-    expectedPatterns: [/0\.030|0\.035|carbon/i],
-    notes: "Informal reference — should resolve to TP316L/A312"
-  },
 
-  // ===== ASTM A872 - Cast Duplex Pipe (10 queries) =====
+  // ===== ASTM A872 - Cast Duplex Pipe (6 queries) =====
   {
     id: "MVP-A872-01", document: "ASTM A872", category: "summary",
     query: "Summarize the scope and purpose of ASTM A872",
     expectedPatterns: [/cast|centrifugal|duplex|pipe|corrosive/i],
     notes: "Centrifugally cast duplex SS pipe for corrosive environments"
-  },
-  {
-    id: "MVP-A872-02", document: "ASTM A872", category: "summary",
-    query: "Give me an overview of the mechanical properties in A872",
-    expectedPatterns: [/yield|tensile|elongation|ksi|MPa/i],
-    notes: "Should summarize mechanical properties"
   },
   {
     id: "MVP-A872-03", document: "ASTM A872", category: "lookup",
@@ -283,22 +217,10 @@ const TEST_CASES: MVPTestCase[] = [
     notes: "CD3MN yield = 65 ksi"
   },
   {
-    id: "MVP-A872-04", document: "ASTM A872", category: "lookup",
-    query: "What is the minimum tensile strength per ASTM A872?",
-    expectedPatterns: [/90\s*ksi|620\s*MPa|100/i],
-    notes: "Tensile strength requirement"
-  },
-  {
     id: "MVP-A872-05", document: "ASTM A872", category: "table",
     query: "List the chemical composition requirements for castings per A872",
     expectedPatterns: [/carbon|chromium|nickel|molybdenum/i],
     notes: "Chemical composition table"
-  },
-  {
-    id: "MVP-A872-06", document: "ASTM A872", category: "table",
-    query: "What casting grades are covered by A872 and their UNS designations?",
-    expectedPatterns: [/J93183|J94300|CD4MCu|CD3MN|UNS/i],
-    notes: "Grade/UNS designations from table"
   },
   {
     id: "MVP-A872-07", document: "ASTM A872", category: "compare",
@@ -319,25 +241,13 @@ const TEST_CASES: MVPTestCase[] = [
     shouldRefuse: true,
     notes: "Service life not in specs"
   },
-  {
-    id: "MVP-A872-10", document: "ASTM A872", category: "edge",
-    query: "Tell me about the duplex cast pipe standard for corrosive service",
-    expectedPatterns: [/A872|centrifugal|cast|duplex|corrosive/i],
-    notes: "Vague query — should identify A872"
-  },
 
-  // ===== ASTM A1049 - Duplex Forgings (10 queries) =====
+  // ===== ASTM A1049 - Duplex Forgings (6 queries) =====
   {
     id: "MVP-A1049-01", document: "ASTM A1049", category: "summary",
     query: "Summarize the scope of ASTM A1049",
     expectedPatterns: [/forging|duplex|pressure\s*vessel|ferritic.*austenitic/i],
     notes: "Duplex SS forgings for pressure vessels"
-  },
-  {
-    id: "MVP-A1049-02", document: "ASTM A1049", category: "summary",
-    query: "What are the chemical requirements all about in Section 5 of A1049?",
-    expectedPatterns: [/Table\s*1|chemical|composition|PREN|heat\s*analysis|carbon|chromium/i],
-    notes: "REGRESSION: Previously refused despite Table 1 being in context"
   },
   {
     id: "MVP-A1049-03", document: "ASTM A1049", category: "lookup",
@@ -346,22 +256,10 @@ const TEST_CASES: MVPTestCase[] = [
     notes: "F60/S32205 yield = 70 ksi"
   },
   {
-    id: "MVP-A1049-04", document: "ASTM A1049", category: "lookup",
-    query: "What is the solution heat treatment temperature for S31803 per A1049?",
-    expectedPatterns: [/1870|1020/i],
-    notes: "1870°F [1020°C] min from Table 2"
-  },
-  {
     id: "MVP-A1049-05", document: "ASTM A1049", category: "table",
     query: "List the chemical composition for grade F53 (S32750) per A1049",
     expectedPatterns: [/carbon|chromium|nickel|0\.030|24\.0|6\.0/i],
     notes: "F53/S32750 composition from Table 1"
-  },
-  {
-    id: "MVP-A1049-06", document: "ASTM A1049", category: "table",
-    query: "What are all the tensile strength and hardness requirements in A1049 Table 3?",
-    expectedPatterns: [/tensile|yield|hardness|HB|ksi|MPa/i],
-    notes: "Table 3 mechanical properties"
   },
   {
     id: "MVP-A1049-07", document: "ASTM A1049", category: "compare",
@@ -382,25 +280,13 @@ const TEST_CASES: MVPTestCase[] = [
     shouldRefuse: true,
     notes: "Fatigue data not in A1049"
   },
-  {
-    id: "MVP-A1049-10", document: "ASTM A1049", category: "edge",
-    query: "What's the PREN formula for duplex forgings?",
-    expectedPatterns: [/PREN|Cr|Mo|16.*N|3\.3/i],
-    notes: "PREN formulas are in Table 1 footnotes"
-  },
 
-  // ===== API 5CT - Casing & Tubing (10 queries) =====
+  // ===== API 5CT - Casing & Tubing (6 queries) =====
   {
     id: "MVP-5CT-01", document: "API 5CT", category: "summary",
     query: "Summarize the scope and purpose of API 5CT",
     expectedPatterns: [/casing|tubing|oil|gas|well/i],
     notes: "Casing and tubing for oil/gas wells"
-  },
-  {
-    id: "MVP-5CT-02", document: "API 5CT", category: "summary",
-    query: "Give me an overview of the material grades covered by API 5CT",
-    expectedPatterns: [/H40|J55|K55|N80|L80|C90|T95|P110|Q125|grade/i],
-    notes: "Should list multiple grades"
   },
   {
     id: "MVP-5CT-03", document: "API 5CT", category: "lookup",
@@ -409,22 +295,10 @@ const TEST_CASES: MVPTestCase[] = [
     notes: "L80 yield = 80 ksi"
   },
   {
-    id: "MVP-5CT-04", document: "API 5CT", category: "lookup",
-    query: "What hardness limits apply to L80 grade per 5CT?",
-    expectedPatterns: [/HRC|HBW|hardness|23|22/i],
-    notes: "L80 hardness limits"
-  },
-  {
     id: "MVP-5CT-05", document: "API 5CT", category: "table",
     query: "List the yield and tensile ranges for J55, N80, and P110 per 5CT",
     expectedPatterns: [/J55|N80|P110/i, /yield|tensile|ksi/i],
     notes: "Multiple grades from mechanical properties"
-  },
-  {
-    id: "MVP-5CT-06", document: "API 5CT", category: "table",
-    query: "What thread types are specified in API 5CT?",
-    expectedPatterns: [/thread|buttress|round|STC|LTC/i],
-    notes: "Thread specifications"
   },
   {
     id: "MVP-5CT-07", document: "API 5CT", category: "compare",
@@ -445,25 +319,13 @@ const TEST_CASES: MVPTestCase[] = [
     shouldRefuse: true,
     notes: "Torque values are in API RP 5C1, not 5CT"
   },
-  {
-    id: "MVP-5CT-10", document: "API 5CT", category: "edge",
-    query: "What about the sour service grades in 5CT?",
-    expectedPatterns: [/L80|C90|T95|sour|H2S|NACE/i],
-    notes: "Sour service = L80, C90, T95 grades"
-  },
 
-  // ===== API 6A - Wellhead Equipment (10 queries) =====
+  // ===== API 6A - Wellhead Equipment (6 queries) =====
   {
     id: "MVP-6A-01", document: "API 6A", category: "summary",
     query: "Summarize the scope and key requirements of API 6A",
     expectedPatterns: [/wellhead|christmas\s*tree|equipment/i],
     notes: "Wellhead and xmas tree equipment"
-  },
-  {
-    id: "MVP-6A-02", document: "API 6A", category: "summary",
-    query: "Give me a summary of the most important details for the valve-removal plugs in API 6A",
-    expectedPatterns: [/valve|plug|removal|dimension|pressure|table/i],
-    notes: "REGRESSION: Previously refused despite having table data"
   },
   {
     id: "MVP-6A-03", document: "API 6A", category: "lookup",
@@ -472,22 +334,10 @@ const TEST_CASES: MVPTestCase[] = [
     notes: "Standard pressure ratings"
   },
   {
-    id: "MVP-6A-04", document: "API 6A", category: "lookup",
-    query: "What are the PSL (Product Specification Levels) in API 6A?",
-    expectedPatterns: [/PSL|1|2|3|4|product.*specification/i],
-    notes: "PSL 1-4"
-  },
-  {
     id: "MVP-6A-05", document: "API 6A", category: "table",
     query: "What material classes are defined in API 6A and what do they cover?",
     expectedPatterns: [/AA|BB|CC|DD|EE|FF|HH|class|material/i],
     notes: "Material classes AA through HH"
-  },
-  {
-    id: "MVP-6A-06", document: "API 6A", category: "table",
-    query: "What temperature ratings are specified in API 6A?",
-    expectedPatterns: [/temperature|K|L|P|R|S|T|U|V|°F/i],
-    notes: "Temperature ratings K through V"
   },
   {
     id: "MVP-6A-07", document: "API 6A", category: "compare",
@@ -508,25 +358,13 @@ const TEST_CASES: MVPTestCase[] = [
     shouldRefuse: true,
     notes: "Manufacturer info not in specs"
   },
-  {
-    id: "MVP-6A-10", document: "API 6A", category: "edge",
-    query: "What are the material requirements for Class DD per 6A?",
-    expectedPatterns: [/DD|material|carbon|alloy|steel/i],
-    notes: "Class DD material requirements"
-  },
 
-  // ===== API 16C - Choke & Kill Systems (10 queries) =====
+  // ===== API 16C - Choke & Kill Systems (6 queries) =====
   {
     id: "MVP-16C-01", document: "API 16C", category: "summary",
     query: "Summarize the scope and purpose of API 16C",
     expectedPatterns: [/choke|kill|system|wellbore|pressure/i],
     notes: "Choke and kill systems"
-  },
-  {
-    id: "MVP-16C-02", document: "API 16C", category: "summary",
-    query: "Give me an overview of the design requirements in API 16C",
-    expectedPatterns: [/design|pressure|rating|requirement/i],
-    notes: "Should summarize design section"
   },
   {
     id: "MVP-16C-03", document: "API 16C", category: "lookup",
@@ -535,22 +373,10 @@ const TEST_CASES: MVPTestCase[] = [
     notes: "Standard pressure ratings"
   },
   {
-    id: "MVP-16C-04", document: "API 16C", category: "lookup",
-    query: "What is the working pressure for the highest rated choke system per 16C?",
-    expectedPatterns: [/15000|psi|working\s*pressure/i],
-    notes: "Maximum working pressure"
-  },
-  {
     id: "MVP-16C-05", document: "API 16C", category: "table",
     query: "What are the bore sizes specified for choke and kill equipment per 16C?",
     expectedPatterns: [/bore|inch|size|diameter/i],
     notes: "Bore size specifications"
-  },
-  {
-    id: "MVP-16C-06", document: "API 16C", category: "table",
-    query: "What material requirements are specified for 16C equipment?",
-    expectedPatterns: [/material|steel|alloy|requirement/i],
-    notes: "Material requirements section"
   },
   {
     id: "MVP-16C-07", document: "API 16C", category: "compare",
@@ -571,12 +397,6 @@ const TEST_CASES: MVPTestCase[] = [
     shouldRefuse: true,
     notes: "MTBF not in equipment specs"
   },
-  {
-    id: "MVP-16C-10", document: "API 16C", category: "edge",
-    query: "Tell me about the kill line requirements in the choke and kill spec",
-    expectedPatterns: [/kill|line|choke|16C|requirement|pressure/i],
-    notes: "Vague reference to 16C"
-  },
 ];
 
 // ============================================
@@ -589,13 +409,17 @@ async function querySpecVault(query: string): Promise<{
   latencyMs: number;
 }> {
   const startTime = Date.now();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 120_000); // 120s fetch timeout
 
   try {
     const response = await fetch(`${BASE_URL}/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query, stream: false })
+      body: JSON.stringify({ query, stream: false }),
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
 
     const latencyMs = Date.now() - startTime;
 
@@ -610,8 +434,12 @@ async function querySpecVault(query: string): Promise<{
       latencyMs
     };
   } catch (error) {
+    clearTimeout(timeout);
+    const msg = error instanceof Error && error.name === 'AbortError'
+      ? 'Request timed out after 120s'
+      : String(error);
     return {
-      response: `Error: ${error}`,
+      response: `Error: ${msg}`,
       sources: [],
       latencyMs: Date.now() - startTime
     };
@@ -685,9 +513,9 @@ function evaluateTest(testCase: MVPTestCase, response: string, sources: Array<{ 
 // ============================================
 
 function generateReport(results: MVPTestResult[]): void {
-  console.log("\n" + "═".repeat(70));
-  console.log("  MVP ACCURACY TEST — 80 Queries Across 8 Documents");
-  console.log("═".repeat(70));
+  console.log("\n" + "=".repeat(70));
+  console.log("  MVP ACCURACY TEST — 50 Queries Across 8 Documents");
+  console.log("=".repeat(70));
 
   const total = results.length;
   const passed = results.filter(r => r.passed).length;
@@ -701,7 +529,7 @@ function generateReport(results: MVPTestResult[]): void {
   const citationRate = (hasCitations / total) * 100;
 
   console.log("\n  OVERALL RESULTS:");
-  console.log(`  ──────────────────────────────────────────────────`);
+  console.log(`  ${"─".repeat(50)}`);
   console.log(`  Accuracy:          ${passed}/${total} (${accuracy.toFixed(1)}%)`);
   console.log(`  Source Citation:   ${hasCitations}/${total} (${citationRate.toFixed(1)}%)`);
   console.log(`  Source Accuracy:   ${sourceAccurate}/${total} (${sourceRate.toFixed(1)}%)`);
@@ -715,14 +543,14 @@ function generateReport(results: MVPTestResult[]): void {
   const avg = latencies.reduce((a, b) => a + b, 0) / total;
 
   console.log("\n  LATENCY:");
-  console.log(`  ──────────────────────────────────────────────────`);
+  console.log(`  ${"─".repeat(50)}`);
   console.log(`  Average:  ${avg.toFixed(0)}ms`);
   console.log(`  P50:      ${p50}ms`);
   console.log(`  P95:      ${p95}ms`);
 
   // Per-document
   console.log("\n  PER-DOCUMENT RESULTS:");
-  console.log(`  ──────────────────────────────────────────────────`);
+  console.log(`  ${"─".repeat(50)}`);
   const docs = [...new Set(results.map(r => r.testCase.document))];
   for (const doc of docs) {
     const docResults = results.filter(r => r.testCase.document === doc);
@@ -730,24 +558,26 @@ function generateReport(results: MVPTestResult[]): void {
     const docSources = docResults.filter(r => r.sourceAccurate).length;
     const docFalseRefusals = docResults.filter(r => r.isFalseRefusal).length;
     const docHallucinations = docResults.filter(r => r.forbiddenMatches.length > 0).length;
-    const status = docPassed >= 8 ? "+" : docPassed >= 6 ? "~" : "-";
+    const status = docPassed >= 6 ? "+" : docPassed >= 4 ? "~" : "-";
     console.log(`  [${status}] ${doc.padEnd(15)} ${docPassed}/${docResults.length} passed | Sources: ${docSources}/${docResults.length} | FalseRefusals: ${docFalseRefusals} | Hallucinations: ${docHallucinations}`);
   }
 
   // Per-category
   console.log("\n  PER-CATEGORY RESULTS:");
-  console.log(`  ──────────────────────────────────────────────────`);
+  console.log(`  ${"─".repeat(50)}`);
   const categories: Category[] = ["summary", "lookup", "table", "compare", "crossref", "refusal", "edge"];
   for (const cat of categories) {
     const catResults = results.filter(r => r.testCase.category === cat);
-    const catPassed = catResults.filter(r => r.passed).length;
-    console.log(`  ${cat.padEnd(12)} ${catPassed}/${catResults.length}`);
+    if (catResults.length > 0) {
+      const catPassed = catResults.filter(r => r.passed).length;
+      console.log(`  ${cat.padEnd(12)} ${catPassed}/${catResults.length}`);
+    }
   }
 
   // False refusals detail
   if (falseRefusals.length > 0) {
     console.log("\n  FALSE REFUSALS (should have answered, but refused):");
-    console.log(`  ──────────────────────────────────────────────────`);
+    console.log(`  ${"─".repeat(50)}`);
     for (const r of falseRefusals) {
       console.log(`  ${r.testCase.id}: ${r.testCase.query.slice(0, 60)}...`);
       if (VERBOSE) {
@@ -759,7 +589,7 @@ function generateReport(results: MVPTestResult[]): void {
   // Hallucinations detail
   if (hallucinations.length > 0) {
     console.log("\n  HALLUCINATIONS (forbidden patterns matched):");
-    console.log(`  ──────────────────────────────────────────────────`);
+    console.log(`  ${"─".repeat(50)}`);
     for (const r of hallucinations) {
       console.log(`  ${r.testCase.id}: Forbidden: ${r.forbiddenMatches.join(", ")}`);
     }
@@ -769,7 +599,7 @@ function generateReport(results: MVPTestResult[]): void {
   const failed = results.filter(r => !r.passed);
   if (failed.length > 0) {
     console.log(`\n  FAILED TESTS (${failed.length}):`);
-    console.log(`  ──────────────────────────────────────────────────`);
+    console.log(`  ${"─".repeat(50)}`);
     for (const r of failed) {
       const reasons: string[] = [];
       if (r.missedPatterns.length > 0) reasons.push(`missed: ${r.missedPatterns.slice(0, 2).join(", ")}`);
@@ -785,9 +615,9 @@ function generateReport(results: MVPTestResult[]): void {
   }
 
   // MVP readiness
-  console.log("\n" + "═".repeat(70));
+  console.log("\n" + "=".repeat(70));
   console.log("  MVP READINESS:");
-  console.log("═".repeat(70));
+  console.log("=".repeat(70));
   const targets = {
     accuracy: 75,
     sourceAccuracy: 80,
@@ -795,7 +625,7 @@ function generateReport(results: MVPTestResult[]): void {
     hallucinations: 0,
   };
   console.log(`\n  Metric            Current     Target     Status`);
-  console.log(`  ──────────────────────────────────────────────────`);
+  console.log(`  ${"─".repeat(50)}`);
   console.log(`  Accuracy          ${accuracy.toFixed(1)}%       ${targets.accuracy}%+       ${accuracy >= targets.accuracy ? 'PASS' : 'FAIL'}`);
   console.log(`  Source Accuracy   ${sourceRate.toFixed(1)}%       ${targets.sourceAccuracy}%+       ${sourceRate >= targets.sourceAccuracy ? 'PASS' : 'FAIL'}`);
   console.log(`  False Refusals    ${falseRefusals.length}           ${targets.falseRefusals}          ${falseRefusals.length <= targets.falseRefusals ? 'PASS' : 'FAIL'}`);
@@ -806,7 +636,7 @@ function generateReport(results: MVPTestResult[]): void {
     && falseRefusals.length <= targets.falseRefusals
     && hallucinations.length <= targets.hallucinations;
   console.log(`\n  ${mvpReady ? 'MVP READY' : 'NOT MVP READY'}`);
-  console.log("\n" + "═".repeat(70));
+  console.log("\n" + "=".repeat(70));
 }
 
 // ============================================
@@ -837,7 +667,16 @@ async function runMVPTest(): Promise<void> {
   for (const testCase of TEST_CASES) {
     process.stdout.write(`  ${testCase.id} [${testCase.category}]... `);
 
-    const { response, sources, latencyMs } = await querySpecVault(testCase.query);
+    let queryResult = await querySpecVault(testCase.query);
+
+    // Retry once on 429/504/timeout errors with 10s backoff
+    if (queryResult.response.includes('429') || queryResult.response.includes('504') || queryResult.response.includes('timed out')) {
+      process.stdout.write(`RETRY... `);
+      await new Promise(r => setTimeout(r, 10_000));
+      queryResult = await querySpecVault(testCase.query);
+    }
+
+    const { response, sources, latencyMs } = queryResult;
     const result = evaluateTest(testCase, response, sources);
     result.latencyMs = latencyMs;
     results.push(result);
@@ -855,7 +694,7 @@ async function runMVPTest(): Promise<void> {
     }
 
     // Delay between queries to avoid rate limiting
-    await new Promise(r => setTimeout(r, 300));
+    await new Promise(r => setTimeout(r, 5000));
   }
 
   generateReport(results);

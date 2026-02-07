@@ -54,6 +54,26 @@ const DOCUMENT_METADATA: Record<string, {
     keywords: ["corrosion resistant", "alloy", "CRA", "oil", "gas", "casing", "tubing"],
     tableHints: ["Chemical Composition", "Mechanical Properties"],
     productType: "CRA tubulars"
+  },
+  "A1049": {
+    keywords: ["forgings", "duplex", "pressure vessel", "ferritic", "austenitic"],
+    tableHints: ["Table 1 Chemical", "Table 2 Mechanical", "Tension Test"],
+    productType: "forgings"
+  },
+  "5CT": {
+    keywords: ["casing", "tubing", "oil well", "gas well", "grade", "coupling"],
+    tableHints: ["Table C.5 Tensile", "Table C.6 Chemical", "Table E.5", "yield strength", "tensile strength"],
+    productType: "casing and tubing"
+  },
+  "6A": {
+    keywords: ["wellhead", "christmas tree", "flange", "valve", "pressure rating", "PSL"],
+    tableHints: ["Table 1 Rated Working Pressure", "Table 2 Bore Sizes", "Table B.2", "flange dimensions"],
+    productType: "wellhead equipment"
+  },
+  "16C": {
+    keywords: ["choke", "kill", "manifold", "valve", "pressure", "drilling"],
+    tableHints: ["Material Requirements", "Working Pressure", "Test Pressure"],
+    productType: "choke and kill equipment"
   }
 };
 
@@ -74,7 +94,11 @@ const PROPERTY_EXPANSIONS: Record<string, string[]> = {
   "elongation": ["elongation", "percent", "%", "Tensile Requirements"],
   "wall thickness": ["permissible variation", "tolerance", "Dimensions", "average wall", "minimum wall"],
   "charpy": ["impact", "ft-lbf", "Joules", "energy", "temperature"],
-  "ferrite": ["ferrite content", "austenite", "phase", "microstructure"]
+  "ferrite": ["ferrite content", "austenite", "phase", "microstructure"],
+  "pressure": ["rated working pressure", "test pressure", "psi", "Working Pressure"],
+  "flange": ["flange", "bore size", "dimensions", "Rated Working Pressure"],
+  "casing": ["casing grade", "yield strength", "tensile strength", "Tensile Requirements"],
+  "collapse": ["collapse resistance", "external pressure", "collapse strength"]
 };
 
 /**
@@ -91,8 +115,13 @@ function extractDocumentReferences(query: string): string[] {
     refs.push(`A${match[1]}`);
   }
 
-  // Check for API references
-  if (upperQuery.includes("API") || upperQuery.includes("5CRA")) {
+  // Check for API references (5CT, 6A, 16C, 5CRA)
+  const apiPattern = /API[\s-]+(?:SPEC(?:IFICATION)?\s+)?(\d{1,2}[A-Z]{1,4})\b/gi;
+  let apiMatch;
+  while ((apiMatch = apiPattern.exec(query)) !== null) {
+    refs.push(apiMatch[1].toUpperCase());
+  }
+  if (upperQuery.includes("5CRA") && !refs.includes("5CRA")) {
     refs.push("5CRA");
   }
 

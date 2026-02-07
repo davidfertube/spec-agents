@@ -14,6 +14,7 @@ import { detectFormulaRequest, hasFormulaInChunks, getFormulaRefusalInstruction 
 import { groundResponse } from "@/lib/answer-grounding";
 import { validateResponseCoherence } from "@/lib/response-validator";
 import { getLangfuse, flushLangfuse } from "@/lib/langfuse";
+import { getCachedResponse, setCachedResponse } from "@/lib/query-cache";
 
 /**
  * Chat API Route - RAG-powered Q&A (with Streaming)
@@ -129,6 +130,18 @@ async function processRAGQuery(cleanedQuery: string, verified: boolean, document
   // DEBUG: Log incoming query to trace request flow
   console.log(`[Chat API] Incoming query: "${cleanedQuery}"`);
 
+  // D8: Check query cache for repeated queries (skip entire pipeline)
+  if (!verified && !documentId) {
+    const cached = getCachedResponse(cleanedQuery);
+    if (cached) {
+      return {
+        response: cached.response,
+        sources: cached.sources,
+        confidence: cached.confidence,
+      };
+    }
+  }
+
   // LangFuse tracing (opt-in — no-op if LANGFUSE_SECRET_KEY not set)
   const langfuse = getLangfuse();
   const trace = langfuse?.trace({
@@ -189,13 +202,21 @@ async function processRAGQuery(cleanedQuery: string, verified: boolean, document
     let chunks: HybridSearchResult[] = [];
     let retrievalConfidence = 50; // Default if RAG fails
     try {
+      // D2+D6: Dynamic topK — increase for API specs (large documents, 100-300+ pages)
+      // API specs need more chunks for coverage; ASTM specs are smaller and 5 is sufficient
+      const isAPISpec = /\bAPI\b/i.test(searchQuery) || processedQuery.extractedCodes.api?.length;
+      const isComparisonQuery = processedQuery.extractedCodes.astm && processedQuery.extractedCodes.astm.length >= 2;
+      const dynamicTopK = (isAPISpec || isComparisonQuery) ? 8 : 5;
+
+      if (dynamicTopK > 5) {
+        console.log(`[Chat API] Dynamic topK: ${dynamicTopK} (${isAPISpec ? 'API spec' : 'comparison query'})`);
+      }
+
       // Use agentic multi-query RAG (query decomposition + hybrid search + re-ranking)
-      // Use enhanced query for search, but original query is shown to user
-      // 5 chunks — Claude Sonnet 4.5 (200K context) is primary; Groq TPM limit only applies as fallback
-      const ragSpan = trace?.span({ name: "multi-query-rag", input: { searchQuery, topK: 5, documentId } });
+      const ragSpan = trace?.span({ name: "multi-query-rag", input: { searchQuery, topK: dynamicTopK, documentId } });
       const ragResult = await withTimeout(
-        multiQueryRAG(searchQuery, 5, documentId),
-        TIMEOUTS.MULTI_QUERY_RAG || 45000, // Use dedicated timeout for RAG pipeline
+        multiQueryRAG(searchQuery, dynamicTopK, documentId),
+        TIMEOUTS.MULTI_QUERY_RAG,
         "Multi-query RAG"
       );
       ragSpan?.end({ output: { chunkCount: ragResult.chunks.length, metadata: ragResult.searchMetadata, evaluationConfidence: ragResult.evaluationConfidence } });
@@ -532,7 +553,8 @@ RESPONSE GUIDELINES:
 
     // C1.5: Refusal Detection — catch false refusals (runs independently of grounding)
     // Broadened patterns to catch more LLM refusal phrasings
-    const REFUSAL_PATTERNS = [
+    // D3+D5: Full refusal patterns (complete + partial)
+    const FULL_REFUSAL_PATTERNS = [
       /I cannot (provide|answer|find|determine|locate)/i,
       /not\s+(available|provided|included|found|present)\s+in\s+(the\s+)?(uploaded|provided|given)/i,
       /unable to (answer|provide|find|determine)/i,
@@ -544,18 +566,33 @@ RESPONSE GUIDELINES:
       /not found in the uploaded/i,
       /is not (?:included |covered |addressed )?in (?:the )?(?:uploaded|provided|given)/i,
     ];
-    const detectRefusal = (text: string) => REFUSAL_PATTERNS.some(p => p.test(text));
+    // D5: Partial refusal patterns — LLM says "I can't fully answer" but has some data
+    const PARTIAL_REFUSAL_PATTERNS = [
+      /I cannot provide a complete/i,
+      /I cannot fully (answer|address)/i,
+      /only contains? (information|data) about/i,
+      /limited information/i,
+      /not all.+(?:available|found|included)/i,
+    ];
+    const detectRefusal = (text: string) => FULL_REFUSAL_PATTERNS.some(p => p.test(text));
+    const detectPartialRefusal = (text: string) => PARTIAL_REFUSAL_PATTERNS.some(p => p.test(text));
 
-    if (detectRefusal(finalResponseText) && chunks.length > 0) {
+    // Context-aware refusal detection: only trigger if chunks have meaningful relevance
+    const hasRelevantChunks = chunks.length > 0 && (
+      chunks.some(c => c.bm25_score > 0) || // BM25 keyword match
+      chunks.some(c => c.combined_score > 0.3) // Strong hybrid score
+    );
+
+    if (detectRefusal(finalResponseText) && hasRelevantChunks) {
       // Multi-attempt anti-refusal loop (up to 2 attempts within regen budget)
       const maxRefusalAttempts = 2;
       for (let attempt = 1; attempt <= maxRefusalAttempts && regenCount < MAX_REGENS; attempt++) {
         console.log(`[Chat API] False refusal detected (attempt ${attempt}) — regenerating with anti-refusal prompt`);
         try {
           const chunkSummary = chunks.slice(0, 3).map((c, i) =>
-            `[${i + 1}] Page ${c.page_number}: ${c.content.slice(0, 120)}...`
+            `[${i + 1}] Page ${c.page_number} (score=${c.combined_score.toFixed(2)}, BM25=${c.bm25_score.toFixed(2)}): ${c.content.slice(0, 150)}...`
           ).join('\n');
-          const refusalPrefix = `CRITICAL: Your previous response INCORRECTLY refused to answer. The retrieved document chunks DO contain relevant information. Here is a summary of what's available:\n${chunkSummary}\n\nRe-read the full context below and extract the relevant data. Present tables, values, and specifications you find. Only refuse if the context truly contains ZERO relevant information about the topic.\n\n`;
+          const refusalPrefix = `CRITICAL: Your previous response INCORRECTLY refused to answer. The retrieved document chunks DO contain relevant information with high relevance scores. Here is a summary of what's available:\n${chunkSummary}\n\nRe-read the full context below and extract the relevant data. Present tables, values, and specifications you find. Only refuse if the context truly contains ZERO relevant information about the topic.\n\n`;
           const { text: unrefusedText } = await withTimeout(
             fallbackClient.generateContent(refusalPrefix + fullPrompt),
             TIMEOUTS.LLM_GENERATION,
@@ -577,13 +614,43 @@ RESPONSE GUIDELINES:
       }
     }
 
+    // D5: Partial refusal handling — when LLM says "I cannot provide a complete answer"
+    // but does have SOME data, regenerate with instruction to present available data
+    if (!detectRefusal(finalResponseText) && detectPartialRefusal(finalResponseText) && chunks.length > 0 && regenCount < MAX_REGENS) {
+      console.log(`[Chat API] Partial refusal detected — regenerating with data-extraction instruction`);
+      try {
+        const partialPrefix = `IMPORTANT: Your previous response started with a hedging disclaimer like "I cannot provide a complete answer" or "I cannot fully answer". This is not helpful. Instead:\n\n1. Present ALL data you CAN find in the context — tables, values, specifications\n2. Organize it clearly with citations\n3. At the END (not the beginning), note any specific aspects that weren't covered\n4. Do NOT start with "I cannot" — start with the actual data\n\n`;
+        const { text: improvedText } = await withTimeout(
+          fallbackClient.generateContent(partialPrefix + fullPrompt),
+          TIMEOUTS.LLM_GENERATION,
+          "LLM regeneration (partial-refusal)"
+        );
+        if (!detectRefusal(improvedText)) {
+          finalResponseText = improvedText;
+          regenCount++;
+          console.log(`[Chat API] Partial refusal resolved — presenting available data`);
+        }
+      } catch (regenError) {
+        console.warn(`[Chat API] Partial refusal regeneration failed:`, regenError);
+      }
+    }
+
     // C2: Response Self-Reflection — coherence validation loop (up to 2 attempts)
     let coherenceScore = 100; // Default if skipped
     if (chunks.length > 0) {
       const MAX_COHERENCE_ATTEMPTS = 2;
       for (let attempt = 1; attempt <= MAX_COHERENCE_ATTEMPTS; attempt++) {
         try {
-          const validation = await validateResponseCoherence(cleanedQuery, finalResponseText);
+          const validation = await withTimeout(
+            validateResponseCoherence(cleanedQuery, finalResponseText),
+            TIMEOUTS.COHERENCE_VALIDATION,
+            "Response coherence validation"
+          ).catch(() => ({
+            coherenceScore: 70,
+            passed: true,
+            reason: "Coherence validation timed out, proceeding",
+            missingAspects: undefined as string | undefined,
+          }));
           coherenceScore = validation.coherenceScore;
           console.log(`[Chat API] Coherence (attempt ${attempt}): ${coherenceScore}% — ${validation.reason}`);
 
@@ -621,7 +688,7 @@ RESPONSE GUIDELINES:
     // C5.5: Confidence-driven final gate — regenerate if overall confidence is very low
     // Placed before source building so the regenerated text gets proper citation remapping
     const earlyConfidence = Math.round(
-      retrievalConfidence * 0.30 + groundingScore * 0.40 + coherenceScore * 0.30
+      retrievalConfidence * 0.35 + groundingScore * 0.25 + coherenceScore * 0.40
     );
     if (earlyConfidence < 55 && chunks.length > 0 && regenCount < MAX_REGENS) {
       console.log(`[Chat API] Low early confidence (${earlyConfidence}%) — triggering confidence-driven regeneration`);
@@ -754,9 +821,9 @@ RESPONSE GUIDELINES:
   // Step 6: Compute Confidence & Return Response (C5)
   // ========================================
   const overallConfidence = Math.round(
-    retrievalConfidence * 0.30 +
-    groundingScore * 0.40 +
-    coherenceScore * 0.30
+    retrievalConfidence * 0.35 +
+    groundingScore * 0.25 +
+    coherenceScore * 0.40
   );
 
   console.log(`[Chat API] Confidence: overall=${overallConfidence}% (retrieval=${retrievalConfidence}, grounding=${groundingScore}, coherence=${coherenceScore})`);
@@ -769,7 +836,7 @@ RESPONSE GUIDELINES:
   });
   await flushLangfuse();
 
-  return {
+  const result = {
     response: remappedResponse,
     sources,
     confidence: {
@@ -779,6 +846,13 @@ RESPONSE GUIDELINES:
       coherence: Math.round(coherenceScore),
     },
   };
+
+  // D8: Cache the response for repeated queries
+  if (!documentId) {
+    setCachedResponse(cleanedQuery, result.response, result.sources, result.confidence);
+  }
+
+  return result;
 }
 
 /**

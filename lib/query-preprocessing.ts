@@ -81,6 +81,14 @@ const API_PATTERN = /\bAPI[\s-]+(?:SPEC(?:IFICATION)?\s+)?(\d{1,2}[A-Z]{1,4})\b/
 const GRADE_PATTERN = /\b(?:2205|2507|2304|2101|316L?|304L?|317L?|321|347|410|420|430|446)\b/gi;
 
 /**
+ * API 5CT casing/tubing grades
+ * These are NOT standard steel grades — they're API-specific designations.
+ * Examples: J55, K55, N80, L80, C90, T95, P110, Q125, C110, 13Cr
+ * Must appear as standalone terms or followed by "grade/casing/tubing"
+ */
+const API_CASING_GRADE_PATTERN = /\b(?:J55|K55|N80|L80|C90|C95|T95|P110|Q125|C110|13CR|R95|S135|V150)\b/gi;
+
+/**
  * NACE standards for sour service
  * Examples: NACE MR0175, MR0103, ISO 15156
  */
@@ -177,6 +185,13 @@ const PROPERTY_KEYWORDS = [
   "hydrostatic",
   "transverse",
   "longitudinal",
+  // API 5CT casing/tubing grades
+  "casing",
+  "tubing",
+  "coupling",
+  "connection",
+  "collapse",
+  "burst",
   // Spec section terms
   "scope",
   "marking",
@@ -340,6 +355,7 @@ export function preprocessQuery(query: string): ProcessedQuery {
   }
 
   const gradeMatches = original.match(GRADE_PATTERN) || [];
+  const casingGradeMatches = original.match(API_CASING_GRADE_PATTERN) || [];
   const naceMatches = [
     ...(original.match(NACE_PATTERN) || []),
     ...(original.match(ISO_15156_PATTERN) || []),
@@ -352,6 +368,7 @@ export function preprocessQuery(query: string): ProcessedQuery {
     unsMatches.length > 0 ||
     astmMatches.length > 0 ||
     gradeMatches.length > 0 ||
+    casingGradeMatches.length > 0 ||
     naceMatches.length > 0;
 
   // Check for property keywords
@@ -365,6 +382,7 @@ export function preprocessQuery(query: string): ProcessedQuery {
     ...astmMatches,
     ...apiMatches,
     ...gradeMatches,
+    ...casingGradeMatches,
     ...naceMatches,
     ...extractSignificantKeywords(original),
   ]
@@ -384,8 +402,9 @@ export function preprocessQuery(query: string): ProcessedQuery {
   const uniqueApi = apiMatches.length > 0
     ? [...new Set(apiMatches.map(m => m.toUpperCase()))]
     : undefined;
-  const uniqueGrade = gradeMatches.length > 0
-    ? [...new Set(gradeMatches.map(m => m.toUpperCase()))]
+  const allGradeMatches = [...gradeMatches, ...casingGradeMatches];
+  const uniqueGrade = allGradeMatches.length > 0
+    ? [...new Set(allGradeMatches.map(m => m.toUpperCase()))]
     : undefined;
   const uniqueNace = naceMatches.length > 0
     ? [...new Set(naceMatches.map(m => m.toUpperCase()))]

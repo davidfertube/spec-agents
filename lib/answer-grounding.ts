@@ -45,9 +45,11 @@ export function groundResponse(
   const responseNumbers = extractNumericalValues(responseText);
 
   if (responseNumbers.length === 0) {
-    // No numerical claims to verify — pass by default
+    // No numerical claims to verify — neutral score (not perfect)
+    // A score of 100 falsely inflates confidence for text-only responses;
+    // 70 represents "no evidence of hallucination, but nothing verified either"
     return {
-      score: 100,
+      score: 70,
       passed: true,
       totalNumbers: 0,
       groundedNumbers: 0,

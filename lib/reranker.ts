@@ -1,8 +1,13 @@
 /**
  * Re-Ranking for RAG Retrieval
  *
- * This module re-ranks search results using LLM judgment for better precision.
- * Takes top 20 candidates from hybrid search and re-ranks to top 5 most relevant.
+ * Two-tier reranking strategy:
+ * 1. Primary: Voyage AI rerank-2 API (fast, accurate, ~200ms)
+ * 2. Fallback: LLM-based scoring via ModelFallbackClient (5-15s)
+ *
+ * Voyage AI reranker is a dedicated cross-encoder model trained for
+ * relevance scoring — much faster and more consistent than prompting
+ * a general-purpose LLM to score chunks.
  */
 
 import { getModelFallbackClient } from "./model-fallback";
@@ -10,19 +15,18 @@ import { HybridSearchResult } from "./hybrid-search";
 
 export interface RankedChunk {
   chunk: HybridSearchResult;
-  relevance_score: number;  // 0-10 LLM-assigned score
-  relevance_reason: string;  // Why this chunk is relevant
+  relevance_score: number;  // 0-10 normalized score
+  relevance_reason: string;
 }
 
 /**
- * Re-rank search results using LLM judgment
- *
- * This is cheaper and more flexible than training a cross-encoder model.
- * Uses Gemini Flash (fast and cheap) to score each chunk.
+ * Re-rank search results using Voyage AI rerank-2 API
+ * Falls back to LLM-based scoring if Voyage reranker is unavailable.
  *
  * @param query - The user's search query
  * @param chunks - Candidate chunks from hybrid search
  * @param topK - Number of top chunks to return (default: 5)
+ * @param subQueries - Optional decomposed sub-queries for context
  * @returns Ranked chunks with relevance scores
  */
 export async function rerankChunks(
@@ -35,17 +39,109 @@ export async function rerankChunks(
   if (chunks.length <= topK) {
     return chunks.map(chunk => ({
       chunk,
-      relevance_score: 8, // Assume high relevance if search returned few results
+      relevance_score: 8,
       relevance_reason: "Only candidate from search",
     }));
   }
 
+  // Try Voyage AI reranker first (fast, no LLM API cost)
+  const voyageKey = process.env.VOYAGE_API_KEY;
+  if (voyageKey) {
+    try {
+      const result = await voyageRerank(query, chunks, topK, subQueries);
+      console.log(`[Re-ranker] Voyage AI rerank-2: ${chunks.length} → top ${topK}`);
+      return result;
+    } catch (error) {
+      console.warn(`[Re-ranker] Voyage AI failed, falling back to LLM:`, error instanceof Error ? error.message : error);
+    }
+  }
+
+  // Fallback: LLM-based reranking
+  return llmRerank(query, chunks, topK, subQueries);
+}
+
+// ============================================================================
+// Voyage AI Reranker (Primary)
+// ============================================================================
+
+/**
+ * Rerank using Voyage AI rerank-2 cross-encoder model.
+ * ~200ms for 40 documents — 10-50x faster than LLM reranking.
+ */
+async function voyageRerank(
+  query: string,
+  chunks: HybridSearchResult[],
+  topK: number,
+  subQueries?: string[]
+): Promise<RankedChunk[]> {
+  const voyageKey = process.env.VOYAGE_API_KEY;
+  if (!voyageKey) throw new Error("VOYAGE_API_KEY not set");
+
+  // Build the query — include sub-queries for context if decomposed
+  const fullQuery = subQueries && subQueries.length > 1
+    ? `${query}\n\nRelated aspects: ${subQueries.join('; ')}`
+    : query;
+
+  // Truncate chunks to 1000 chars each (Voyage has token limits)
+  const documents = chunks.map(c => c.content.slice(0, 1000));
+
+  const startTime = Date.now();
+  const response = await fetch("https://api.voyageai.com/v1/rerank", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${voyageKey}`,
+    },
+    body: JSON.stringify({
+      query: fullQuery,
+      documents,
+      model: "rerank-2",
+      top_k: topK,
+    }),
+    signal: AbortSignal.timeout(10000), // 10s timeout
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Voyage rerank API ${response.status}: ${text.slice(0, 200)}`);
+  }
+
+  const data = await response.json() as {
+    data: { index: number; relevance_score: number }[];
+    model: string;
+    usage: { total_tokens: number };
+  };
+
+  const elapsed = Date.now() - startTime;
+  console.log(`[Re-ranker] Voyage rerank-2: ${elapsed}ms, ${data.usage?.total_tokens || '?'} tokens`);
+
+  // Map Voyage scores (0-1) to our 0-10 scale and attach chunks
+  return data.data.map(item => ({
+    chunk: chunks[item.index],
+    relevance_score: Math.round(item.relevance_score * 10 * 100) / 100, // 0-10 scale
+    relevance_reason: `Voyage rerank score: ${item.relevance_score.toFixed(3)}`,
+  }));
+}
+
+// ============================================================================
+// LLM-Based Reranker (Fallback)
+// ============================================================================
+
+/**
+ * Re-rank using LLM judgment (fallback when Voyage is unavailable)
+ */
+async function llmRerank(
+  query: string,
+  chunks: HybridSearchResult[],
+  topK: number,
+  subQueries?: string[]
+): Promise<RankedChunk[]> {
   const client = getModelFallbackClient();
 
   // Truncate chunk content for faster processing
   const truncatedChunks = chunks.map((c, i) => ({
     id: i + 1,
-    content: c.content.slice(0, 800), // 800 chars preserves most table rows for relevance judgment
+    content: c.content.slice(0, 800),
   }));
 
   // Include sub-queries in the prompt when the query was decomposed
@@ -91,7 +187,6 @@ Respond ONLY with valid JSON (no markdown, no explanation):
       result = JSON.parse(cleanedText);
     } catch {
       console.warn("[Re-ranker] JSON parse failed for:", cleanedText.slice(0, 200));
-      // Return fallback instead of throwing
       return chunks.slice(0, topK).map(chunk => ({
         chunk,
         relevance_score: 7,
@@ -122,7 +217,6 @@ Respond ONLY with valid JSON (no markdown, no explanation):
     ranked.sort((a, b) => b.relevance_score - a.relevance_score);
 
     // Filter out clearly irrelevant chunks (score < 4/10)
-    // Fall back to best available if nothing passes the threshold
     const MIN_RELEVANCE_SCORE = 4;
     const filtered = ranked.filter(r => r.relevance_score >= MIN_RELEVANCE_SCORE);
     if (filtered.length > 0 && filtered.length < ranked.length) {
@@ -130,16 +224,13 @@ Respond ONLY with valid JSON (no markdown, no explanation):
     }
     const candidates = filtered.length > 0 ? filtered : ranked;
 
-    // Return top K
     return candidates.slice(0, topK);
   } catch (error) {
     console.error("[Re-ranker] Failed to re-rank chunks:", error);
-
-    // Fallback: return chunks in original order (from hybrid search)
     console.warn("[Re-ranker] Using fallback: returning chunks in original search order");
     return chunks.slice(0, topK).map(chunk => ({
       chunk,
-      relevance_score: 7, // Assume decent relevance if hybrid search returned them
+      relevance_score: 7,
       relevance_reason: "Fallback: re-ranking failed",
     }));
   }

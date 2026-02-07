@@ -14,6 +14,7 @@ interface SearchFormProps {
     steelAgent: { response: string; sources: Source[]; confidence?: ConfidenceScore },
     genericLLM: GenericLLMResponse
   ) => void;
+  onQuerySubmit?: (query: string) => void;
   documentId?: number | null;
 }
 
@@ -23,6 +24,7 @@ export function SearchForm({
   onError,
   onLoadingChange,
   onComparisonResult,
+  onQuerySubmit,
   documentId,
 }: SearchFormProps) {
   const [query, setQuery] = useState("");
@@ -36,6 +38,7 @@ export function SearchForm({
 
       setIsLoading(true);
       onLoadingChange?.(true);
+      onQuerySubmit?.(query);
 
       try {
         if (onComparisonResult) {
@@ -61,7 +64,7 @@ export function SearchForm({
         onLoadingChange?.(false);
       }
     },
-    [query, isLoading, onResult, onError, onLoadingChange, onComparisonResult, documentId]
+    [query, isLoading, onResult, onError, onLoadingChange, onComparisonResult, onQuerySubmit, documentId]
   );
 
 

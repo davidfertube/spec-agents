@@ -15,14 +15,9 @@ import { DocumentUpload } from "@/components/document-upload";
 import { Source, GenericLLMResponse, ConfidenceScore } from "@/lib/api";
 import { NetworkVisualization } from "@/components/network-visualization";
 
-// Spline 3D Animation Component
-// Shows PDFs flowing into the SpecVault brain
-import Spline from '@splinetool/react-spline';
-
 function Hero3DAnimation() {
   return (
     <div className="relative w-full aspect-square max-w-[500px] mx-auto">
-      {/* Fallback SVG animation while Spline loads or if no scene URL */}
       <div className="absolute inset-0 flex items-center justify-center">
         <DocumentFlowAnimation />
       </div>
@@ -222,180 +217,6 @@ function DocumentFlowAnimation() {
   );
 }
 
-// Processing Pipeline Animation - Shows document processing stages
-function ProcessingPipelineAnimation() {
-  const stages = [
-    { icon: "📄", label: "Upload" },
-    { icon: "📝", label: "Extract" },
-    { icon: "✂️", label: "Chunk" },
-    { icon: "🧮", label: "Embed" },
-    { icon: "💾", label: "Store" },
-    { icon: "🤖", label: "Query" },
-  ];
-
-  return (
-    <div className="w-full h-[400px] relative overflow-hidden">
-      <svg viewBox="0 0 600 280" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <filter id="pipelineGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-          <linearGradient id="pipelineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#22c55e" stopOpacity="0.3" />
-            <stop offset="50%" stopColor="#22c55e" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#22c55e" stopOpacity="0.3" />
-          </linearGradient>
-        </defs>
-
-        {/* Background subtle grid */}
-        <pattern id="pipelineGrid" width="20" height="20" patternUnits="userSpaceOnUse">
-          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e5e7eb" strokeWidth="0.5" />
-        </pattern>
-        <rect width="100%" height="100%" fill="url(#pipelineGrid)" opacity="0.5" />
-
-        {/* Main pipeline path */}
-        <motion.path
-          d="M 50 140 L 550 140"
-          stroke="url(#pipelineGradient)"
-          strokeWidth="4"
-          fill="none"
-          strokeLinecap="round"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-        />
-
-        {/* Animated dashed line overlay */}
-        <motion.path
-          d="M 50 140 L 550 140"
-          stroke="#22c55e"
-          strokeWidth="2"
-          strokeDasharray="8 12"
-          fill="none"
-          strokeLinecap="round"
-          animate={{ strokeDashoffset: [0, -40] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-        />
-
-        {/* Stage nodes */}
-        {stages.map((stage, i) => {
-          const x = 75 + i * 90;
-          const y = 140;
-          return (
-            <motion.g
-              key={i}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 + i * 0.15, type: "spring", stiffness: 200 }}
-            >
-              {/* Node background glow */}
-              <motion.circle
-                cx={x}
-                cy={y}
-                r="32"
-                fill="#22c55e"
-                opacity="0.1"
-                animate={{ r: [32, 36, 32], opacity: [0.1, 0.2, 0.1] }}
-                transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }}
-              />
-              {/* Node circle */}
-              <circle
-                cx={x}
-                cy={y}
-                r="28"
-                fill="white"
-                stroke="#22c55e"
-                strokeWidth="2"
-              />
-              {/* Stage icon */}
-              <text
-                x={x}
-                y={y + 2}
-                textAnchor="middle"
-                dominantBaseline="central"
-                fontSize="20"
-              >
-                {stage.icon}
-              </text>
-              {/* Stage label */}
-              <text
-                x={x}
-                y={y + 50}
-                textAnchor="middle"
-                fontSize="11"
-                fill="#6b7280"
-                fontWeight="500"
-              >
-                {stage.label}
-              </text>
-            </motion.g>
-          );
-        })}
-
-        {/* Animated data packets */}
-        {[0, 1, 2].map((packetIndex) => (
-          <motion.circle
-            key={packetIndex}
-            r="6"
-            fill="#22c55e"
-            filter="url(#pipelineGlow)"
-            initial={{ cx: 50, cy: 140, opacity: 0 }}
-            animate={{
-              cx: [50, 550],
-              opacity: [0, 1, 1, 1, 0],
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              delay: packetIndex * 1,
-              ease: "linear",
-            }}
-          />
-        ))}
-
-        {/* Result checkmark at end */}
-        <motion.g
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 1.8, type: "spring" }}
-        >
-          <circle cx="560" cy="140" r="20" fill="#22c55e" />
-          <motion.path
-            d="M 550 140 L 557 147 L 570 133"
-            stroke="white"
-            strokeWidth="3"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ delay: 2, duration: 0.3 }}
-          />
-        </motion.g>
-
-        {/* Title */}
-        <motion.text
-          x="300"
-          y="240"
-          textAnchor="middle"
-          fontSize="14"
-          fill="#374151"
-          fontWeight="600"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2.2 }}
-        >
-          AI-Powered Document Processing Pipeline
-        </motion.text>
-      </svg>
-    </div>
-  );
-}
-
 // Lead Form Component
 function LeadForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -559,6 +380,7 @@ export default function Home() {
   const [sources, setSources] = useState<Source[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastQuery, setLastQuery] = useState<string>("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -1151,6 +973,7 @@ export default function Home() {
                       onError={handleError}
                       onLoadingChange={handleLoadingChange}
                       onComparisonResult={handleComparisonResult}
+                      onQuerySubmit={setLastQuery}
                       documentId={uploadedDocumentId}
                     />
                   </motion.div>
@@ -1190,6 +1013,7 @@ export default function Home() {
                           )}
                         </div>
                         <RealtimeComparison
+                          query={lastQuery}
                           steelAgentResponse={response}
                           steelAgentSources={sources}
                           genericLLMResponse={genericLLMResponse}

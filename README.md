@@ -4,15 +4,15 @@
 [![Tests](https://github.com/davidfertube/specvault/actions/workflows/test.yml/badge.svg)](https://github.com/davidfertube/specvault/actions/workflows/test.yml)
 [![Deploy](https://img.shields.io/badge/Deploy-Vercel-black)](https://vercel.com/new/clone?repository-url=https://github.com/davidfertube/specvault)
 
-**Production-grade RAG system for O&G materials compliance.** Upload steel specifications (ASTM, API, NACE), ask technical questions, get cited answers with zero hallucinations.
+**Agentic RAG for O&G materials compliance.** Upload steel specifications (ASTM, API, NACE), ask technical questions, get cited answers with zero hallucinations. Self-correcting pipeline with answer grounding, false refusal detection, and confidence scoring.
 
-[Live Demo](https://specvault.app) · [Developer Docs](CLAUDE.md) · [Contributing](CONTRIBUTING.md)
+[Live Demo](https://specvault.app) · [Agentic Pipeline](AGENTS.md) · [Developer Docs](CLAUDE.md) · [Contributing](CONTRIBUTING.md)
 
 ---
 
 ## Performance
 
-Evaluated against 80 golden queries across 8 ASTM/API documents:
+Evaluated against 80 golden queries across 8 ASTM/API documents (Claude Sonnet 4.5):
 
 | Metric | Result |
 |--------|--------|
@@ -20,28 +20,45 @@ Evaluated against 80 golden queries across 8 ASTM/API documents:
 | **Source Citation** | 96.3% (77/80) |
 | **Hallucination Rate** | ~0% |
 | **P50 / P95 Latency** | 13.0s / 24.2s |
-| **Infrastructure Cost** | ~$0/month (free tiers + low-volume API) |
+| **Post-Improvement Accuracy** | 100% (10/10) |
+| **Production Smoke Test** | 8/8 (100%) |
+| **Unit Tests** | 113/113, 0 skipped |
 
-Complex multi-hop queries (comparisons, multi-part) score **96.9%** — higher than single-lookup queries.
+Complex multi-hop queries (comparisons, multi-part) score **96.9%** — higher than single-lookup queries. Post-improvement 10-query test (covering cross-spec comparison, API 5CT, all major ASTM specs) achieves 100%.
 
 ---
 
 ## Architecture
 
-### Query Pipeline
+### Agentic RAG Pipeline (7 Stages)
 
 ```mermaid
 graph LR
     A[User Query] --> B[Query Analysis]
-    B --> C[Multi-Query RAG]
+    B --> C[Decomposition]
     C --> D[Hybrid Search]
     D --> E[LLM Re-ranking]
     E --> F[Generation]
-    F --> G[Cited Response]
+    F --> G[Verification Agents]
+    G --> H[Confidence Gate]
+    H --> I[Cited Response]
 
     style A fill:#1a1a2e,color:#fff
-    style G fill:#16213e,color:#fff
+    style I fill:#16213e,color:#fff
 ```
+
+The pipeline self-corrects through three post-generation agents:
+
+| Agent | Method | Purpose |
+|-------|--------|---------|
+| **Answer Grounding** | Regex | Verify numerical claims against source chunks |
+| **Refusal Detection** | Pattern matching | Catch false "I cannot answer" responses |
+| **Partial Refusal Detection** | Pattern matching | Catch hedged "limited information" responses |
+| **Coherence Validation** | LLM judge | Ensure response addresses the question |
+
+All agents share a regeneration budget (max 3 attempts). A confidence gate (`retrieval 35% + grounding 25% + coherence 40%`) triggers a final regeneration if the score drops below 55%.
+
+Full pipeline documentation: **[AGENTS.md](AGENTS.md)**
 
 ### Document Ingestion
 
@@ -60,53 +77,30 @@ graph LR
 
 | Layer | Technology | Rationale |
 |-------|------------|-----------|
-| **LLM** | Claude Sonnet 4.5 | Primary generation + CoT prompting via Anthropic API |
-| **LLM Fallback** | Groq → Cerebras → OpenRouter | Auto-failover on rate limits via `model-fallback.ts` |
-| **Embeddings** | Voyage AI voyage-3-lite (1024-dim) | 200M tokens/month free, 1000+ RPM |
-| **Vector DB** | Supabase pgvector (HNSW) | PostgreSQL-native vectors + metadata + RLS in one DB |
+| **LLM** | Claude Sonnet 4.5 | Best accuracy for technical docs, low hallucination |
+| **LLM Fallback** | Groq → Cerebras → SambaNova → OpenRouter | Auto-failover on rate limits via `model-fallback.ts` |
+| **Embeddings** | Voyage AI voyage-3-lite (1024-dim) | 200M tokens/month free |
+| **Vector DB** | Supabase pgvector (HNSW) | PostgreSQL-native vectors + metadata + RLS |
 | **Framework** | Next.js 16, React 19, TypeScript | API routes eliminate separate backend |
 | **Hosting** | Vercel | Serverless, scales to zero |
 
 ---
 
-## 5-Stage RAG Pipeline
-
-### 1. Query Analysis
-Extracts technical identifiers (UNS codes like `S32205`, ASTM specs like `A790`, API specs like `5CT`, grades like `316L`) and sets adaptive BM25/vector search weights. Queries with exact codes get higher keyword weight (0.6 BM25); natural language queries lean semantic (0.7 vector).
-
-**Key file:** `lib/query-preprocessing.ts`
-
-### 2. Multi-Query Decomposition
-Complex queries are decomposed into parallel sub-queries. *"Compare A789 vs A790 yield strength for S32205"* becomes two independent lookups merged after retrieval. Simple queries skip decomposition entirely (fast path).
-
-**Key file:** `lib/multi-query-rag.ts`
-
-### 3. Hybrid Search
-BM25 keyword search + vector similarity search fused with adaptive weighting. Document filtering via `document-mapper.ts` prevents cross-specification contamination — critical because A789 (tubing) and A790 (pipe) have different yield strengths for the same grade (70 ksi vs 65 ksi for S32205). Table content gets a +0.15 score boost.
-
-**Key file:** `lib/hybrid-search.ts`
-
-### 4. LLM Re-ranking
-Top 40 candidates scored by Claude Sonnet 4.5 on a 0-10 relevance scale, reduced to top 5. Chunks truncated to 800 characters — wide enough to preserve 6-8 table rows (header + data) for ASTM specification tables. Sub-query aware: chunks are scored against the specific sub-query that retrieved them.
-
-**Key file:** `lib/reranker.ts`
-
-### 5. Generation
-Claude Sonnet 4.5 with a strict document-only chain-of-thought prompt. SSE streaming with 3-second heartbeat keeps connections alive past Vercel's 10-second hobby tier timeout. Formula guard injects refusal instructions when formulas are requested but not found in context. Cross-document dedup is intentionally document-scoped — chunks from different specs are never merged even with 80%+ vocabulary overlap.
-
-**Key file:** `app/api/chat/route.ts`
-
----
-
 ## Engineering Highlights
 
-**Cross-Spec Contamination Prevention.** A789 and A790 share most of their content but have different mechanical properties for the same UNS designations. `document-mapper.ts` resolves ASTM/API codes to specific document IDs so queries like *"yield strength per A790"* never pull A789 data. Content-level dedup is scoped per-document, not globally.
+**Self-Correcting Pipeline.** Post-generation agents detect hallucinated numbers, false refusals, and incoherent responses. Each verification step can trigger targeted regeneration with specific guidance. The system catches errors that would pass through a naive retrieve-and-generate pipeline.
 
-**Table-Preserving Semantic Chunking.** Variable-size chunks (1500 target, 800 min, 2500 max, 200 overlap) detect table boundaries and keep them intact. ASTM specification tables — the primary source of mechanical property data — are never split mid-row. Each chunk carries metadata: section title, chunk type (table/text/list), and detected technical codes.
+**Cross-Spec Contamination Prevention.** A789 and A790 share most of their content but have different mechanical properties for the same UNS designations. `document-mapper.ts` resolves ASTM/API codes to specific document IDs. Content-level dedup is scoped per-document, not globally.
 
-**Evaluation-Driven Development.** 80 golden queries across 8 documents with pattern-based validation. RAGAS LLM-as-judge metrics (faithfulness, relevancy). A789/A790 confusion matrix testing. Accuracy improved from 57% → 81% → 91.3% through systematic root cause analysis — the single biggest fix was widening the reranker chunk window from 400 to 800 characters so table data was visible during scoring (+4-6%).
+**Table-Preserving Semantic Chunking.** Variable-size chunks (1500 target, 800 min, 2500 max, 200 overlap) detect table boundaries and keep them intact. ASTM specification tables — the primary source of mechanical property data — are never split mid-row.
 
-**Multi-Provider LLM Failover.** `model-fallback.ts` chains Claude → Groq → Cerebras → OpenRouter with automatic switching on rate limit errors. Each provider uses OpenAI-compatible format. Zero-downtime on any single provider outage.
+**Evaluation-Driven Development.** 80 golden queries with pattern-based validation. RAGAS LLM-as-judge metrics. A789/A790 confusion matrix testing. Accuracy improved from 57% → 81% → 91.3% through systematic root cause analysis.
+
+**User Feedback Loop.** In-app thumbs up/down feedback with issue classification (false refusal, wrong data, hallucination, etc). Diagnostic script (`scripts/feedback-report.ts`) classifies root causes and generates actionable reports pointing to specific pipeline files.
+
+**Voyage AI Cross-Encoder Re-ranking.** Voyage AI rerank-2 replaces LLM-based reranking as the primary strategy (~200ms vs 5-15s). LLM reranking available as fallback. Dynamic topK: 8 for API specs and comparisons, 5 for standard ASTM.
+
+**Multi-Provider LLM Failover.** `model-fallback.ts` chains Anthropic → Groq → Cerebras → SambaNova → OpenRouter with progressive backoff (500ms × 2^n, cap 4s). Zero-downtime on any single provider outage.
 
 ---
 
@@ -136,26 +130,23 @@ npm run dev    # http://localhost:3000
 
 ---
 
-## Evaluation & Testing
+## Testing
 
 ```bash
-# Unit tests
+# Unit tests (113 tests, 0 skips)
 npm test
 
 # 80-query accuracy suite (requires running dev server)
 npm run test:accuracy
-npm run test:accuracy:verbose
+
+# Production smoke test (8 complex queries, 1 per document)
+npx tsx scripts/production-smoke-test.ts
 
 # RAGAS LLM-as-judge evaluation
 npm run evaluation:rag
-npm run evaluation:rag:verbose
 
 # A789/A790 confusion matrix
 npm run test:confusion
-
-# Performance profiling
-npm run test:performance
-npm run test:bottleneck
 ```
 
 Golden datasets: `tests/golden-dataset/*.json` — 8 specification files, 80+ queries with expected answers and validation patterns.
@@ -167,32 +158,51 @@ Golden datasets: `tests/golden-dataset/*.json` — 8 specification files, 80+ qu
 ```
 app/
   api/
-    chat/route.ts              # Main RAG endpoint (5-stage pipeline)
+    chat/route.ts              # Main RAG endpoint (7-stage agentic pipeline)
     chat/compare/route.ts      # Generic LLM comparison (no RAG)
     documents/process/route.ts  # PDF extraction → chunking → embedding
     documents/upload/route.ts   # Upload confirmation
     documents/upload-url/route.ts # Signed URL for direct upload
+    feedback/route.ts           # User feedback collection + retrieval
     leads/route.ts             # Lead capture
   page.tsx                     # Landing page
+components/
+  response-feedback.tsx        # Thumbs up/down feedback widget
+  realtime-comparison.tsx      # Side-by-side RAG vs generic LLM
 lib/
   multi-query-rag.ts           # Query decomposition + parallel retrieval
   hybrid-search.ts             # BM25 + vector fusion search
-  reranker.ts                  # LLM-based re-ranking (800-char window)
+  reranker.ts                  # Voyage AI rerank-2 + LLM fallback (800-char window)
   query-preprocessing.ts       # Technical code extraction + adaptive weights
   semantic-chunking.ts         # Table-preserving variable-size chunking
   document-mapper.ts           # Spec code → document ID resolution
   model-fallback.ts            # Multi-provider LLM failover chain
-  verified-generation.ts       # Answer grounding + claim verification
+  answer-grounding.ts          # Numerical claim verification (regex)
+  response-validator.ts        # Coherence validation (LLM judge)
+  retrieval-evaluator.ts       # Retrieval quality assessment
+  coverage-validator.ts        # Sub-query coverage checking
+  verified-generation.ts       # Alternative verified generation pipeline
+  claim-verification.ts        # Claim-level verification engine
+  structured-output.ts         # Structured JSON output parsing
+  timeout.ts                   # Async timeout wrappers
   langfuse.ts                  # Observability + RAG pipeline tracing
-  embeddings.ts                # Voyage AI embedding client
-  embedding-cache.ts           # 1-hour query embedding cache
   evaluation-engine.ts         # Pattern-based RAG evaluation
   rag-metrics.ts               # RAGAS-style LLM-as-judge metrics
 tests/
   golden-dataset/              # 8 spec files, 80+ golden queries
   evaluation/                  # Accuracy + confusion tests
+  helpers/                     # Shared test utilities
   performance/                 # Bottleneck profiling
   stress/                      # k6 load testing
+scripts/
+  production-smoke-test.ts     # 8-query end-to-end validation
+  mvp-accuracy-test.ts         # 50-query MVP accuracy suite
+  mvp-10-query-test.ts         # 10-query post-improvement validation
+  feedback-report.ts           # Feedback diagnostic report
+  dedup-documents.ts           # Document deduplication
+supabase/
+  feedback-migration.sql       # Feedback table schema
+  dedup-migration.sql          # Dedup DELETE policies + cleanup
 ```
 
 ---
@@ -201,21 +211,36 @@ tests/
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/chat` | RAG query with SSE streaming → `{ response, sources }` |
+| POST | `/api/chat` | RAG query with SSE streaming → `{ response, sources, confidence }` |
 | POST | `/api/chat/compare` | Generic LLM comparison (no document context) |
 | POST | `/api/documents/upload` | Confirm PDF upload |
 | POST | `/api/documents/upload-url` | Get signed upload URL |
 | POST | `/api/documents/process` | Process PDF → extract, chunk, embed, store |
+| POST | `/api/feedback` | Submit/retrieve user feedback on response quality |
 | POST | `/api/leads` | Lead capture form |
 
 ---
 
 ## Roadmap
 
-- [ ] BGE cross-encoder re-ranking (replace LLM reranking — faster, no API cost)
+### Near-Term (Accuracy → 95%+)
+- [ ] Improve retrieval quality for API 5CT, A872, A1049 (worst-performing specs)
+- [ ] Upload actual API 5CT specification (only Purchasing Guidelines currently indexed)
+- [ ] Add table-aware chunking (parse table headers into metadata)
+- [ ] Tune confidence thresholds based on production query distribution
+
+### Medium-Term (Production Hardening)
+- [x] ~~BGE cross-encoder re-ranking~~ → Voyage AI rerank-2 (done — ~200ms, 10-50x faster than LLM)
+- [x] ~~Caching layer for repeated queries~~ → Implemented but disabled (overly aggressive matching)
+- [x] User feedback loop with root cause diagnostics (done — `scripts/feedback-report.ts`)
 - [ ] User authentication (Clerk) + multi-tenant workspace isolation
+- [ ] Query analytics dashboard (most common questions, failure patterns)
+
+### Long-Term (Enterprise Features)
 - [ ] In-app PDF viewer with citation highlighting
 - [ ] REST API for workflow integration
+- [ ] On-premise deployment option
+- [ ] Multi-language specification support
 
 ---
 
@@ -223,7 +248,7 @@ tests/
 
 **David Fernandez** — [Portfolio](https://davidfernandez.dev) · [GitHub](https://github.com/davidfertube)
 
-Solo build. ~25,000 lines of TypeScript across 33 library modules, 7 API routes, 17 components, and an 80-query evaluation suite. Accuracy improved from 57% to 91.3% through systematic root cause analysis and evaluation-driven iteration.
+Solo build. ~25,000 lines of TypeScript across 33 library modules, 7 API routes, 17 components, and an 80-query evaluation suite. Features a 7-stage agentic RAG pipeline with self-correction, achieving 91.3% accuracy with zero hallucinations.
 
 ---
 

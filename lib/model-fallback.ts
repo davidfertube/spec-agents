@@ -53,10 +53,16 @@ const PROVIDERS: ProviderConfig[] = [
     models: ["llama-3.3-70b", "llama-3.1-8b"],
   },
   {
+    name: "SambaNova",
+    baseUrl: "https://api.sambanova.ai/v1",
+    envKey: "SAMBANOVA_API_KEY",
+    models: ["Meta-Llama-3.3-70B-Instruct"],
+  },
+  {
     name: "OpenRouter",
     baseUrl: "https://openrouter.ai/api/v1",
     envKey: "OPENROUTER_API_KEY",
-    models: ["meta-llama/llama-3.3-70b-instruct:free"],
+    models: ["meta-llama/llama-3.3-70b-instruct", "meta-llama/llama-3.3-70b-instruct:free"],
     headers: { "HTTP-Referer": "https://steel-agents.com" },
   },
 ];
@@ -265,9 +271,19 @@ export class ModelFallbackClient {
             console.warn(`[ModelFallback] ${provider.name}/${model} failed: ${lastError.message.slice(0, 100)}`);
           }
 
-          // If rate limited or model error, try next
-          if (isRateLimitError(error) || isModelNotFoundError(error)) {
-            await sleep(300);
+          // If rate limited, use progressive backoff then try next
+          if (isRateLimitError(error)) {
+            const providerIdx = this.availableProviders.indexOf(provider);
+            const modelIdx = provider.models.indexOf(model);
+            const backoffMs = Math.min(500 * Math.pow(2, providerIdx + modelIdx), 4000);
+            if (this.logRetries) {
+              console.log(`[ModelFallback] Rate limited on ${provider.name}/${model}, backing off ${backoffMs}ms`);
+            }
+            await sleep(backoffMs);
+            continue;
+          }
+          // Model not found — skip immediately, no backoff needed
+          if (isModelNotFoundError(error)) {
             continue;
           }
 

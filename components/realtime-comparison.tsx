@@ -14,8 +14,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Source, ConfidenceScore } from "@/lib/api";
+import { ResponseFeedback } from "@/components/response-feedback";
 
 interface RealtimeComparisonProps {
+  query?: string;
   steelAgentResponse: string | null;
   steelAgentSources: Source[];
   genericLLMResponse: string | null;
@@ -105,6 +107,7 @@ function ResponseSkeleton() {
 }
 
 export function RealtimeComparison({
+  query,
   steelAgentResponse,
   steelAgentSources,
   genericLLMResponse,
@@ -295,6 +298,23 @@ export function RealtimeComparison({
                         <span>AI-assisted — verify against source documents</span>
                       </p>
                     </motion.div>
+
+                    {/* Feedback widget */}
+                    {query && steelAgentResponse && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.8 }}
+                        className="mt-3 pt-3 border-t border-green-200 dark:border-green-800"
+                      >
+                        <ResponseFeedback
+                          query={query}
+                          response={steelAgentResponse}
+                          sources={steelAgentSources}
+                          confidence={confidence}
+                        />
+                      </motion.div>
+                    )}
                   </motion.div>
                 )}
               </>

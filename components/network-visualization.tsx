@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FileText, Database, User, BrainCircuit, ShieldCheck, FileJson } from "lucide-react";
+import { FileText, Database, User, BrainCircuit, FileJson } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // --- Animated Beam Component ---
@@ -48,12 +48,6 @@ function AnimatedBeam({
             // Calculate Control Points for Bezier Curve
             const midX = (fromX + toX) / 2;
             const midY = (fromY + toY) / 2;
-
-            const distance = Math.sqrt(Math.pow(toX - fromX, 2) + Math.pow(toY - fromY, 2));
-
-            // Adjust curvature based on relative positions
-            // Simplistic approach: curve perpendicular to the line connecting points
-            // For this specific visualization (mostly horizontal/radial), somewhat specialized
 
             let d = `M ${fromX} ${fromY}`;
 
@@ -164,7 +158,7 @@ export function NetworkVisualization() {
 
     return (
         <div
-            className="w-full h-full min-h-[450px] flex items-center justify-center p-8 bg-gradient-to-br from-slate-50 to-white rounded-3xl border border-slate-100 overflow-hidden relative"
+            className="w-full h-full min-h-[450px] flex items-center justify-center p-8 bg-gradient-to-br from-slate-50 to-white dark:from-neutral-900 dark:to-neutral-950 rounded-3xl border border-slate-100 dark:border-neutral-800 overflow-hidden relative"
             ref={containerRef}
         >
             <div className="relative flex w-full max-w-4xl flex-row items-center justify-between gap-12 md:gap-24">
@@ -193,7 +187,7 @@ export function NetworkVisualization() {
                     </Circle>
                     {/* Absolute positioning to keep text from affecting vertical alignment */}
                     <div className="absolute top-full mt-4 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                        <span className="block text-xl md:text-2xl font-bold text-slate-800 tracking-tight">SpecVault</span>
+                        <span className="block text-xl md:text-2xl font-bold text-slate-800 dark:text-white tracking-tight">SpecVault</span>
                     </div>
                 </div>
 

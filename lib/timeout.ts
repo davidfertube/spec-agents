@@ -90,8 +90,8 @@ export async function withTimeout<T>(
  * - FILE_UPLOAD: Large PDFs (50MB) can take time, allow 60s
  */
 export const TIMEOUTS = {
-  /** Timeout for LLM response generation (60 seconds - prioritize accuracy over speed) */
-  LLM_GENERATION: 60000,
+  /** Timeout for LLM response generation (45 seconds) */
+  LLM_GENERATION: 45000,
 
   /** Timeout for generating a single embedding (10 seconds) */
   EMBEDDING_SINGLE: 10000,
@@ -105,8 +105,17 @@ export const TIMEOUTS = {
   /** Timeout for file uploads (60 seconds) */
   FILE_UPLOAD: 60000,
 
-  /** Timeout for multi-query RAG pipeline (75 seconds - allow full pipeline for accuracy) */
-  MULTI_QUERY_RAG: 75000,
+  /** Timeout for multi-query RAG pipeline (60 seconds — increased for cross-spec comparisons) */
+  MULTI_QUERY_RAG: 60000,
+
+  /** Timeout for retrieval evaluation LLM call (8 seconds — fast-fail, non-critical) */
+  RETRIEVAL_EVALUATION: 8000,
+
+  /** Timeout for reranking LLM call (20 seconds — accuracy-critical, worth the wait) */
+  RERANKING: 20000,
+
+  /** Timeout for response coherence validation (12 seconds) */
+  COHERENCE_VALIDATION: 12000,
 } as const;
 
 /**

@@ -1,4 +1,4 @@
-# MCP Configuration - SpecVault
+# MCP Configuration — SpecVault
 
 ## Current Setup
 
@@ -66,14 +66,16 @@ Query documents table, inspect vector search results, debug indexed chunks direc
 
 ---
 
-## Setup
+## Architecture Note
 
-1. Set `GITHUB_TOKEN` in your environment (for PR/issue tools)
-2. Run `claude` in the project root -- MCP servers start automatically
-3. Edit `.mcp/config.json` to add/remove servers, then restart Claude Code
+The RAG pipeline runs entirely through Next.js API routes — not through MCP servers. MCP is used for development tooling (file access, GitHub), not for the production pipeline.
+
+The agentic pipeline architecture is documented in [AGENTS.md](AGENTS.md).
 
 ---
 
-## Note
+## Setup
 
-An aspirational MCP architecture (custom PDF processor, Voyage embedding server, etc.) was planned but not implemented. The current system uses Next.js API routes directly instead of MCP servers for the RAG pipeline.
+1. Set `GITHUB_TOKEN` in your environment (for PR/issue tools)
+2. Run `claude` in the project root — MCP servers start automatically
+3. Edit `.mcp/config.json` to add/remove servers, then restart Claude Code

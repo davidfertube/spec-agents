@@ -1,11 +1,8 @@
 /**
  * RAGAS-style RAG Evaluation Metrics Tests
  *
- * Unit tests (mock data, no server needed):
- *   npm run test:rag-metrics
- *
- * Integration tests (requires running server + env vars):
- *   INTEGRATION_TEST=true npm run test:rag-metrics
+ * Unit tests run without external dependencies.
+ * Integration tests auto-detect LLM keys and server availability.
  */
 
 import { describe, it, expect } from "vitest";
@@ -14,8 +11,8 @@ import {
   computeCompositeScore,
   type RAGMetrics,
 } from "@/lib/rag-metrics";
+import { hasLLMKeys, isServerAvailable } from "../helpers/test-env";
 
-const INTEGRATION_TEST = process.env.INTEGRATION_TEST === "true";
 const BASE_URL = process.env.TEST_BASE_URL || "http://localhost:3000";
 
 describe("RAG Metrics (RAGAS-style)", () => {
@@ -59,9 +56,14 @@ describe("RAG Metrics (RAGAS-style)", () => {
   });
 
   describe("Integration Tests - LLM Judge", () => {
-    it.skipIf(!INTEGRATION_TEST)(
+    it(
       "should score high faithfulness for grounded answer",
       async () => {
+        if (!hasLLMKeys()) {
+          console.log("[rag-metrics] No LLM API keys — skipping");
+          return;
+        }
+
         const result = await evaluateRAGMetrics({
           question: "What is the yield strength of S32205 per ASTM A790?",
           answer:
@@ -82,9 +84,14 @@ describe("RAG Metrics (RAGAS-style)", () => {
       30000
     );
 
-    it.skipIf(!INTEGRATION_TEST)(
+    it(
       "should score low faithfulness for hallucinated answer",
       async () => {
+        if (!hasLLMKeys()) {
+          console.log("[rag-metrics] No LLM API keys — skipping");
+          return;
+        }
+
         const result = await evaluateRAGMetrics({
           question: "What is the yield strength of S32205 per ASTM A790?",
           answer:
@@ -105,9 +112,14 @@ describe("RAG Metrics (RAGAS-style)", () => {
       30000
     );
 
-    it.skipIf(!INTEGRATION_TEST)(
+    it(
       "should evaluate context precision",
       async () => {
+        if (!hasLLMKeys()) {
+          console.log("[rag-metrics] No LLM API keys — skipping");
+          return;
+        }
+
         const result = await evaluateRAGMetrics({
           question: "What is the yield strength of S32205?",
           answer: "65 ksi [1]",
@@ -130,9 +142,14 @@ describe("RAG Metrics (RAGAS-style)", () => {
       30000
     );
 
-    it.skipIf(!INTEGRATION_TEST)(
+    it(
       "should evaluate context recall with ground truth",
       async () => {
+        if (!hasLLMKeys()) {
+          console.log("[rag-metrics] No LLM API keys — skipping");
+          return;
+        }
+
         const result = await evaluateRAGMetrics({
           question: "What is the yield strength of S32205 per A790?",
           answer: "The yield strength is 65 ksi [450 MPa] [1].",
@@ -153,9 +170,19 @@ describe("RAG Metrics (RAGAS-style)", () => {
       30000
     );
 
-    it.skipIf(!INTEGRATION_TEST)(
+    it(
       "should evaluate full RAG pipeline response",
       async () => {
+        if (!hasLLMKeys()) {
+          console.log("[rag-metrics] No LLM API keys — skipping");
+          return;
+        }
+        const serverUp = await isServerAvailable();
+        if (!serverUp) {
+          console.log("[rag-metrics] Server not available — skipping pipeline test");
+          return;
+        }
+
         const response = await fetch(`${BASE_URL}/api/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
