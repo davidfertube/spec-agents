@@ -26,8 +26,8 @@ export interface EvaluationResult {
 /**
  * Evaluate whether retrieved chunks can answer the user's query.
  *
- * Uses Gemini Flash with a concise prompt for speed (~1-2s).
- * Chunks are truncated to 400 chars each to minimize tokens.
+ * Uses a fast LLM call with a concise prompt for speed (~1-2s).
+ * Chunks are truncated to 600 chars each to capture table headers + data rows.
  *
  * @param query - The user's original query
  * @param chunks - Retrieved chunks to evaluate
@@ -48,9 +48,9 @@ export async function evaluateRetrieval(
 
   const client = getModelFallbackClient();
 
-  // Truncate chunks for speed
+  // Truncate chunks — 600 chars to capture table headers + data rows in ASTM specs
   const truncated = chunks.map((c, i) =>
-    `[${i + 1}] (Section: ${c.section_title || 'unknown'}, Page ${c.page_number}): ${c.content.slice(0, 400)}`
+    `[${i + 1}] (Section: ${c.section_title || 'unknown'}, Page ${c.page_number}): ${c.content.slice(0, 600)}`
   ).join('\n\n');
 
   const prompt = `You are a retrieval quality judge. Given a user query and retrieved document chunks, assess whether the chunks contain information to answer the query.
@@ -72,6 +72,11 @@ Scoring guide:
 - 60-79: Chunks are relevant but may not fully answer
 - 40-59: Chunks are tangentially related
 - 0-39: Chunks don't address the query at all
+
+IMPORTANT for technical specifications: If chunks contain tables with numerical values
+related to the query topic (mechanical properties, chemical composition, dimensions),
+score 70+ even if the exact grade or designation is not explicitly labeled in the
+visible text. Specification tables often contain the answer in tabular format.
 
 Set retry_strategy to suggest how to improve retrieval if confidence < 60:
 - "section_lookup": Query asks about a specific section that wasn't found

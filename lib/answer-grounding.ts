@@ -74,6 +74,11 @@ export function groundResponse(
     const isGrounded = hasMatchingNumber(rn.value, sourceNumbers);
     if (isGrounded) {
       groundedCount++;
+    } else if (rn.value > 10 && hasRawNumberInChunks(rn.value, chunks)) {
+      // Secondary check: look for bare number in chunk text (handles table values).
+      // ASTM tables store values without adjacent units — units are in the header row.
+      // Only for values > 10 to avoid false positives from page/section numbers.
+      groundedCount++;
     } else {
       ungrounded.push(rn);
     }
@@ -101,4 +106,17 @@ function hasMatchingNumber(value: number, sourceNumbers: Set<number>): boolean {
     }
   }
   return false;
+}
+
+/**
+ * Fallback: check if a bare number appears in any chunk text.
+ * Handles ASTM table values where numbers appear without adjacent units
+ * (units are in the table header row, not next to each value).
+ *
+ * Uses word boundaries to avoid partial matches (e.g., "75" won't match "175").
+ */
+function hasRawNumberInChunks(value: number, chunks: { content: string }[]): boolean {
+  const numStr = Number.isInteger(value) ? String(value) : value.toFixed(2);
+  const pattern = new RegExp(`\\b${numStr.replace('.', '\\.')}\\b`);
+  return chunks.some(chunk => pattern.test(chunk.content));
 }

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, FormEvent, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Menu, X, Sun, Moon } from "lucide-react";
+import { ArrowRight, Menu, X, Sun, Moon, CheckCircle } from "lucide-react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -990,27 +990,28 @@ export default function Home() {
                         transition={{ duration: 0.4 }}
                       >
                         <div className="flex items-center gap-3">
-                          <motion.span
-                            className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-500 text-white text-sm font-bold"
-                            animate={isLoading ? {
-                              scale: [1, 1.1, 1],
-                              transition: { duration: 1, repeat: Infinity }
-                            } : {}}
-                          >
-                            3
-                          </motion.span>
-                          <h3 className="text-lg font-semibold text-black dark:text-white">
-                            {isLoading ? "Analyzing..." : "Cited Answer"}
-                          </h3>
-                          {response && !isLoading && (
+                          {isLoading ? (
+                            <motion.span className="flex items-center justify-center w-8 h-8">
+                              <motion.span
+                                className="w-3 h-3 rounded-full bg-green-500"
+                                animate={{ scale: [1, 1.4, 1], opacity: [0.5, 1, 0.5] }}
+                                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                              />
+                            </motion.span>
+                          ) : response ? (
                             <motion.span
                               initial={{ opacity: 0, scale: 0.5 }}
                               animate={{ opacity: 1, scale: 1 }}
-                              className="px-3 py-1 bg-blue-500 text-white text-sm font-bold rounded-full"
+                              className="flex items-center justify-center w-8 h-8 rounded-full bg-green-500 text-white"
                             >
-                              ✓ Complete
+                              <CheckCircle className="h-4 w-4" />
                             </motion.span>
+                          ) : (
+                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-black dark:bg-white text-white dark:text-black text-sm font-medium">3</span>
                           )}
+                          <h3 className="text-lg font-semibold text-black dark:text-white">
+                            {isLoading ? "Analyzing your query..." : "Cited Answer"}
+                          </h3>
                         </div>
                         <RealtimeComparison
                           query={lastQuery}

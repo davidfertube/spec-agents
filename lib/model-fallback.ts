@@ -29,6 +29,8 @@ interface ProviderConfig {
   envKey: string;
   models: string[];
   headers?: Record<string, string>;
+  /** Estimated max input tokens — providers are skipped if prompt exceeds this */
+  maxInputTokens?: number;
 }
 
 const PROVIDERS: ProviderConfig[] = [
@@ -38,25 +40,29 @@ const PROVIDERS: ProviderConfig[] = [
     baseUrl: "https://api.anthropic.com/v1",
     envKey: "ANTHROPIC_API_KEY",
     models: ["claude-sonnet-4-5-20250929", "claude-haiku-4-5-20251001"],
+    maxInputTokens: 100000, // 200K context window
   },
-  // Fallback providers (free tiers)
+  // Fallback providers (free tiers — low TPM limits)
   {
     name: "Groq",
     baseUrl: "https://api.groq.com/openai/v1",
     envKey: "GROQ_API_KEY",
     models: ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"],
+    maxInputTokens: 4000, // 6000 TPM free tier — safety margin
   },
   {
     name: "Cerebras",
     baseUrl: "https://api.cerebras.ai/v1",
     envKey: "CEREBRAS_API_KEY",
     models: ["llama-3.3-70b", "llama-3.1-8b"],
+    maxInputTokens: 4000,
   },
   {
     name: "SambaNova",
     baseUrl: "https://api.sambanova.ai/v1",
     envKey: "SAMBANOVA_API_KEY",
     models: ["Meta-Llama-3.3-70B-Instruct"],
+    maxInputTokens: 4000,
   },
   {
     name: "OpenRouter",
@@ -64,6 +70,7 @@ const PROVIDERS: ProviderConfig[] = [
     envKey: "OPENROUTER_API_KEY",
     models: ["meta-llama/llama-3.3-70b-instruct", "meta-llama/llama-3.3-70b-instruct:free"],
     headers: { "HTTP-Referer": "https://steel-agents.com" },
+    maxInputTokens: 12000, // Paid tier has higher limits
   },
 ];
 
@@ -139,6 +146,38 @@ async function callOpenAICompatible(
 }
 
 // ============================================
+// Prompt Truncation
+// ============================================
+
+/**
+ * Truncate a prompt to fit within a character limit.
+ * Preserves whole chunks by cutting at "\n\n---\n\n" boundaries.
+ * Keeps the system prompt + first chunks, removes trailing chunks.
+ */
+function truncatePromptToFit(prompt: string, maxChars: number): string {
+  if (prompt.length <= maxChars) return prompt;
+
+  // Find chunk boundaries (separated by "\n\n---\n\n" in the context section)
+  const separator = "\n\n---\n\n";
+  const parts = prompt.split(separator);
+
+  if (parts.length <= 1) {
+    // No chunk boundaries found — hard truncate
+    return prompt.slice(0, maxChars);
+  }
+
+  // Rebuild prompt keeping as many complete chunks as possible
+  let result = parts[0];
+  for (let i = 1; i < parts.length; i++) {
+    const candidate = result + separator + parts[i];
+    if (candidate.length > maxChars) break;
+    result = candidate;
+  }
+
+  return result;
+}
+
+// ============================================
 // Multi-Provider Fallback Client
 // ============================================
 
@@ -183,15 +222,77 @@ export class ModelFallbackClient {
     }
   }
 
+  /**
+   * Try a single provider/model combination with the given prompt.
+   * Returns the response text or throws on failure.
+   */
+  private async tryProvider(
+    provider: ProviderConfig,
+    model: string,
+    prompt: string,
+  ): Promise<string> {
+    const apiKey = process.env[provider.envKey]!;
+
+    if (provider.name === "Groq" && this.groq) {
+      const completion = await this.groq.chat.completions.create({
+        model,
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.3,
+        max_tokens: 2048,
+      });
+      return completion.choices[0]?.message?.content || "";
+    } else if (provider.name === "Anthropic") {
+      const response = await fetch(`${provider.baseUrl}/messages`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 2048,
+          temperature: 0.3,
+          messages: [{ role: "user", content: prompt }],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${await response.text()}`);
+      }
+
+      const data = await response.json() as { content: Array<{ text: string }> };
+      return data.content[0]?.text || "";
+    } else {
+      return await callOpenAICompatible(
+        provider.baseUrl,
+        apiKey,
+        model,
+        [{ role: "user", content: prompt }],
+        provider.headers
+      );
+    }
+  }
+
   async generateContent(
     prompt: string,
     _preferredModel?: string
   ): Promise<{ text: string; modelUsed: string }> {
     let lastError: Error | null = null;
+    const estimatedTokens = Math.ceil(prompt.length / 4);
+    let skippedDueToSize = 0;
 
     // Try each provider in order
     for (const provider of this.availableProviders) {
-      const apiKey = process.env[provider.envKey]!;
+      // Skip providers that can't handle the prompt size
+      if (provider.maxInputTokens && estimatedTokens > provider.maxInputTokens) {
+        if (this.logRetries) {
+          console.log(`[ModelFallback] Skipping ${provider.name} (est. ${estimatedTokens} tokens > limit ${provider.maxInputTokens})`);
+        }
+        lastError = new Error(`Prompt too large for ${provider.name} (est. ${estimatedTokens} > ${provider.maxInputTokens})`);
+        skippedDueToSize++;
+        continue;
+      }
 
       // Try each model for this provider
       for (const model of provider.models) {
@@ -200,50 +301,7 @@ export class ModelFallbackClient {
             console.log(`[ModelFallback] Trying ${provider.name}/${model}`);
           }
 
-          let text: string;
-
-          // Use Groq SDK for Groq (better error handling)
-          if (provider.name === "Groq" && this.groq) {
-            const completion = await this.groq.chat.completions.create({
-              model,
-              messages: [{ role: "user", content: prompt }],
-              temperature: 0.3,
-              max_tokens: 2048,
-            });
-            text = completion.choices[0]?.message?.content || "";
-          } else if (provider.name === "Anthropic") {
-            // Use Anthropic's native API format
-            const response = await fetch(`${provider.baseUrl}/messages`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "x-api-key": apiKey,
-                "anthropic-version": "2023-06-01",
-              },
-              body: JSON.stringify({
-                model,
-                max_tokens: 2048,
-                temperature: 0.3,
-                messages: [{ role: "user", content: prompt }],
-              }),
-            });
-
-            if (!response.ok) {
-              throw new Error(`${response.status}: ${await response.text()}`);
-            }
-
-            const data = await response.json() as { content: Array<{ text: string }> };
-            text = data.content[0]?.text || "";
-          } else {
-            // Use OpenAI-compatible API for others
-            text = await callOpenAICompatible(
-              provider.baseUrl,
-              apiKey,
-              model,
-              [{ role: "user", content: prompt }],
-              provider.headers
-            );
-          }
+          const text = await this.tryProvider(provider, model, prompt);
 
           if (this.logRetries && provider !== this.availableProviders[0]) {
             console.log(`[ModelFallback] Success with ${provider.name}/${model}`);
@@ -289,6 +347,47 @@ export class ModelFallbackClient {
 
           // For other errors on this model, try next model
           if (!this.enableFallback) throw error;
+        }
+      }
+    }
+
+    // If providers were skipped due to prompt size, retry with truncated prompt
+    if (skippedDueToSize > 0) {
+      const truncatedPrompt = truncatePromptToFit(prompt, 4000 * 4); // ~4000 tokens
+      if (truncatedPrompt.length < prompt.length) {
+        if (this.logRetries) {
+          console.log(`[ModelFallback] Retrying ${skippedDueToSize} skipped providers with truncated prompt (${prompt.length} → ${truncatedPrompt.length} chars)`);
+        }
+
+        for (const provider of this.availableProviders) {
+          // Only retry providers that were skipped
+          if (!provider.maxInputTokens || estimatedTokens <= provider.maxInputTokens) continue;
+
+          for (const model of provider.models) {
+            try {
+              if (this.logRetries) {
+                console.log(`[ModelFallback] Trying ${provider.name}/${model} (truncated)`);
+              }
+              const text = await this.tryProvider(provider, model, truncatedPrompt);
+              const cleanText = text.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+
+              if (this.logRetries) {
+                console.log(`[ModelFallback] Success with ${provider.name}/${model} (truncated)`);
+              }
+              return { text: cleanText, modelUsed: `${provider.name}/${model}` };
+            } catch (error) {
+              lastError = error instanceof Error ? error : new Error(String(error));
+              if (this.logRetries) {
+                console.warn(`[ModelFallback] ${provider.name}/${model} (truncated) failed: ${lastError.message.slice(0, 100)}`);
+              }
+              if (isRateLimitError(error)) {
+                await sleep(500);
+                continue;
+              }
+              if (isModelNotFoundError(error)) continue;
+              if (!this.enableFallback) throw error;
+            }
+          }
         }
       }
     }

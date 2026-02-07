@@ -95,13 +95,25 @@ function SourceCitation({
   );
 }
 
-// Skeleton loader
+// Loading indicator — clean bouncing dots
 function ResponseSkeleton() {
   return (
-    <div className="space-y-2">
-      <div className="h-3 w-full rounded bg-muted animate-pulse" />
-      <div className="h-3 w-5/6 rounded bg-muted animate-pulse" />
-      <div className="h-3 w-4/6 rounded bg-muted animate-pulse" />
+    <div className="flex items-center gap-3 py-8 justify-center">
+      <motion.span
+        className="w-2 h-2 rounded-full bg-green-500"
+        animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
+        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.span
+        className="w-2 h-2 rounded-full bg-green-500"
+        animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
+        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+      />
+      <motion.span
+        className="w-2 h-2 rounded-full bg-green-500"
+        animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
+        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
+      />
     </div>
   );
 }
