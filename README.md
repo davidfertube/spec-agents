@@ -16,13 +16,13 @@ Evaluated against 80 golden queries across 8 ASTM/API documents (Claude Sonnet 4
 
 | Metric | Result | Target | Status |
 |--------|--------|--------|--------|
-| **Overall Accuracy** | **91.3%** (73/80) | 90%+ | ✅ Exceeded |
-| **Source Citation** | **96.3%** (77/80) | 90%+ | ✅ Exceeded |
-| **Hallucination Rate** | **~0%** | 0% | ✅ Maintained |
-| **P50 / P95 Latency** | 13.0s / 24.2s | <30s (P95) | ✅ Within target |
-| **Post-Dedup Test** | **100%** (10/10) | — | ✅ Validated |
-| **Production Smoke** | **100%** (8/8) | — | ✅ Passing |
-| **Unit Tests** | **113/113** | 100% | ✅ 0 skipped |
+| **Overall Accuracy** | **91.3%** (73/80) | 90%+ | Exceeded |
+| **Source Citation** | **96.3%** (77/80) | 90%+ | Exceeded |
+| **Hallucination Rate** | **~0%** | 0% | Maintained |
+| **P50 / P95 Latency** | 13.0s / 24.2s | <30s (P95) | Within target |
+| **Post-Dedup Test** | **100%** (10/10) | — | Validated |
+| **Production Smoke** | **100%** (8/8) | — | Passing |
+| **Unit Tests** | **113/113** | 100% | 0 skipped |
 
 **Complex multi-hop queries** (comparisons, multi-spec analysis) score **96.9%** — higher than single-lookup queries due to the query decomposition agent.
 
@@ -165,25 +165,25 @@ graph LR
 
 ## Engineering Highlights
 
-### 🎯 Self-Correcting Agentic Pipeline
+### Self-Correcting Agentic Pipeline
 
 Post-generation agents detect hallucinated numbers, false refusals, and incoherent responses. Each verification step can trigger targeted regeneration with specific guidance. The system catches errors that would pass through a naive retrieve-and-generate pipeline.
 
 **Key innovation**: Shared regeneration budget (max 3) prevents infinite loops while allowing multiple correction attempts. Each agent provides specific feedback to guide regeneration.
 
-### 🔬 Cross-Spec Contamination Prevention
+### Cross-Spec Contamination Prevention
 
 **Problem**: A789 (tubing) and A790 (pipe) share ~90% of their content but have **different** mechanical properties for the same UNS designations. S32205 yields **70 ksi** in A789 but **65 ksi** in A790.
 
 **Solution**: `document-mapper.ts` resolves ASTM/API codes to specific document IDs. Hybrid search uses document-scoped filtering. Content-level dedup is per-document, not global. Cross-spec confusion matrix testing validates separation.
 
-### 📊 Table-Preserving Semantic Chunking
+### Table-Preserving Semantic Chunking
 
 Variable-size chunks (1500 target, 800 min, 2500 max, 200 overlap) detect table boundaries and keep them intact. ASTM specification tables — the primary source of mechanical property data — are never split mid-row.
 
 **Trade-off analysis**: Larger chunks improve coverage but risk TPM limits on fallback providers. Smaller chunks prevent cross-contamination but may fragment context. 1500-char target balances both.
 
-### 📈 Evaluation-Driven Development
+### Evaluation-Driven Development
 
 **80 golden queries** with pattern-based validation across 8 ASTM/API documents. RAGAS LLM-as-judge metrics. A789/A790 confusion matrix testing.
 
@@ -195,7 +195,7 @@ Variable-size chunks (1500 target, 800 min, 2500 max, 200 overlap) detect table 
 - 8 production smoke tests (complex multi-hop queries)
 - 10 post-improvement validation (dedup verification, confidence calibration)
 
-### 🔄 Production Feedback Loop
+### Production Feedback Loop
 
 **In-app feedback**: Thumbs up/down with issue classification (false refusal, wrong data, missing info, hallucination, etc.) + free-form comment.
 
@@ -203,7 +203,7 @@ Variable-size chunks (1500 target, 800 min, 2500 max, 200 overlap) detect table 
 
 **Feedback storage**: `supabase/feedback-migration.sql` — stores query, response, sources, confidence, rating, issue_type, comment with timestamps.
 
-### ⚡ Voyage AI Cross-Encoder Re-ranking
+### Voyage AI Cross-Encoder Re-ranking
 
 Voyage AI rerank-2 replaces LLM-based reranking as the primary strategy. **10-50x faster** (~200ms vs 5-15s) with equal or better relevance scoring. LLM reranking available as fallback.
 
@@ -211,7 +211,7 @@ Voyage AI rerank-2 replaces LLM-based reranking as the primary strategy. **10-50
 
 **Chunk window**: Truncates to 800 chars (preserves ~6-8 table rows including headers). Trade-off: longer context improves scoring but slows reranking.
 
-### 🛡️ Multi-Provider LLM Failover
+### Multi-Provider LLM Failover
 
 `model-fallback.ts` chains **Anthropic → Groq → Cerebras → SambaNova → OpenRouter** with progressive backoff (500ms × 2^n, cap 4s). Zero-downtime on any single provider outage.
 
@@ -219,7 +219,7 @@ Voyage AI rerank-2 replaces LLM-based reranking as the primary strategy. **10-50
 
 **Rate limit handling**: Detects 429 errors, auto-switches providers, logs fallback chain. Production monitoring tracks provider health and latency distribution.
 
-### 🧹 Content-Hash Deduplication
+### Content-Hash Deduplication
 
 **Impact**: Removed 46 duplicate documents (7,454 redundant chunks). **~75% noise reduction** while maintaining 100% accuracy on post-dedup validation.
 
@@ -348,7 +348,7 @@ supabase/
 
 ## Roadmap
 
-### ✅ Recently Shipped (Feb 2026)
+### Recently Shipped (Feb 2026)
 - [x] **Voyage AI cross-encoder re-ranking** — 10-50x faster than LLM (~200ms vs 5-15s)
 - [x] **Content-hash deduplication** — Removed 46 duplicate docs, 7,454 redundant chunks
 - [x] **User feedback loop** — Thumbs up/down + issue classification + diagnostic reporting
@@ -357,14 +357,14 @@ supabase/
 - [x] **Anti-refusal agent** — Catches false "I cannot answer" responses
 - [x] **Progressive LLM fallback** — 5-provider chain with auto-failover
 
-### 🎯 Near-Term (Accuracy → 95%+)
+### Near-Term (Accuracy → 95%+)
 - [ ] Upload actual API 5CT specification (only Purchasing Guidelines currently indexed)
 - [ ] Improve retrieval quality for API 5CT, A872, A1049 (worst-performing specs in 80-query suite)
 - [ ] Table-aware chunking v2 (parse table headers into structured metadata)
 - [ ] Confidence threshold tuning based on production query distribution
 - [ ] Citation highlighting in source chunks (highlight exact matched spans)
 
-### 🔧 Medium-Term (Production Hardening)
+### Medium-Term (Production Hardening)
 - [ ] User authentication (Clerk/Supabase Auth) + multi-tenant workspace isolation
 - [ ] Query analytics dashboard (Langfuse or custom)
   - Most common questions
@@ -374,7 +374,7 @@ supabase/
 - [ ] A/B testing framework for pipeline improvements
 - [ ] Rate limiting + usage quotas per workspace
 
-### 🚀 Long-Term (Enterprise Features)
+### Long-Term (Enterprise Features)
 - [ ] In-app PDF viewer with citation highlighting (PDF.js + span-level anchors)
 - [ ] REST API for workflow integration (OpenAPI spec, SDKs)
 - [ ] On-premise deployment option (Docker Compose + Kubernetes Helm charts)
